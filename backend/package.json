@@ -1,0 +1,107 @@
+{
+  "name": "ameedata",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --exec tsx src/server.ts",
+    "build": "tsc",
+    "start": "npm run build && npm run init:admin && npm run seed:admin && npm run seed:providers && npm run seed:data-plans && node dist/server.js",
+    "start:with-seed": "npm run build && npm run seed:pricing && npm run seed:providers && node dist/server.js",
+    "test": "NODE_ENV=test jest --detectOpenHandles --forceExit",
+    "test:watch": "NODE_ENV=test jest --watch --detectOpenHandles",
+    "test:coverage": "NODE_ENV=test jest --coverage",
+    "seed:admin": "tsx src/scripts/seed-admin.ts",
+    "init:admin": "tsx src/scripts/init-admin.ts",
+    "seed:pricing": "tsx src/scripts/seed_pricing.ts",
+    "seed:providers": "tsx src/scripts/seed_providers.ts",
+    "seed:data-plans": "tsx src/scripts/seed_mtn_data_plans.ts",
+    "seed:data-generic": "tsx src/scripts/seed_pricing.ts",
+    "seed:all": "npm run seed:providers && npm run seed:data-plans",
+    "verify:seed": "tsx src/scripts/verify_seed.ts",
+    "reset:wallets": "tsx src/scripts/reset_wallet_balances.ts"
+  },
+  "jest": {
+    "preset": "ts-jest/presets/default-esm",
+    "testEnvironment": "node",
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
+    "moduleNameMapper": {
+      "^@/(.*)": "<rootDir>/src/$1",
+      "^\\.{1,2}/.*\\.js$": "$0"
+    },
+    "transform": {
+      "^.+\\.tsx?$": [
+        "ts-jest",
+        {
+          "useESM": true,
+          "tsconfig": "tsconfig.test.json"
+        }
+      ]
+    },
+    "testMatch": [
+      "**/test/**/*.test.ts"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json",
+      "node"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/test/setup.ts"
+    ]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.13.1",
+    "bcryptjs": "^3.0.3",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
+    "express-validator": "^7.3.0",
+    "helmet": "^8.1.0",
+    "joi": "^18.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.2",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2",
+    "nodemailer": "^8.0.0",
+    "winston": "^3.18.3"
+  },
+  "devDependencies": {
+    "@nestjs/mongoose": "^11.0.3",
+    "@nestjs/testing": "^11.1.8",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/compression": "^1.8.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.5",
+    "@types/jest": "^30.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/mongodb-memory-server": "^1.8.0",
+    "@types/mongoose": "^5.11.96",
+    "@types/morgan": "^1.9.10",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^24.10.0",
+    "@types/nodemailer": "^7.0.9",
+    "@types/supertest": "^6.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "eslint": "^9.39.0",
+    "jest": "^30.2.0",
+    "mongodb-memory-server": "^10.3.0",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.5",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,7 @@
+// models/role_permission.model.ts
+import mongoose, { Schema } from 'mongoose';
+const rolePermissionSchema = new Schema({
+    role_id: { type: Schema.Types.ObjectId, ref: 'AdminRole', required: true },
+    permission_id: { type: Schema.Types.ObjectId, ref: 'AdminPermission', required: true }
+});
+export const RolePermission = mongoose.model('RolePermission', rolePermissionSchema);
