@@ -123,3 +123,6 @@ export const updateA2CRequest = (id: string, data: { status: string; admin_note?
 export const getA2CSettings = () => api.get('/airtime-to-cash/settings');
 export const createA2CSetting = (data: any) => api.post('/airtime-to-cash/settings', data);
 export const updateA2CSetting = (id: string, data: any) => api.put(`/airtime-to-cash/settings/${id}`, data);
+
+// Analytics
+export const getLeaderboard = (params?: { period: string }) => api.get('/analytics/leaderboard', { params });

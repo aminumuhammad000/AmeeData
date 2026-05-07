@@ -135,4 +135,10 @@ router.put('/airtime-to-cash/settings/:id', authMiddleware, async (req, res) => 
     return AdminAirtimeToCashController.updateSetting(req, res);
 });
 
+// Analytics
+router.get('/analytics/leaderboard', authMiddleware, async (req, res) => {
+    const { AnalyticsController } = await import('../controllers/analytics.controller.js');
+    return AnalyticsController.getLeaderboard(req, res);
+});
+
 export default router;

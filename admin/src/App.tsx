@@ -18,6 +18,7 @@ import Settings from './pages/Settings';
 import Transactions from './pages/Transactions';
 import Users from './pages/Users';
 import WalletCredit from './pages/WalletCredit';
+import Leaderboard from './pages/Leaderboard';
 
 
 
@@ -28,6 +29,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/users" element={<Users />} />
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/pricing" element={<PricingPlans />} />
