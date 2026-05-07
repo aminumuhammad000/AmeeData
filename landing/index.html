@@ -43,9 +43,8 @@
             color: var(--primary-color);
         }
         .navbar-brand img {
-            border-radius: 50%;
-            background: #fff;
-            padding: 2px;
+            /* No background here */
+            max-width: 100%;
         }
     </style>
 </head>
@@ -90,18 +89,15 @@
         <section id="home" class="home-banner-02 theme-bg" style="background: #f4f7ff !important;">
             <div class="container">
                 <div class="row justify-content-center align-items-center full-screen p-80px-tb">
-                    <div class="col-lg-6 order-2 order-lg-1">
+                    <div class="col-lg-8 text-center">
                         <div class="banner-text">
                             <h2 class="font-alt dark-color">Empowering Your Digital Life with <br><span>AmeeData</span></h2>
-                            <p>Get the most affordable Data plans, Airtime top-ups, and easy Bill payments. Fast, secure, and available 24/7.</p>
-                            <div class="btn-bar">
-                                <a class="btn btn-theme mr-2" href="/signup">Register Now <i class="fa fa-user-plus"></i></a>
-                                <a class="btn btn-outline-primary" href="/login" style="border: 1px solid var(--primary-color); color: var(--primary-color);">Login <i class="fa fa-sign-in-alt"></i></a>
+                            <p class="lead">Get the most affordable Data plans, Airtime top-ups, and easy Bill payments. Fast, secure, and available 24/7.</p>
+                            <div class="btn-bar m-30px-t">
+                                <a class="btn btn-theme btn-lg mr-2" href="/signup">Register Now <i class="fa fa-user-plus"></i></a>
+                                <a class="btn btn-outline-primary btn-lg" href="/login" style="border: 2px solid var(--primary-color); color: var(--primary-color); font-weight: bold;">Login <i class="fa fa-sign-in-alt"></i></a>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-lg-6 order-1 order-lg-2 text-center">
-                        <img src="images/dataman.png" alt="AmeeData Features" style="max-width: 100%; height: auto; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
                     </div>
                 </div>
             </div>
