@@ -196,7 +196,7 @@ export class VTStackController {
                     });
 
                     // Credit wallet ONLY AFTER transaction record is successfully created
-                    await WalletService.creditWallet(virtualAccount.user as unknown as Types.ObjectId, amountInNaira);
+                    await WalletService.creditWallet(virtualAccount.user as unknown as Types.ObjectId, amountInNaira, true);
                     
                     console.log(`✅ Wallet funded: user=${virtualAccount.user}, amount=₦${amountInNaira}, ref=${reference}`);
                 } catch (error: any) {

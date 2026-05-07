@@ -16,11 +16,19 @@ export class WalletService {
     return wallet?.balance || 0;
   }
 
-  static async creditWallet(user_id: Types.ObjectId | string, amount: number): Promise<boolean> {
+  static async creditWallet(user_id: Types.ObjectId | string, amount: number, applyBonus: boolean = false): Promise<boolean> {
+    const bonus = applyBonus ? amount * 0.01 : 0;
+    const finalAmount = amount + bonus;
+    
+    // Log bonus for debugging if applied
+    if (bonus > 0) {
+      console.log(`🎁 Applying 1% bonus to User ${user_id}: Amount: ${amount}, Bonus: ${bonus}, Total: ${finalAmount}`);
+    }
+
     const result = await Wallet.findOneAndUpdate(
       { user_id },
       { 
-        $inc: { balance: amount },
+        $inc: { balance: finalAmount },
         $set: { last_transaction_at: new Date(), updated_at: new Date() }
       },
       { new: true, upsert: false }

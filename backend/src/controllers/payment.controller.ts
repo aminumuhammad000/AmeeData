@@ -113,7 +113,7 @@ export class PaymentController {
             });
 
             // Credit wallet ONLY AFTER transaction record is successfully created
-            await WalletService.creditWallet(user._id, amount);
+            await WalletService.creditWallet(user._id, amount, true);
           } catch (error: any) {
             if (error.code === 11000) {
               console.log('🔁 Monnify: Transaction already processed:', paymentReference);
@@ -315,7 +315,7 @@ export class PaymentController {
 
         // If payment is successful, update the wallet balance
         if (verificationResult.status === true && transaction.type === 'credit') {
-          await WalletService.creditWallet(transaction.user_id, transaction.amount);
+          await WalletService.creditWallet(transaction.user_id, transaction.amount, true);
         }
 
         await transaction.save();
@@ -664,7 +664,7 @@ export class PaymentController {
         });
 
         // Credit wallet ONLY AFTER transaction record is successfully created
-        await WalletService.creditWallet(user._id, amount);
+        await WalletService.creditWallet(user._id, amount, true);
 
         console.log(`✅ Wallet credited: User ${user.email}, Amount: ₦${amount}, New Balance: ₦${(wallet.balance || 0) + amount}`);
       } catch (error: any) {
