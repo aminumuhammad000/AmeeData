@@ -23,9 +23,9 @@ const Dashboard: React.FC = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0zM6 20a9 9 0 0118 0v-2a9 9 0 00-18 0v2z" />
         </svg>
       ),
-      bgGradient: 'from-blue-500 to-blue-600',
-      lightBg: 'bg-blue-50',
-      textColor: 'text-blue-600',
+      bgGradient: 'from-purple-500 to-purple-600',
+      lightBg: 'bg-purple-50',
+      textColor: 'text-purple-600',
     },
     {
       label: 'Active Users',
@@ -144,7 +144,7 @@ const Dashboard: React.FC = () => {
                   <h2 className="text-lg font-bold text-slate-900">Recent Transactions</h2>
                   <p className="text-sm text-slate-500">Latest financial activity across the platform</p>
                 </div>
-                <a href="/transactions" className="text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline">
+                <a href="/transactions" className="text-sm text-purple-600 hover:text-purple-700 font-medium hover:underline">
                   View All
                 </a>
               </div>
@@ -233,7 +233,7 @@ const Dashboard: React.FC = () => {
                       <span className="text-white font-medium">98.5%</span>
                     </div>
                     <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
-                      <div className="h-full bg-blue-500 w-[98.5%] rounded-full"></div>
+                      <div className="h-full bg-purple-500 w-[98.5%] rounded-full"></div>
                     </div>
                   </div>
                   <div>
@@ -252,7 +252,7 @@ const Dashboard: React.FC = () => {
                 <h3 className="text-lg font-bold text-slate-900 mb-4">Quick Actions</h3>
                 <div className="grid grid-cols-2 gap-3">
                   <a href="/users" className="flex flex-col items-center justify-center p-4 rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50 transition-all group">
-                    <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                    <div className="w-10 h-10 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                       </svg>

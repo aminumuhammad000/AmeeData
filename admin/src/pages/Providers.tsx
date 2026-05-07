@@ -183,7 +183,7 @@ const Providers: React.FC = () => {
               <p className="text-sm sm:text-base text-slate-500 mt-1">Manage external API integrations and keys</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
-              <button onClick={() => { resetForm(); setIsCreateOpen(true); }} className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition-all shadow-sm font-medium text-sm">
+              <button onClick={() => { resetForm(); setIsCreateOpen(true); }} className="flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-lg transition-all shadow-sm font-medium text-sm">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                 Add Provider
               </button>
@@ -192,7 +192,7 @@ const Providers: React.FC = () => {
 
           <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 mb-6 sticky top-0 md:static z-10">
             <div className="flex flex-col sm:flex-row gap-4">
-              <select value={filters.active} onChange={(e) => setFilters({ active: e.target.value })} className="w-full sm:w-48 px-4 py-2.5 border border-slate-300 rounded-lg bg-white text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <select value={filters.active} onChange={(e) => setFilters({ active: e.target.value })} className="w-full sm:w-48 px-4 py-2.5 border border-slate-300 rounded-lg bg-white text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
                 <option value="">All Status</option>
                 <option value="true">Active</option>
                 <option value="false">Inactive</option>
@@ -203,7 +203,7 @@ const Providers: React.FC = () => {
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[400px]">
             {isLoading ? (
               <div className="flex items-center justify-center h-64 flex-col">
-                <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+                <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mb-4"></div>
                 <p className="text-slate-500 font-medium">Loading providers...</p>
               </div>
             ) : status === 'error' ? (
@@ -221,7 +221,7 @@ const Providers: React.FC = () => {
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 mb-1">No providers found</h3>
                 <p className="text-slate-500">Add your first bill payment provider to get started.</p>
-                <button onClick={() => setIsCreateOpen(true)} className="mt-4 px-4 py-2 text-blue-600 hover:text-blue-700 font-medium text-sm">Add Provider</button>
+                <button onClick={() => setIsCreateOpen(true)} className="mt-4 px-4 py-2 text-purple-600 hover:text-purple-700 font-medium text-sm">Add Provider</button>
               </div>
             ) : (
               <>
@@ -261,7 +261,7 @@ const Providers: React.FC = () => {
                           </td>
                           <td className="px-6 py-4 text-right">
                             <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button onClick={() => setEditItem(p)} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded transition" title="Edit">
+                              <button onClick={() => setEditItem(p)} className="p-1.5 text-slate-500 hover:text-purple-600 hover:bg-purple-50 rounded transition" title="Edit">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
                               </button>
                               <button onClick={() => openEnvModal(p)} className="p-1.5 text-slate-500 hover:text-purple-600 hover:bg-purple-50 rounded transition" title="Env">
@@ -306,7 +306,7 @@ const Providers: React.FC = () => {
                       </div>
 
                       <div className="grid grid-cols-4 gap-2 pt-2 border-t border-slate-100">
-                        <button onClick={() => setEditItem(p)} className="flex items-center justify-center p-2 rounded bg-slate-50 text-slate-600 hover:bg-blue-50 hover:text-blue-600">
+                        <button onClick={() => setEditItem(p)} className="flex items-center justify-center p-2 rounded bg-slate-50 text-slate-600 hover:bg-purple-50 hover:text-purple-600">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
                         </button>
                         <button onClick={() => openEnvModal(p)} className="flex items-center justify-center p-2 rounded bg-slate-50 text-slate-600 hover:bg-purple-50 hover:text-purple-600">
@@ -333,7 +333,7 @@ const Providers: React.FC = () => {
                 <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                   <div>
                     <h2 className="text-xl font-bold text-slate-900">Test Connection</h2>
-                    <p className="text-sm text-slate-500 mt-1">Provider: <span className="font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">{testItem.name}</span></p>
+                    <p className="text-sm text-slate-500 mt-1">Provider: <span className="font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded">{testItem.name}</span></p>
                   </div>
                   <button onClick={() => setTestItem(null)} className="text-slate-400 hover:text-slate-600 bg-white p-2 rounded-full shadow-sm border border-slate-200">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -343,13 +343,13 @@ const Providers: React.FC = () => {
                 <div className="flex border-b border-slate-200">
                   <button
                     onClick={() => { setTestTab('balance'); setTestResults(null); }}
-                    className={`flex-1 py-3 text-sm font-medium border-b-2 transition ${testTab === 'balance' ? 'border-blue-600 text-blue-600 bg-blue-50/50' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+                    className={`flex-1 py-3 text-sm font-medium border-b-2 transition ${testTab === 'balance' ? 'border-purple-600 text-purple-600 bg-purple-50/50' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
                   >
                     Balance & Network
                   </button>
                   <button
                     onClick={() => { setTestTab('purchase'); setTestResults(null); }}
-                    className={`flex-1 py-3 text-sm font-medium border-b-2 transition ${testTab === 'purchase' ? 'border-blue-600 text-blue-600 bg-blue-50/50' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+                    className={`flex-1 py-3 text-sm font-medium border-b-2 transition ${testTab === 'purchase' ? 'border-purple-600 text-purple-600 bg-purple-50/50' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
                   >
                     Test Purchase
                   </button>
@@ -359,7 +359,7 @@ const Providers: React.FC = () => {
                   {testTab === 'balance' && (
                     <div className="space-y-6">
                       <div className="flex justify-center">
-                        <button onClick={() => testConnection(testItem)} disabled={testLoading} className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-sm disabled:opacity-50 transition">
+                        <button onClick={() => testConnection(testItem)} disabled={testLoading} className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium shadow-sm disabled:opacity-50 transition">
                           {testLoading ? 'Checking...' : 'Check Balance & Status'}
                         </button>
                       </div>
@@ -386,10 +386,10 @@ const Providers: React.FC = () => {
                               </div>
 
                               {/* Network Status */}
-                              <div className={`p-4 rounded-lg border ${testResults.networksStatus === 'success' ? 'bg-blue-50 border-blue-200' : 'bg-orange-50 border-orange-200'}`}>
+                              <div className={`p-4 rounded-lg border ${testResults.networksStatus === 'success' ? 'bg-purple-50 border-purple-200' : 'bg-orange-50 border-orange-200'}`}>
                                 <div className="flex items-center justify-between mb-2">
-                                  <h3 className={`font-semibold ${testResults.networksStatus === 'success' ? 'text-blue-900' : 'text-orange-900'}`}>Network Status</h3>
-                                  {testResults.networksStatus === 'success' && <span className="bg-blue-200 text-blue-800 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">Success</span>}
+                                  <h3 className={`font-semibold ${testResults.networksStatus === 'success' ? 'text-purple-900' : 'text-orange-900'}`}>Network Status</h3>
+                                  {testResults.networksStatus === 'success' && <span className="bg-purple-200 text-purple-800 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">Success</span>}
                                 </div>
                                 {testResults.networksStatus === 'success' ? (
                                   <pre className="text-xs font-mono bg-white/50 p-3 rounded overflow-x-auto max-h-40">{JSON.stringify(testResults.networks, null, 2)}</pre>
@@ -417,7 +417,7 @@ const Providers: React.FC = () => {
                           <select
                             value={purchaseForm.service}
                             onChange={(e) => setPurchaseForm(p => ({ ...p, service: e.target.value }))}
-                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
                           >
                             <option value="airtime">Airtime</option>
                             <option value="data">Data</option>
@@ -430,7 +430,7 @@ const Providers: React.FC = () => {
                             placeholder="e.g. 1 for MTN"
                             value={purchaseForm.payload.network}
                             onChange={(e) => setPurchaseForm(p => ({ ...p, payload: { ...p.payload, network: e.target.value } }))}
-                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
                           />
                         </div>
                         <div>
@@ -440,7 +440,7 @@ const Providers: React.FC = () => {
                             placeholder="080..."
                             value={purchaseForm.payload.phone}
                             onChange={(e) => setPurchaseForm(p => ({ ...p, payload: { ...p.payload, phone: e.target.value } }))}
-                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
                           />
                         </div>
 
@@ -452,7 +452,7 @@ const Providers: React.FC = () => {
                               placeholder="100"
                               value={purchaseForm.payload.amount}
                               onChange={(e) => setPurchaseForm(p => ({ ...p, payload: { ...p.payload, amount: e.target.value } }))}
-                              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
                             />
                           </div>
                         ) : (
@@ -463,7 +463,7 @@ const Providers: React.FC = () => {
                               placeholder="Plan ID / Code"
                               value={purchaseForm.payload.plan}
                               onChange={(e) => setPurchaseForm(p => ({ ...p, payload: { ...p.payload, plan: e.target.value } }))}
-                              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
                             />
                           </div>
                         )}
@@ -520,7 +520,7 @@ const Providers: React.FC = () => {
                   </div>
                   <div className="flex justify-end gap-2 pt-4">
                     <button type="button" onClick={() => setIsCreateOpen(false)} className="px-4 py-2 border rounded">Cancel</button>
-                    <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">create</button>
+                    <button type="submit" className="px-4 py-2 bg-purple-600 text-white rounded">create</button>
                   </div>
                 </form>
               </div>
@@ -546,7 +546,7 @@ const Providers: React.FC = () => {
                   </div>
                   <div className="flex justify-end gap-2 pt-4">
                     <button type="button" onClick={() => setEditItem(null)} className="px-4 py-2 border rounded">Cancel</button>
-                    <button type="submit" disabled={updateMutation.status === 'pending'} className="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
+                    <button type="submit" disabled={updateMutation.status === 'pending'} className="px-4 py-2 bg-purple-600 text-white rounded">Save</button>
                   </div>
                 </form>
               </div>
@@ -565,10 +565,10 @@ const Providers: React.FC = () => {
                         <input value={v} onChange={e => setEnvKey(k, e.target.value)} className="flex-1 border p-2 rounded" />
                       </div>
                     ))}
-                    <button onClick={addEmptyEnv} className="text-sm text-blue-600">+ Add Key</button>
+                    <button onClick={addEmptyEnv} className="text-sm text-purple-600">+ Add Key</button>
                     <div className="flex justify-end gap-2 mt-4">
                       <button onClick={() => setEnvItem(null)} className="px-4 py-2 border rounded">Close</button>
-                      <button onClick={() => saveEnvMutation.mutate({ id: envItem._id, env: envMap })} className="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
+                      <button onClick={() => saveEnvMutation.mutate({ id: envItem._id, env: envMap })} className="px-4 py-2 bg-purple-600 text-white rounded">Save</button>
                     </div>
                   </div>
                 )}

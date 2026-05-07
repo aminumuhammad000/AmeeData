@@ -99,7 +99,7 @@ const PricingPlans: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition-all shadow-sm font-medium text-sm"
+                className="flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-lg transition-all shadow-sm font-medium text-sm"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -128,7 +128,7 @@ const PricingPlans: React.FC = () => {
                     setProviderId(e.target.value);
                     setPage(1);
                   }}
-                  className="flex-1 min-w-[140px] px-4 py-2.5 border border-slate-300 rounded-lg bg-white text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 min-w-[140px] px-4 py-2.5 border border-slate-300 rounded-lg bg-white text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="">All Providers</option>
                   {PROVIDERS.map((p) => (
@@ -142,7 +142,7 @@ const PricingPlans: React.FC = () => {
                     setType(e.target.value);
                     setPage(1);
                   }}
-                  className="flex-1 min-w-[140px] px-4 py-2.5 border border-slate-300 rounded-lg bg-white text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 min-w-[140px] px-4 py-2.5 border border-slate-300 rounded-lg bg-white text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="">All Types</option>
                   {TYPES.map((t) => (
@@ -170,7 +170,7 @@ const PricingPlans: React.FC = () => {
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[400px]">
             {isLoading ? (
               <div className="flex items-center justify-center h-64 flex-col">
-                <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+                <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mb-4"></div>
                 <p className="text-slate-500 font-medium">Loading plans...</p>
               </div>
             ) : status === 'error' ? (
@@ -189,7 +189,7 @@ const PricingPlans: React.FC = () => {
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 mb-1">No plans found</h3>
                 <p className="text-slate-500">Try adjusting your filters or add a new plan.</p>
-                <button onClick={() => setShowCreateModal(true)} className="mt-4 px-4 py-2 text-blue-600 hover:text-blue-700 font-medium text-sm">Add New Plan</button>
+                <button onClick={() => setShowCreateModal(true)} className="mt-4 px-4 py-2 text-purple-600 hover:text-purple-700 font-medium text-sm">Add New Plan</button>
               </div>
             ) : (
               <>
@@ -214,7 +214,7 @@ const PricingPlans: React.FC = () => {
                           </td>
                           <td className="px-6 py-4 text-sm text-slate-700">{plan.providerName}</td>
                           <td className="px-6 py-4">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${plan.type === 'AIRTIME' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-purple-50 text-purple-700 border-purple-200'
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${plan.type === 'AIRTIME' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-purple-50 text-purple-700 border-purple-200'
                               }`}>
                               {plan.type}
                             </span>
@@ -234,7 +234,7 @@ const PricingPlans: React.FC = () => {
                           </td>
                           <td className="px-6 py-4 text-right">
                             <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button onClick={() => setViewPlan(plan)} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded transition" title="View">
+                              <button onClick={() => setViewPlan(plan)} className="p-1.5 text-slate-500 hover:text-purple-600 hover:bg-purple-50 rounded transition" title="View">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                               </button>
                               <button onClick={() => setEditPlan(plan)} className="p-1.5 text-slate-500 hover:text-green-600 hover:bg-green-50 rounded transition" title="Edit">
@@ -267,7 +267,7 @@ const PricingPlans: React.FC = () => {
                       </div>
 
                       <div className="flex items-center gap-2 mt-1">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${plan.type === 'AIRTIME' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-purple-50 text-purple-700 border-purple-200'
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${plan.type === 'AIRTIME' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-purple-50 text-purple-700 border-purple-200'
                           }`}>
                           {plan.type}
                         </span>
@@ -278,7 +278,7 @@ const PricingPlans: React.FC = () => {
                       </div>
 
                       <div className="flex items-center justify-between border-t border-slate-100 pt-3 mt-1">
-                        <button onClick={() => setViewPlan(plan)} className="flex-1 text-center py-1 text-xs font-medium text-slate-600 hover:text-blue-600 border-r border-slate-100">View</button>
+                        <button onClick={() => setViewPlan(plan)} className="flex-1 text-center py-1 text-xs font-medium text-slate-600 hover:text-purple-600 border-r border-slate-100">View</button>
                         <button onClick={() => setEditPlan(plan)} className="flex-1 text-center py-1 text-xs font-medium text-slate-600 hover:text-green-600 border-r border-slate-100">Edit</button>
                         <button onClick={() => setDeletePlan(plan)} className="flex-1 text-center py-1 text-xs font-medium text-slate-600 hover:text-red-600">Delete</button>
                       </div>

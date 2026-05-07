@@ -69,7 +69,7 @@ const Login: React.FC = () => {
       <div className="w-full max-w-md px-6">
         {/* Logo/Brand Section */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-900 rounded-2xl mb-4 shadow-lg">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-900 rounded-2xl mb-4 shadow-lg">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
@@ -112,7 +112,7 @@ const Login: React.FC = () => {
                   message: 'Invalid email address'
                 }
               })}
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-transparent transition-all ${errors.email ? 'border-red-400 bg-red-50' : 'border-slate-300 bg-slate-50'
+              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900 focus:border-transparent transition-all ${errors.email ? 'border-red-400 bg-red-50' : 'border-slate-300 bg-slate-50'
                 }`}
               placeholder="admin@example.com"
             />
@@ -141,7 +141,7 @@ const Login: React.FC = () => {
                     message: 'Password must be at least 6 characters'
                   }
                 })}
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-transparent transition-all ${errors.password ? 'border-red-400 bg-red-50' : 'border-slate-300 bg-slate-50'
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-900 focus:border-transparent transition-all ${errors.password ? 'border-red-400 bg-red-50' : 'border-slate-300 bg-slate-50'
                   }`}
                 placeholder="••••••••"
               />
@@ -178,7 +178,7 @@ const Login: React.FC = () => {
               <input
                 type="checkbox"
                 {...register('rememberMe')}
-                className="w-4 h-4 text-blue-900 border-slate-300 rounded focus:ring-blue-900"
+                className="w-4 h-4 text-purple-900 border-slate-300 rounded focus:ring-purple-900"
               />
               <span className="ml-2 text-sm text-slate-600">Remember me</span>
             </label>
@@ -187,7 +187,7 @@ const Login: React.FC = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-900 focus:ring-opacity-50 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg"
+            className="w-full bg-purple-900 text-white py-3 rounded-lg font-semibold hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-purple-900 focus:ring-opacity-50 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg"
             disabled={mutation.status === 'pending'}
           >
             {mutation.status === 'pending' ? (

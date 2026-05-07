@@ -142,7 +142,7 @@ const PricingBulkImportModal: React.FC<PricingBulkImportModalProps> = ({ onClose
             }}
             className={`px-4 py-2 rounded-lg font-semibold transition ${
               importMode === 'json'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-purple-600 text-white'
                 : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
             }`}
           >
@@ -155,7 +155,7 @@ const PricingBulkImportModal: React.FC<PricingBulkImportModalProps> = ({ onClose
             }}
             className={`px-4 py-2 rounded-lg font-semibold transition ${
               importMode === 'csv'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-purple-600 text-white'
                 : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
             }`}
           >
@@ -181,12 +181,12 @@ const PricingBulkImportModal: React.FC<PricingBulkImportModalProps> = ({ onClose
                 value={jsonInput}
                 onChange={(e) => setJsonInput(e.target.value)}
                 placeholder={`[\n  {\n    "providerId": 1,\n    "providerName": "MTN",\n    "name": "MTN 1GB Daily",\n    "price": 300,\n    "type": "DATA",\n    "discount": 5,\n    "active": true\n  }\n]`}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm h-32"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-sm h-32"
               />
             </div>
             <button
               onClick={downloadSampleJson}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              className="text-purple-600 hover:text-purple-800 text-sm font-medium"
             >
               ⬇️ Download Sample JSON
             </button>
@@ -206,12 +206,12 @@ const PricingBulkImportModal: React.FC<PricingBulkImportModalProps> = ({ onClose
                 placeholder={`providerId,providerName,name,price,type,discount,active
 1,MTN,MTN 1GB Daily,300,DATA,5,true
 2,Glo,Glo 1GB Daily,250,DATA,3,true`}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm h-32"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-sm h-32"
               />
             </div>
             <button
               onClick={downloadSampleCsv}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              className="text-purple-600 hover:text-purple-800 text-sm font-medium"
             >
               ⬇️ Download Sample CSV
             </button>
@@ -219,7 +219,7 @@ const PricingBulkImportModal: React.FC<PricingBulkImportModalProps> = ({ onClose
         )}
 
         {/* Info Box */}
-        <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4 text-sm text-blue-800">
+        <div className="bg-purple-50 border border-purple-200 rounded p-3 mb-4 text-sm text-purple-800">
           <p className="font-semibold mb-1">Required Fields:</p>
           <ul className="list-disc list-inside space-y-1 text-xs">
             <li><code>providerId</code> - 1=MTN, 2=Glo, 3=Airtel, 4=9mobile</li>

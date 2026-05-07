@@ -20,7 +20,7 @@ const AuditLogs: React.FC = () => {
   const getActionColor = (action: string) => {
     if (action?.includes('delete')) return 'bg-red-100 text-red-800 border-red-200';
     if (action?.includes('create')) return 'bg-green-100 text-green-800 border-green-200';
-    if (action?.includes('update')) return 'bg-blue-100 text-blue-800 border-blue-200';
+    if (action?.includes('update')) return 'bg-purple-100 text-purple-800 border-purple-200';
     if (action?.includes('credit')) return 'bg-purple-100 text-purple-800 border-purple-200';
     return 'bg-slate-100 text-slate-800 border-slate-200';
   };
@@ -218,7 +218,7 @@ const AuditLogs: React.FC = () => {
 
                 <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
                    <span className="text-[10px] uppercase font-bold text-slate-400 block mb-2">Detailed Payload</span>
-                   <pre className="text-xs bg-slate-900 text-blue-400 p-4 rounded-lg overflow-x-auto font-mono scrollbar-hide">
+                   <pre className="text-xs bg-slate-900 text-purple-400 p-4 rounded-lg overflow-x-auto font-mono scrollbar-hide">
                       {JSON.stringify(viewLog.details || viewLog.payload || { entity: viewLog.entity_type, id: viewLog.entity_id }, null, 2)}
                    </pre>
                 </div>

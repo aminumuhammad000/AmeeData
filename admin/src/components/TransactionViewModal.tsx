@@ -23,7 +23,7 @@ const TransactionViewModal: React.FC<TransactionViewModalProps> = ({ transaction
   const getTypeColor = (type: string) => {
     switch (type?.toLowerCase()) {
       case 'airtime':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-purple-100 text-purple-800';
       case 'data':
         return 'bg-purple-100 text-purple-800';
       case 'electricity':
@@ -39,10 +39,10 @@ const TransactionViewModal: React.FC<TransactionViewModalProps> = ({ transaction
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 flex justify-between items-center rounded-t-xl">
+        <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-4 flex justify-between items-center rounded-t-xl">
           <div>
             <h2 className="text-2xl font-bold">Transaction Details</h2>
-            <p className="text-blue-100 text-sm">Complete transaction information</p>
+            <p className="text-purple-100 text-sm">Complete transaction information</p>
           </div>
           <button
             onClick={onClose}
@@ -70,7 +70,7 @@ const TransactionViewModal: React.FC<TransactionViewModalProps> = ({ transaction
           {/* Transaction Info */}
           <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
             <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Transaction Information
@@ -102,9 +102,9 @@ const TransactionViewModal: React.FC<TransactionViewModalProps> = ({ transaction
           </div>
 
           {/* User Information */}
-          <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+          <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
             <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
               User Information
@@ -112,25 +112,25 @@ const TransactionViewModal: React.FC<TransactionViewModalProps> = ({ transaction
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <p className="text-xs text-slate-600 uppercase font-semibold mb-1">Full Name</p>
-                <p className="text-sm text-slate-900 font-medium bg-white px-3 py-2 rounded border border-blue-200">
+                <p className="text-sm text-slate-900 font-medium bg-white px-3 py-2 rounded border border-purple-200">
                   {transaction.user_id?.first_name} {transaction.user_id?.last_name}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-slate-600 uppercase font-semibold mb-1">Email</p>
-                <p className="text-sm text-slate-900 font-medium bg-white px-3 py-2 rounded border border-blue-200">
+                <p className="text-sm text-slate-900 font-medium bg-white px-3 py-2 rounded border border-purple-200">
                   {transaction.user_id?.email || 'N/A'}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-slate-600 uppercase font-semibold mb-1">Phone Number</p>
-                <p className="text-sm text-slate-900 font-medium bg-white px-3 py-2 rounded border border-blue-200">
+                <p className="text-sm text-slate-900 font-medium bg-white px-3 py-2 rounded border border-purple-200">
                   {transaction.user_id?.phone_number || 'N/A'}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-slate-600 uppercase font-semibold mb-1">User ID</p>
-                <p className="text-sm text-slate-900 font-mono bg-white px-3 py-2 rounded border border-blue-200">
+                <p className="text-sm text-slate-900 font-mono bg-white px-3 py-2 rounded border border-purple-200">
                   {transaction.user_id?._id || transaction.user_id}
                 </p>
               </div>

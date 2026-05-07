@@ -85,7 +85,7 @@ const Users: React.FC = () => {
   const getKycColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'verified': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-      case 'pending': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'pending': return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'rejected': return 'bg-red-100 text-red-800 border-red-200';
       default: return 'bg-slate-100 text-slate-800 border-slate-200';
     }
@@ -103,7 +103,7 @@ const Users: React.FC = () => {
             </div>
             <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200">
               <span className="text-sm text-slate-500">Total Users:</span>
-              <span className="text-lg font-bold text-blue-600">{pagination.total || 0}</span>
+              <span className="text-lg font-bold text-purple-600">{pagination.total || 0}</span>
             </div>
           </div>
 
@@ -119,7 +119,7 @@ const Users: React.FC = () => {
                   placeholder="Search by name, email or phone..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm"
+                  className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all text-sm"
                 />
               </div>
 
@@ -127,7 +127,7 @@ const Users: React.FC = () => {
                 <select
                   value={kycFilter}
                   onChange={(e) => { setKycFilter(e.target.value); setPage(1); }}
-                  className="px-4 py-2.5 border border-slate-300 rounded-lg bg-white text-sm font-medium text-slate-700 min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-4 py-2.5 border border-slate-300 rounded-lg bg-white text-sm font-medium text-slate-700 min-w-[140px] focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="">All KYC Status</option>
                   <option value="verified">Verified</option>
@@ -138,7 +138,7 @@ const Users: React.FC = () => {
                 <select
                   value={accountStatusFilter}
                   onChange={(e) => { setAccountStatusFilter(e.target.value); setPage(1); }}
-                  className="px-4 py-2.5 border border-slate-300 rounded-lg bg-white text-sm font-medium text-slate-700 min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-4 py-2.5 border border-slate-300 rounded-lg bg-white text-sm font-medium text-slate-700 min-w-[140px] focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="">All Account Status</option>
                   <option value="active">Active</option>
@@ -153,7 +153,7 @@ const Users: React.FC = () => {
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[400px]">
             {isLoading ? (
               <div className="flex items-center justify-center h-64 flex-col">
-                <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+                <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mb-4"></div>
                 <p className="text-slate-500 font-medium">Loading users...</p>
               </div>
             ) : status === 'error' ? (
@@ -172,7 +172,7 @@ const Users: React.FC = () => {
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 mb-1">No users found</h3>
                 <p className="text-slate-500">Try adjusting your filters or search terms.</p>
-                <button onClick={() => { setSearchTerm(''); setKycFilter(''); setAccountStatusFilter(''); }} className="mt-4 px-4 py-2 text-blue-600 hover:text-blue-700 font-medium text-sm">Clear all filters</button>
+                <button onClick={() => { setSearchTerm(''); setKycFilter(''); setAccountStatusFilter(''); }} className="mt-4 px-4 py-2 text-purple-600 hover:text-purple-700 font-medium text-sm">Clear all filters</button>
               </div>
             ) : (
               <>
@@ -194,7 +194,7 @@ const Users: React.FC = () => {
                         <tr key={user._id} className="hover:bg-slate-50/80 transition-colors group">
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm ring-2 ring-white">
+                              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm ring-2 ring-white">
                                 {`${user.first_name?.[0] || 'U'}${user.last_name?.[0] || 'U'}`.toUpperCase()}
                               </div>
                               <div>
@@ -225,7 +225,7 @@ const Users: React.FC = () => {
                           </td>
                           <td className="px-6 py-4 text-right">
                             <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button onClick={() => setViewUser(user)} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded transition" title="View details">
+                              <button onClick={() => setViewUser(user)} className="p-1.5 text-slate-500 hover:text-purple-600 hover:bg-purple-50 rounded transition" title="View details">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                               </button>
                               <button onClick={() => setEditUser(user)} className="p-1.5 text-slate-500 hover:text-green-600 hover:bg-green-50 rounded transition" title="Edit user">
@@ -250,7 +250,7 @@ const Users: React.FC = () => {
                   {users.map((user: any) => (
                     <div key={user._id} className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col gap-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm">
                           {`${user.first_name?.[0] || 'U'}${user.last_name?.[0] || 'U'}`.toUpperCase()}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -268,7 +268,7 @@ const Users: React.FC = () => {
                         <div className="bg-slate-50 p-2 rounded">
                           <span className="block text-slate-400 text-[10px] uppercase">KYC</span>
                           <span className={`font-medium ${user.kyc_status === 'verified' ? 'text-green-600' :
-                              user.kyc_status === 'pending' ? 'text-blue-600' : 'text-red-600'
+                              user.kyc_status === 'pending' ? 'text-purple-600' : 'text-red-600'
                             }`}>{user.kyc_status?.toUpperCase() || '—'}</span>
                         </div>
                         <div className="bg-slate-50 p-2 rounded">
@@ -278,9 +278,9 @@ const Users: React.FC = () => {
                       </div>
 
                       <div className="flex items-center justify-between border-t border-slate-100 pt-3 mt-1">
-                        <button onClick={() => setViewUser(user)} className="flex-1 text-center py-1 text-xs font-medium text-slate-600 hover:text-blue-600 border-r border-slate-100">View</button>
-                        <button onClick={() => setEditUser(user)} className="flex-1 text-center py-1 text-xs font-medium text-slate-600 hover:text-blue-600 border-r border-slate-100">Edit</button>
-                        <button onClick={() => setStatusUser(user)} className="flex-1 text-center py-1 text-xs font-medium text-slate-600 hover:text-blue-600">Status</button>
+                        <button onClick={() => setViewUser(user)} className="flex-1 text-center py-1 text-xs font-medium text-slate-600 hover:text-purple-600 border-r border-slate-100">View</button>
+                        <button onClick={() => setEditUser(user)} className="flex-1 text-center py-1 text-xs font-medium text-slate-600 hover:text-purple-600 border-r border-slate-100">Edit</button>
+                        <button onClick={() => setStatusUser(user)} className="flex-1 text-center py-1 text-xs font-medium text-slate-600 hover:text-purple-600">Status</button>
                       </div>
                     </div>
                   ))}

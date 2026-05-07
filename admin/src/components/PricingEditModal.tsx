@@ -87,7 +87,7 @@ const PricingEditModal: React.FC<PricingEditModalProps> = ({ plan, onClose, onSa
                 name="providerId"
                 value={formData.providerId}
                 onChange={handleProviderChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
                 {PROVIDERS.map(p => (
                   <option key={p.id} value={p.id}>{p.name}</option>
@@ -101,7 +101,7 @@ const PricingEditModal: React.FC<PricingEditModalProps> = ({ plan, onClose, onSa
                 name="type"
                 value={formData.type}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
                 {TYPES.map(t => (
                   <option key={t} value={t}>{t}</option>
@@ -119,7 +119,7 @@ const PricingEditModal: React.FC<PricingEditModalProps> = ({ plan, onClose, onSa
               onChange={handleChange}
               placeholder="e.g., MTN 1GB Daily"
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-                errors.name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                errors.name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-purple-500'
               }`}
             />
             {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
@@ -136,7 +136,7 @@ const PricingEditModal: React.FC<PricingEditModalProps> = ({ plan, onClose, onSa
                 placeholder="0"
                 step="0.01"
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-                  errors.price ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                  errors.price ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-purple-500'
                 }`}
               />
               {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
@@ -154,7 +154,7 @@ const PricingEditModal: React.FC<PricingEditModalProps> = ({ plan, onClose, onSa
                 max="100"
                 step="0.01"
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-                  errors.discount ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                  errors.discount ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-purple-500'
                 }`}
               />
               {errors.discount && <p className="text-red-500 text-sm mt-1">{errors.discount}</p>}
@@ -170,7 +170,7 @@ const PricingEditModal: React.FC<PricingEditModalProps> = ({ plan, onClose, onSa
                 value={formData.code}
                 onChange={handleChange}
                 placeholder="Plan code"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
             </div>
 
@@ -182,7 +182,7 @@ const PricingEditModal: React.FC<PricingEditModalProps> = ({ plan, onClose, onSa
                 value={formData.externalPlanId}
                 onChange={handleChange}
                 placeholder="External ID"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
             </div>
           </div>
@@ -193,7 +193,7 @@ const PricingEditModal: React.FC<PricingEditModalProps> = ({ plan, onClose, onSa
               name="active"
               checked={formData.active}
               onChange={handleChange}
-              className="h-4 w-4 text-blue-600 rounded"
+              className="h-4 w-4 text-purple-600 rounded"
             />
             <label className="ml-2 block text-sm text-gray-700">Active</label>
           </div>
@@ -202,7 +202,7 @@ const PricingEditModal: React.FC<PricingEditModalProps> = ({ plan, onClose, onSa
             <button
               type="submit"
               disabled={isSaving}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg transition"
+              className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white px-4 py-2 rounded-lg transition"
             >
               {isSaving ? 'Saving...' : 'Save Plan'}
             </button>

@@ -128,7 +128,7 @@ const Profile: React.FC = () => {
                 {!isEditingProfile && (
                   <button
                     onClick={() => setIsEditingProfile(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium"
+                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition font-medium"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -139,7 +139,7 @@ const Profile: React.FC = () => {
               </div>
               
               <div className="flex items-center space-x-6 mb-8">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-3xl font-bold text-white shadow-lg">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-3xl font-bold text-white shadow-lg">
                   {getInitials()}
                 </div>
                 <div>
@@ -147,7 +147,7 @@ const Profile: React.FC = () => {
                     {admin?.first_name} {admin?.last_name}
                   </h3>
                   <p className="text-slate-600">{admin?.email}</p>
-                  <span className="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
+                  <span className="inline-block mt-2 px-3 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded-full">
                     {admin?.role_id?.role_name?.replace('_', ' ').toUpperCase() || 'ADMIN'}
                   </span>
                 </div>
@@ -160,7 +160,7 @@ const Profile: React.FC = () => {
                     <input 
                       type="text" 
                       className={`w-full px-4 py-2.5 border border-slate-300 rounded-lg ${
-                        isEditingProfile ? 'bg-white focus:outline-none focus:ring-2 focus:ring-blue-500' : 'bg-slate-50'
+                        isEditingProfile ? 'bg-white focus:outline-none focus:ring-2 focus:ring-purple-500' : 'bg-slate-50'
                       } text-slate-900 font-medium`}
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
@@ -172,7 +172,7 @@ const Profile: React.FC = () => {
                     <input 
                       type="text" 
                       className={`w-full px-4 py-2.5 border border-slate-300 rounded-lg ${
-                        isEditingProfile ? 'bg-white focus:outline-none focus:ring-2 focus:ring-blue-500' : 'bg-slate-50'
+                        isEditingProfile ? 'bg-white focus:outline-none focus:ring-2 focus:ring-purple-500' : 'bg-slate-50'
                       } text-slate-900 font-medium`}
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
@@ -184,7 +184,7 @@ const Profile: React.FC = () => {
                     <input 
                       type="email" 
                       className={`w-full px-4 py-2.5 border border-slate-300 rounded-lg ${
-                        isEditingProfile ? 'bg-white focus:outline-none focus:ring-2 focus:ring-blue-500' : 'bg-slate-50'
+                        isEditingProfile ? 'bg-white focus:outline-none focus:ring-2 focus:ring-purple-500' : 'bg-slate-50'
                       } text-slate-900 font-medium`}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -225,7 +225,7 @@ const Profile: React.FC = () => {
                     <button
                       type="submit"
                       disabled={updateProfileMutation.status === 'pending'}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-3 rounded-lg transition font-semibold"
+                      className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white px-6 py-3 rounded-lg transition font-semibold"
                     >
                       {updateProfileMutation.status === 'pending' ? 'Saving...' : 'Save Changes'}
                     </button>
@@ -254,7 +254,7 @@ const Profile: React.FC = () => {
                       type={showCurrentPassword ? "text" : "password"}
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                      className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
                       placeholder="Enter current password" 
                     />
                     <button
@@ -283,7 +283,7 @@ const Profile: React.FC = () => {
                       type={showNewPassword ? "text" : "password"}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                      className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
                       placeholder="Enter new password (min 8 characters)" 
                     />
                     <button
@@ -312,7 +312,7 @@ const Profile: React.FC = () => {
                       type={showConfirmPassword ? "text" : "password"}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                      className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
                       placeholder="Confirm new password" 
                     />
                     <button
@@ -343,7 +343,7 @@ const Profile: React.FC = () => {
                 <button 
                   type="submit" 
                   disabled={changePasswordMutation.status === 'pending'}
-                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-3 rounded-lg font-semibold transition"
+                  className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white px-6 py-3 rounded-lg font-semibold transition"
                 >
                   {changePasswordMutation.status === 'pending' ? 'Changing Password...' : 'Change Password'}
                 </button>

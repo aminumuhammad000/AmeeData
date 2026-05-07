@@ -221,14 +221,14 @@ export default function Notifications() {
                     <div className="mb-6 bg-white p-1 rounded-xl inline-flex shadow-sm border border-slate-200">
                         <button
                             onClick={() => setActiveTab('app')}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'app' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-50'}`}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'app' ? 'bg-purple-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-50'}`}
                         >
                             <MessageSquare className="w-4 h-4" />
                             App Push
                         </button>
                         <button
                             onClick={() => setActiveTab('email')}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'email' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-50'}`}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'email' ? 'bg-purple-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-50'}`}
                         >
                             <Mail className="w-4 h-4" />
                             Email Blast
@@ -259,9 +259,9 @@ export default function Notifications() {
                                                     key={t.id}
                                                     type="button"
                                                     onClick={() => handleTypeSelect(t.id)}
-                                                    className={`p-3 rounded-xl border text-center transition-all flex flex-col items-center gap-2 ${type === t.id ? 'border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500' : 'border-slate-200 hover:bg-slate-50 text-slate-600'}`}
+                                                    className={`p-3 rounded-xl border text-center transition-all flex flex-col items-center gap-2 ${type === t.id ? 'border-purple-500 bg-purple-50 text-purple-700 ring-1 ring-purple-500' : 'border-slate-200 hover:bg-slate-50 text-slate-600'}`}
                                                 >
-                                                    <div className={type === t.id ? 'text-blue-600' : 'text-slate-400'}>{t.icon}</div>
+                                                    <div className={type === t.id ? 'text-purple-600' : 'text-slate-400'}>{t.icon}</div>
                                                     <span className="text-xs font-semibold">{t.label}</span>
                                                 </button>
                                             ))}
@@ -274,7 +274,7 @@ export default function Notifications() {
                                                     value={title}
                                                     onChange={(e) => setTitle(e.target.value)}
                                                     placeholder="e.g. System Maintenance"
-                                                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                                                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none transition"
                                                     maxLength={50}
                                                 />
                                                 <p className="text-xs text-slate-400 text-right mt-1">{title.length}/50</p>
@@ -286,7 +286,7 @@ export default function Notifications() {
                                                     value={message}
                                                     onChange={(e) => setMessage(e.target.value)}
                                                     placeholder="Write your message here..."
-                                                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition h-32 resize-none"
+                                                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none transition h-32 resize-none"
                                                     maxLength={250}
                                                 />
                                                 <p className="text-xs text-slate-400 text-right mt-1">{message.length}/250</p>
@@ -303,7 +303,7 @@ export default function Notifications() {
                                                         value={actionLink}
                                                         onChange={(e) => setActionLink(e.target.value)}
                                                         placeholder="https://..."
-                                                        className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                                                        className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none transition"
                                                     />
                                                 </div>
                                             </div>
@@ -312,7 +312,7 @@ export default function Notifications() {
                                         <button
                                             type="submit"
                                             disabled={isSubmitting || !title || !message}
-                                            className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm disabled:opacity-50 transition flex items-center justify-center gap-2"
+                                            className="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg shadow-sm disabled:opacity-50 transition flex items-center justify-center gap-2"
                                         >
                                             {isSubmitting ? <RefreshCw className="animate-spin w-5 h-5" /> : <Send className="w-5 h-5" />}
                                             {editingId ? 'Update Notification' : 'Send Notification'}
@@ -335,7 +335,7 @@ export default function Notifications() {
                                             <select
                                                 value={emailRecipients}
                                                 onChange={(e) => setEmailRecipients(e.target.value)}
-                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
                                             >
                                                 <option value="all">All Users</option>
                                                 <option value="active">Active Users Only</option>
@@ -349,7 +349,7 @@ export default function Notifications() {
                                                 value={emailSubject}
                                                 onChange={(e) => setEmailSubject(e.target.value)}
                                                 placeholder="e.g. Monthly Newsletter"
-                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none transition"
                                             />
                                         </div>
 
@@ -359,7 +359,7 @@ export default function Notifications() {
                                                 value={emailMessage}
                                                 onChange={(e) => setEmailMessage(e.target.value)}
                                                 placeholder="Write your email content here..."
-                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition h-48 resize-none font-mono text-sm"
+                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none transition h-48 resize-none font-mono text-sm"
                                             />
                                         </div>
 
@@ -384,7 +384,7 @@ export default function Notifications() {
                                     <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Live Preview</h3>
                                     <div className="bg-slate-100 rounded-xl p-4 border border-slate-200">
                                         <div className="flex gap-3 bg-white p-3 rounded-lg shadow-sm border border-slate-100">
-                                            <div className="flex-shrink-0 text-blue-500 mt-1">
+                                            <div className="flex-shrink-0 text-purple-500 mt-1">
                                                 {notificationTypes.find(t => t.id === type)?.icon}
                                             </div>
                                             <div>
@@ -410,7 +410,7 @@ export default function Notifications() {
                                         broadcasts.map((b: any) => (
                                             <div key={b._id} className="p-3 hover:bg-slate-50 rounded-lg group border border-transparent hover:border-slate-100 transition">
                                                 <div className="flex justify-between items-start mb-1">
-                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide border ${b.type === 'alert' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide border ${b.type === 'alert' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-purple-50 text-purple-600 border-purple-100'}`}>
                                                         {b.type.replace('_', ' ')}
                                                     </span>
                                                     <span className="text-[10px] text-slate-400">
@@ -421,7 +421,7 @@ export default function Notifications() {
                                                 <p className="text-xs text-slate-500 line-clamp-2 mb-2">{b.message}</p>
 
                                                 <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button onClick={() => handleEdit(b)} className="p-1.5 text-slate-400 hover:text-blue-600 bg-slate-50 hover:bg-blue-50 rounded">
+                                                    <button onClick={() => handleEdit(b)} className="p-1.5 text-slate-400 hover:text-purple-600 bg-slate-50 hover:bg-purple-50 rounded">
                                                         <Edit2 className="w-3.5 h-3.5" />
                                                     </button>
                                                     <button onClick={() => { if (confirm('Delete?')) deleteMutation.mutate(b._id) }} className="p-1.5 text-slate-400 hover:text-red-600 bg-slate-50 hover:bg-red-50 rounded">

@@ -65,7 +65,7 @@ const AirtimeToCash: React.FC = () => {
                         </div>
                         <button
                             onClick={() => { setEditingSetting(null); setShowSettingModal(true); }}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow-sm"
+                            className="px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition shadow-sm"
                         >
                             Add New Network
                         </button>
@@ -99,7 +99,7 @@ const AirtimeToCash: React.FC = () => {
                                                         <p className="text-slate-500 text-xs">{request.phone_number}</p>
                                                     </td>
                                                     <td className="px-6 py-4">
-                                                        <span className="font-bold text-blue-600">{request.network}</span>
+                                                        <span className="font-bold text-purple-600">{request.network}</span>
                                                         <p className="text-slate-900">₦{request.amount.toLocaleString()}</p>
                                                     </td>
                                                     <td className="px-6 py-4 font-bold text-green-600">
@@ -116,7 +116,7 @@ const AirtimeToCash: React.FC = () => {
                                                         {request.status === 'pending' && (
                                                             <button
                                                                 onClick={() => setSelectedRequest(request)}
-                                                                className="text-blue-600 hover:underline"
+                                                                className="text-purple-600 hover:underline"
                                                             >
                                                                 Process
                                                             </button>
@@ -148,12 +148,12 @@ const AirtimeToCash: React.FC = () => {
                                                         <span className="font-bold text-slate-900">{setting.network}</span>
                                                         {!setting.is_active && <span className="text-[10px] text-red-500 font-bold uppercase">Inactive</span>}
                                                     </div>
-                                                    <p className="text-sm text-slate-500">Rate: <span className="font-bold text-blue-600">{setting.conversion_rate}%</span></p>
+                                                    <p className="text-sm text-slate-500">Rate: <span className="font-bold text-purple-600">{setting.conversion_rate}%</span></p>
                                                     <p className="text-xs text-slate-400">Recv Phone: {setting.phone_number}</p>
                                                 </div>
                                                 <button
                                                     onClick={() => { setEditingSetting(setting); setShowSettingModal(true); }}
-                                                    className="p-2 text-slate-400 hover:text-blue-600 transition"
+                                                    className="p-2 text-slate-400 hover:text-purple-600 transition"
                                                 >
                                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                                 </button>
@@ -173,14 +173,14 @@ const AirtimeToCash: React.FC = () => {
                             <h2 className="text-2xl font-bold text-slate-900 mb-2">Process Request</h2>
                             <p className="text-slate-500 mb-6">User: {selectedRequest.user_id?.first_name} ({selectedRequest.phone_number})</p>
 
-                            <div className="bg-blue-50 p-4 rounded-xl mb-6">
+                            <div className="bg-purple-50 p-4 rounded-xl mb-6">
                                 <div className="flex justify-between mb-2">
                                     <span className="text-slate-600">Network / Amount:</span>
                                     <span className="font-bold">{selectedRequest.network} / ₦{selectedRequest.amount}</span>
                                 </div>
-                                <div className="flex justify-between border-t border-blue-100 pt-2">
+                                <div className="flex justify-between border-t border-purple-100 pt-2">
                                     <span className="text-slate-600 font-bold">User Receives:</span>
-                                    <span className="font-bold text-blue-600 text-lg">₦{selectedRequest.amount_to_receive}</span>
+                                    <span className="font-bold text-purple-600 text-lg">₦{selectedRequest.amount_to_receive}</span>
                                 </div>
                             </div>
 
@@ -188,7 +188,7 @@ const AirtimeToCash: React.FC = () => {
                             <textarea
                                 value={adminNote}
                                 onChange={(e) => setAdminNote(e.target.value)}
-                                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none mb-6 h-24"
+                                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none mb-6 h-24"
                                 placeholder="Reason for rejection or processing details..."
                             />
 
@@ -234,7 +234,7 @@ const AirtimeToCash: React.FC = () => {
                                     <select
                                         name="network"
                                         defaultValue={editingSetting?.network}
-                                        className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 ring-blue-500 bg-white"
+                                        className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 ring-purple-500 bg-white"
                                         required
                                     >
                                         <option value="" disabled>Select Network</option>
@@ -247,7 +247,7 @@ const AirtimeToCash: React.FC = () => {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Rate (%)</label>
-                                        <input name="rate" type="number" defaultValue={editingSetting?.conversion_rate || 80} className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 ring-blue-500" required />
+                                        <input name="rate" type="number" defaultValue={editingSetting?.conversion_rate || 80} className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 ring-purple-500" required />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Active</label>
@@ -256,21 +256,21 @@ const AirtimeToCash: React.FC = () => {
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Receiver Phone (for users to send to)</label>
-                                    <input name="phone" defaultValue={editingSetting?.phone_number} className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 ring-blue-500" required placeholder="08123456789" />
+                                    <input name="phone" defaultValue={editingSetting?.phone_number} className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 ring-purple-500" required placeholder="08123456789" />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Min (₦)</label>
-                                        <input name="min" type="number" defaultValue={editingSetting?.min_amount || 500} className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 ring-blue-500" />
+                                        <input name="min" type="number" defaultValue={editingSetting?.min_amount || 500} className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 ring-purple-500" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Max (₦)</label>
-                                        <input name="max" type="number" defaultValue={editingSetting?.max_amount || 50000} className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 ring-blue-500" />
+                                        <input name="max" type="number" defaultValue={editingSetting?.max_amount || 50000} className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 ring-purple-500" />
                                     </div>
                                 </div>
                                 <div className="pt-4 flex gap-3">
                                     <button type="button" onClick={() => setShowSettingModal(false)} className="flex-1 py-2 font-bold text-slate-500">Cancel</button>
-                                    <button type="submit" className="flex-2 px-8 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition">Save Changes</button>
+                                    <button type="submit" className="flex-2 px-8 py-2 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition">Save Changes</button>
                                 </div>
                             </form>
                         </div>

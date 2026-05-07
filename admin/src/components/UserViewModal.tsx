@@ -16,7 +16,7 @@ const UserViewModal: React.FC<UserViewModalProps> = ({ user, onClose }) => {
     <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all scale-100">
         {/* Modal Header with Profile Background */}
-        <div className="relative h-32 bg-gradient-to-r from-blue-600 to-indigo-700">
+        <div className="relative h-32 bg-gradient-to-r from-purple-600 to-indigo-700">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white rounded-full p-2 transition-colors focus:outline-none"
@@ -79,7 +79,7 @@ const UserViewModal: React.FC<UserViewModalProps> = ({ user, onClose }) => {
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">KYC Verification</label>
                 <div className="mt-1">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${user.kyc_status === 'verified' ? 'bg-emerald-100 text-emerald-800' :
-                      user.kyc_status === 'pending' ? 'bg-blue-100 text-blue-800' :
+                      user.kyc_status === 'pending' ? 'bg-purple-100 text-purple-800' :
                         'bg-red-100 text-red-800'
                     }`}>
                     {user.kyc_status || 'Unverified'}

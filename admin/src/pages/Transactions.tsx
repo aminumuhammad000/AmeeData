@@ -56,7 +56,7 @@ const Transactions: React.FC = () => {
   const getTypeColor = (type: string) => {
     switch (type?.toLowerCase()) {
       case 'airtime':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'data':
         return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'electricity':
@@ -96,7 +96,7 @@ const Transactions: React.FC = () => {
                   placeholder="Search by user, reference, or amount..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm font-medium"
+                  className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all text-sm font-medium"
                 />
               </div>
 
@@ -107,7 +107,7 @@ const Transactions: React.FC = () => {
                     setStatusFilter(e.target.value);
                     setPage(1);
                   }}
-                  className="px-4 py-2.5 border border-slate-300 rounded-lg bg-white text-sm font-medium text-slate-700 min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer hover:bg-slate-50"
+                  className="px-4 py-2.5 border border-slate-300 rounded-lg bg-white text-sm font-medium text-slate-700 min-w-[140px] focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer hover:bg-slate-50"
                 >
                   <option value="">All Status</option>
                   <option value="success">Success</option>
@@ -121,7 +121,7 @@ const Transactions: React.FC = () => {
                     setTypeFilter(e.target.value);
                     setPage(1);
                   }}
-                  className="px-4 py-2.5 border border-slate-300 rounded-lg bg-white text-sm font-medium text-slate-700 min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer hover:bg-slate-50"
+                  className="px-4 py-2.5 border border-slate-300 rounded-lg bg-white text-sm font-medium text-slate-700 min-w-[140px] focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer hover:bg-slate-50"
                 >
                   <option value="">All Types</option>
                   <option value="airtime">Airtime</option>
@@ -151,7 +151,7 @@ const Transactions: React.FC = () => {
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[400px]">
             {isLoading ? (
               <div className="flex items-center justify-center h-64 flex-col">
-                <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+                <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mb-4"></div>
                 <p className="text-slate-500 font-medium">Loading transactions...</p>
               </div>
             ) : status === 'error' ? (
@@ -214,7 +214,7 @@ const Transactions: React.FC = () => {
                           <td className="px-6 py-4 text-right">
                             <button
                               onClick={() => setViewTransaction(txn)}
-                              className="text-slate-400 hover:text-blue-600 p-1.5 rounded hover:bg-blue-50 transition"
+                              className="text-slate-400 hover:text-purple-600 p-1.5 rounded hover:bg-purple-50 transition"
                               title="View Details"
                             >
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
@@ -251,7 +251,7 @@ const Transactions: React.FC = () => {
                         <span className="text-xs text-slate-500">{txn.created_at ? new Date(txn.created_at).toLocaleString() : '—'}</span>
                         <button
                           onClick={() => setViewTransaction(txn)}
-                          className="text-xs font-medium text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-md"
+                          className="text-xs font-medium text-purple-600 hover:text-purple-700 bg-purple-50 px-3 py-1.5 rounded-md"
                         >
                           View Details
                         </button>

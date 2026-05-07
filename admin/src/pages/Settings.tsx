@@ -170,7 +170,7 @@ const Settings = () => {
                     {/* System Configuration Card */}
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                         <div className="border-b border-slate-100 p-6 bg-slate-50/50 flex items-center gap-3">
-                            <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+                            <div className="p-2 bg-purple-100 rounded-lg text-purple-600">
                                 <CreditCard className="w-5 h-5" />
                             </div>
                             <div>
@@ -184,14 +184,14 @@ const Settings = () => {
                             <div>
                                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">Payment Gateway</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${systemSettings.payment_gateway === 'vtstack' ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500' : 'border-slate-200 hover:bg-slate-50'}`}>
+                                    <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${systemSettings.payment_gateway === 'vtstack' ? 'border-purple-500 bg-purple-50 ring-1 ring-purple-500' : 'border-slate-200 hover:bg-slate-50'}`}>
                                         <input
                                             type="radio"
                                             name="payment_gateway"
                                             value="vtstack"
                                             checked={systemSettings.payment_gateway === 'vtstack'}
                                             onChange={handleSystemChange}
-                                            className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                                            className="w-4 h-4 text-purple-600 focus:ring-purple-500"
                                         />
                                         <div className="ml-3">
                                             <span className="block text-sm font-medium text-slate-900">VTStack (Recommended)</span>
@@ -238,7 +238,7 @@ const Settings = () => {
                                                 value={systemSettings.notification_email}
                                                 onChange={handleSystemChange}
                                                 placeholder="noreply@yourdomain.com"
-                                                className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                                                className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none transition"
                                             />
                                         </div>
                                         <p className="text-xs text-slate-500 mt-1">This email will appear as the sender.</p>
@@ -252,7 +252,7 @@ const Settings = () => {
                                             value={systemSettings.email_config.smtp_host}
                                             onChange={handleSystemChange}
                                             placeholder="smtp.gmail.com"
-                                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
                                         />
                                     </div>
 
@@ -264,7 +264,7 @@ const Settings = () => {
                                             value={systemSettings.email_config.smtp_port}
                                             onChange={handleSystemChange}
                                             placeholder="587"
-                                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
                                         />
                                     </div>
 
@@ -276,7 +276,7 @@ const Settings = () => {
                                             value={systemSettings.email_config.smtp_user}
                                             onChange={handleSystemChange}
                                             placeholder="username"
-                                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
                                         />
                                     </div>
 
@@ -288,7 +288,7 @@ const Settings = () => {
                                             value={systemSettings.email_config.smtp_pass}
                                             onChange={handleSystemChange}
                                             placeholder="••••••••"
-                                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
                                         />
                                     </div>
 
@@ -300,7 +300,7 @@ const Settings = () => {
                                             value={systemSettings.email_config.sender_name}
                                             onChange={handleSystemChange}
                                             placeholder="VTU App"
-                                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
                                         />
                                     </div>
 
@@ -311,7 +311,7 @@ const Settings = () => {
                                                 name="smtp_secure"
                                                 checked={systemSettings.email_config.smtp_secure}
                                                 onChange={handleSystemChange}
-                                                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                                                className="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500"
                                             />
                                             <span className="ml-2 text-sm text-slate-700 font-medium">Use Secure Connection (SSL/TLS)</span>
                                         </label>
@@ -323,7 +323,7 @@ const Settings = () => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all shadow-sm hover:shadow-md disabled:opacity-50"
+                                    className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all shadow-sm hover:shadow-md disabled:opacity-50"
                                 >
                                     <Save className="w-4 h-4" />
                                     Save Configuration
@@ -406,7 +406,7 @@ const Settings = () => {
                                             value={supportData.facebookUrl || ''}
                                             onChange={handleSupportChange}
                                             placeholder="https://facebook.com/..."
-                                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none text-sm"
                                         />
                                     </div>
                                     <div>
@@ -417,7 +417,7 @@ const Settings = () => {
                                             value={supportData.twitterUrl || ''}
                                             onChange={handleSupportChange}
                                             placeholder="https://twitter.com/..."
-                                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none text-sm"
                                         />
                                     </div>
                                     <div>

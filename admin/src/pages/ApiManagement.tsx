@@ -138,7 +138,7 @@ const ApiManagement: React.FC = () => {
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id as any)}
                                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${activeTab === tab.id
-                                            ? 'bg-white text-blue-600 shadow-sm ring-1 ring-black/5'
+                                            ? 'bg-white text-purple-600 shadow-sm ring-1 ring-black/5'
                                             : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
                                         }`}
                                 >
@@ -162,14 +162,14 @@ const ApiManagement: React.FC = () => {
                                             placeholder="Search users..."
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
-                                            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
                                         />
                                     </div>
                                 </div>
 
                                 {isLoadingUsers ? (
                                     <div className="py-12 text-center">
-                                        <RefreshCw className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-2" />
+                                        <RefreshCw className="w-8 h-8 text-purple-600 animate-spin mx-auto mb-2" />
                                         <p className="text-slate-500">Loading users...</p>
                                     </div>
                                 ) : users.length === 0 ? (
@@ -232,7 +232,7 @@ const ApiManagement: React.FC = () => {
                                                         ) : (
                                                             <button
                                                                 onClick={() => generateMutation.mutate(user._id)}
-                                                                className="w-full py-2 flex items-center justify-center gap-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg text-sm font-medium transition"
+                                                                className="w-full py-2 flex items-center justify-center gap-2 text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg text-sm font-medium transition"
                                                             >
                                                                 <Key className="w-4 h-4" /> Generate Key
                                                             </button>
@@ -296,7 +296,7 @@ const ApiManagement: React.FC = () => {
                                                                         <Trash2 className="w-3.5 h-3.5" /> Revoke
                                                                     </button>
                                                                 ) : (
-                                                                    <button onClick={() => generateMutation.mutate(user._id)} className="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center gap-1">
+                                                                    <button onClick={() => generateMutation.mutate(user._id)} className="text-purple-600 hover:text-purple-700 text-sm font-medium inline-flex items-center gap-1">
                                                                         <Key className="w-3.5 h-3.5" /> Generate
                                                                     </button>
                                                                 )}
@@ -321,7 +321,7 @@ const ApiManagement: React.FC = () => {
                                     <select
                                         value={filterType}
                                         onChange={(e) => setFilterType(e.target.value as any)}
-                                        className="w-full sm:w-auto px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full sm:w-auto px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                                     >
                                         <option value="ALL">All Services</option>
                                         <option value="DATA">Data Bundles</option>
@@ -331,7 +331,7 @@ const ApiManagement: React.FC = () => {
 
                                 {isLoadingPlans ? (
                                     <div className="py-12 text-center">
-                                        <RefreshCw className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-2" />
+                                        <RefreshCw className="w-8 h-8 text-purple-600 animate-spin mx-auto mb-2" />
                                         <p className="text-slate-500">Loading plans...</p>
                                     </div>
                                 ) : plans.length === 0 ? (
@@ -359,7 +359,7 @@ const ApiManagement: React.FC = () => {
                                                             </div>
                                                             <div className="text-right">
                                                                 <p className="text-xs text-slate-400 mb-0.5">API Price</p>
-                                                                <p className="text-sm font-bold text-blue-600">₦{apiPrice.toFixed(2)}</p>
+                                                                <p className="text-sm font-bold text-purple-600">₦{apiPrice.toFixed(2)}</p>
                                                             </div>
                                                         </div>
                                                         <div className="flex items-end gap-3 pt-2">
@@ -377,7 +377,7 @@ const ApiManagement: React.FC = () => {
                                                             </div>
                                                             <button
                                                                 onClick={() => updatePriceMutation.mutate({ id: plan._id, api_discount: apiDiscount })}
-                                                                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium shadow-sm hover:bg-blue-700 active:scale-95 transition"
+                                                                className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium shadow-sm hover:bg-purple-700 active:scale-95 transition"
                                                             >
                                                                 Save
                                                             </button>
@@ -420,18 +420,18 @@ const ApiManagement: React.FC = () => {
                                                                                 type="number"
                                                                                 value={apiDiscount}
                                                                                 onChange={(e) => setEditingPrices(prev => ({ ...prev, [plan._id]: parseFloat(e.target.value) }))}
-                                                                                className="w-full px-2 py-1 border border-slate-300 rounded text-sm focus:ring-1 focus:ring-blue-500 outline-none"
+                                                                                className="w-full px-2 py-1 border border-slate-300 rounded text-sm focus:ring-1 focus:ring-purple-500 outline-none"
                                                                                 min="0" max="100" step="0.1"
                                                                             />
                                                                             <span className="text-slate-400 text-xs">%</span>
                                                                         </div>
                                                                     </td>
-                                                                    <td className="px-6 py-4 text-sm font-bold text-blue-600">₦{apiPrice.toFixed(2)}</td>
+                                                                    <td className="px-6 py-4 text-sm font-bold text-purple-600">₦{apiPrice.toFixed(2)}</td>
                                                                     <td className="px-6 py-4 text-right">
                                                                         <button
                                                                             onClick={() => updatePriceMutation.mutate({ id: plan._id, api_discount: apiDiscount })}
                                                                             disabled={updatePriceMutation.isPending}
-                                                                            className="text-blue-600 hover:text-blue-700 text-sm font-medium disabled:opacity-50"
+                                                                            className="text-purple-600 hover:text-purple-700 text-sm font-medium disabled:opacity-50"
                                                                         >
                                                                             Save
                                                                         </button>
@@ -471,7 +471,7 @@ const ApiManagement: React.FC = () => {
                                     {/* Wallet Balance */}
                                     <div className="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
                                         <div className="bg-slate-100 px-4 py-2 border-b border-slate-200 flex items-center justify-between">
-                                            <span className="text-xs font-bold text-blue-700">GET</span>
+                                            <span className="text-xs font-bold text-purple-700">GET</span>
                                             <span className="text-xs font-mono text-slate-600 break-all ml-2">/billpayment/balance</span>
                                         </div>
                                         <div className="p-4 overflow-x-auto">
@@ -484,7 +484,7 @@ const ApiManagement: React.FC = () => {
                                     {/* Data Plans */}
                                     <div className="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
                                         <div className="bg-slate-100 px-4 py-2 border-b border-slate-200 flex items-center justify-between">
-                                            <span className="text-xs font-bold text-blue-700">GET</span>
+                                            <span className="text-xs font-bold text-purple-700">GET</span>
                                             <span className="text-xs font-mono text-slate-600 break-all ml-2">/billpayment/data-plans</span>
                                         </div>
                                         <div className="p-4 overflow-x-auto">
@@ -527,7 +527,7 @@ const ApiManagement: React.FC = () => {
                                                 value={testApiKey}
                                                 onChange={(e) => setTestApiKey(e.target.value)}
                                                 placeholder="sk_live_..."
-                                                className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                                className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
                                             />
                                         </div>
 
@@ -540,7 +540,7 @@ const ApiManagement: React.FC = () => {
                                                     value={testPhone}
                                                     onChange={(e) => setTestPhone(e.target.value)}
                                                     placeholder="08012345678"
-                                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
                                                 />
                                             </div>
                                             <div>
@@ -552,7 +552,7 @@ const ApiManagement: React.FC = () => {
                                                         setTestAmount('');
                                                         setTestPlan('');
                                                     }}
-                                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
                                                 >
                                                     <option value="1">MTN</option>
                                                     <option value="2">Airtel</option>
@@ -575,7 +575,7 @@ const ApiManagement: React.FC = () => {
                                                     }
                                                 }}
                                                 required
-                                                className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                                className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
                                             >
                                                 <option value="">Select a plan</option>
                                                 {plans
@@ -602,7 +602,7 @@ const ApiManagement: React.FC = () => {
                                         <button
                                             type="submit"
                                             disabled={isTesting}
-                                            className="w-full bg-blue-600 text-white py-2.5 sm:py-3 rounded-xl font-semibold hover:bg-blue-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                                            className="w-full bg-purple-600 text-white py-2.5 sm:py-3 rounded-xl font-semibold hover:bg-purple-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
                                         >
                                             {isTesting ? (
                                                 <>
