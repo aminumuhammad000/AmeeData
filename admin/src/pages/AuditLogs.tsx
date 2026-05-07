@@ -15,14 +15,7 @@ const AuditLogs: React.FC = () => {
   const logs = data?.data || [];
   const pagination = data?.pagination || { page: 1, pages: 1, total: 0 };
 
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const deleteMutation = useMutation({
-    mutationFn: () => deleteAuditLog(deleteId!).then((res: any) => res.data),
-    onSuccess: () => {
-      setDeleteId(null);
-      queryClient.invalidateQueries({ queryKey: ['audit-logs'] });
-    },
-  });
+  const [viewLog, setViewLog] = useState<any | null>(null);
 
   const getActionColor = (action: string) => {
     if (action?.includes('delete')) return 'bg-red-100 text-red-800 border-red-200';
@@ -51,7 +44,7 @@ const AuditLogs: React.FC = () => {
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[400px]">
             {status === 'pending' ? (
               <div className="flex flex-col items-center justify-center p-12 h-64">
-                <div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+                <div className="w-10 h-10 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mb-4"></div>
                 <p className="text-slate-500 font-medium">Loading logs...</p>
               </div>
             ) : status === 'error' ? (
@@ -60,7 +53,7 @@ const AuditLogs: React.FC = () => {
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
                 <p className="text-slate-900 font-semibold">Failed to load audit logs</p>
-                <button onClick={() => queryClient.invalidateQueries({ queryKey: ['audit-logs'] })} className="mt-2 text-blue-600 text-sm hover:underline">Try Again</button>
+                <button onClick={() => queryClient.invalidateQueries({ queryKey: ['audit-logs'] })} className="mt-2 text-purple-600 text-sm hover:underline">Try Again</button>
               </div>
             ) : logs.length === 0 ? (
               <div className="p-12 text-center">
@@ -109,11 +102,11 @@ const AuditLogs: React.FC = () => {
                           </td>
                           <td className="px-6 py-4 text-right">
                             <button
-                              onClick={() => setDeleteId(log._id || log.id)}
-                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition opacity-0 group-hover:opacity-100"
-                              title="Delete Log"
+                              onClick={() => setViewLog(log)}
+                              className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded transition opacity-0 group-hover:opacity-100"
+                              title="View Details"
                             >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0l1-3h6l1 3" /></svg>
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                             </button>
                           </td>
                         </tr>
@@ -156,11 +149,11 @@ const AuditLogs: React.FC = () => {
 
                       <div className="pt-2 border-t border-slate-50 flex justify-end">
                         <button
-                          onClick={() => setDeleteId(log._id || log.id)}
-                          className="text-red-500 text-xs font-medium hover:text-red-700 flex items-center gap-1"
+                          onClick={() => setViewLog(log)}
+                          className="text-purple-600 text-xs font-medium hover:text-purple-700 flex items-center gap-1"
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0l1-3h6l1 3" /></svg>
-                          Delete Entry
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                          View Details
                         </button>
                       </div>
                     </div>
@@ -195,32 +188,58 @@ const AuditLogs: React.FC = () => {
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
-      {deleteId && (
+      {/* View Detail Modal */}
+      {viewLog && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 text-center">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0l1-3h6l1 3" /></svg>
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Delete Log Entry?</h3>
-              <p className="text-slate-500 text-sm mb-6">This action cannot be undone. Are you sure you want to permanently delete this audit record?</p>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+              <h3 className="text-lg font-bold text-slate-900 uppercase tracking-tight">Log Details</h3>
+              <button 
+                onClick={() => setViewLog(null)}
+                className="p-1 hover:bg-slate-200 rounded-full transition text-slate-500"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh]">
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                   <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Action</span>
+                      <span className={`inline-flex px-2 py-0.5 rounded text-xs font-bold border ${getActionColor(viewLog.action)}`}>
+                        {viewLog.action?.replace(/_/g, ' ').toUpperCase()}
+                      </span>
+                   </div>
+                   <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Admin</span>
+                      <span className="text-sm font-semibold text-slate-900">{viewLog.admin_id?.email}</span>
+                   </div>
+                </div>
 
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setDeleteId(null)}
-                  className="flex-1 px-4 py-2.5 border border-slate-300 rounded-xl text-slate-700 font-medium hover:bg-slate-50 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => deleteMutation.mutate()}
-                  disabled={deleteMutation.status === 'pending'}
-                  className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition disabled:opacity-70"
-                >
-                  {deleteMutation.status === 'pending' ? 'Deleting...' : 'Delete'}
-                </button>
+                <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
+                   <span className="text-[10px] uppercase font-bold text-slate-400 block mb-2">Detailed Payload</span>
+                   <pre className="text-xs bg-slate-900 text-blue-400 p-4 rounded-lg overflow-x-auto font-mono scrollbar-hide">
+                      {JSON.stringify(viewLog.details || viewLog.payload || { entity: viewLog.entity_type, id: viewLog.entity_id }, null, 2)}
+                   </pre>
+                </div>
+
+                {viewLog.action === 'credit_wallet' && viewLog.details && (
+                   <div className="bg-purple-50 p-4 rounded-lg border border-purple-100">
+                      <h4 className="text-xs font-bold text-purple-800 uppercase mb-2">Wallet Credit Info</h4>
+                      <p className="text-sm text-slate-700"><strong>Amount:</strong> ₦{viewLog.details.amount}</p>
+                      <p className="text-sm text-slate-700"><strong>Target User:</strong> {viewLog.details.user_email || viewLog.details.userId}</p>
+                      <p className="text-sm text-slate-700"><strong>Description:</strong> {viewLog.details.description}</p>
+                   </div>
+                )}
               </div>
+            </div>
+            <div className="px-6 py-4 border-t border-slate-100 flex justify-end bg-slate-50">
+              <button
+                onClick={() => setViewLog(null)}
+                className="px-6 py-2 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition shadow-md"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

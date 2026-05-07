@@ -182,7 +182,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, setIsMobileOpen }) => {
                 <img src="/ameedata-logo.png" alt="Logo" className="w-full h-full object-contain" />
               </div>
               <div>
-                <h1 className="text-lg font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
+                <h1 className="text-lg font-bold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
                   AmeeData
                 </h1>
                 <p className="text-xs text-slate-400">Admin Panel</p>
@@ -225,7 +225,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, setIsMobileOpen }) => {
               onClick={handleNavClick}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${isActive
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg'
+                  ? 'bg-gradient-to-r from-purple-600 to-purple-500 text-white shadow-lg'
                   : 'text-slate-300 hover:bg-slate-700 hover:text-white'
                 }`
               }
