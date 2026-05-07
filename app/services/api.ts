@@ -19,7 +19,7 @@ import {
 
 // Local development - use computer's IP for physical devices
 // export const API_BASE_URL = 'http://192.168.43.204:5000/api';
-export const API_BASE_URL = 'https://api.ibdata.com.ng/api'; // Production
+export const API_BASE_URL = 'http://localhost:5000/api'; // Local Server
 
 
 // Log the API URL being used
