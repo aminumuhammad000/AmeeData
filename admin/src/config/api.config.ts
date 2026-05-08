@@ -1,8 +1,8 @@
-export const USE_LOCAL_API = true; // Toggle this for local vs production testing
+export const USE_LOCAL_API = false; // Toggle this for local vs production testing
 
 export const API_URLS = {
     LOCAL: 'http://localhost:5000/api',
-    PRODUCTION: 'https://api.ibdata.com.ng/api'
+    PRODUCTION: 'https://api.ameedata.com.ng/api'
 };
 
 export const getApiUrl = () => {

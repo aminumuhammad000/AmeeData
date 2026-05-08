@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
-import { deleteAuditLog, getAuditLogs } from '../api/adminApi';
+import { getAuditLogs } from '../api/adminApi';
 import Layout from '../components/Layout';
 
 const AuditLogs: React.FC = () => {
