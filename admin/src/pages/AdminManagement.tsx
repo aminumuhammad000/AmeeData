@@ -71,7 +71,12 @@ const AdminManagement: React.FC = () => {
 
   const roles = rolesData || [];
 
-  const isSuperAdmin = user?.role?.name === 'Super Admin' || user?.adminType === 'super-admin' || user?.type === 'super-admin';
+  const isSuperAdmin = 
+    user?.role_id?.name === 'Super Admin' || 
+    user?.role?.name === 'Super Admin' || 
+    user?.adminType === 'super-admin' || 
+    user?.type === 'super-admin';
+
 
 
   return (

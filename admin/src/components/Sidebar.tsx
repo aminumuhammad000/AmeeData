@@ -157,7 +157,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, setIsMobileOpen }) => {
 
   // Filter nav items based on role
   const filteredNavItems = navItems.filter(item => {
-    if (user?.role?.name === 'API Manager') {
+    if (user?.role_id?.name === 'API Manager' || user?.role?.name === 'API Manager') {
       return ['/api-management', '/notifications'].includes(item.to);
     }
     return true; // Super Admin sees everything
