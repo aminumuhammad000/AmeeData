@@ -22,8 +22,7 @@ const SignupScreen = () => {
   const [phone_number, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [first_name, setFirstName] = useState("");
-  const [last_name, setLastName] = useState("");
+  const [full_name, setFullName] = useState("");
   const [referral_code, setReferralCode] = useState("");
   const [pin, setPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
@@ -63,8 +62,13 @@ const SignupScreen = () => {
     let newErrors = {};
     let isValid = true;
 
-    if (!first_name) { newErrors.first_name = "First name is required"; isValid = false; }
-    if (!last_name) { newErrors.last_name = "Last name is required"; isValid = false; }
+    if (!full_name.trim()) { 
+      newErrors.full_name = "Full name is required"; 
+      isValid = false; 
+    } else if (full_name.trim().split(" ").length < 2) {
+      newErrors.full_name = "Please enter both first and last name"; 
+      isValid = false;
+    }
     if (!email) {
       newErrors.email = "Email is required"; isValid = false;
     } else if (!/^\S+@\S+\.\S+$/.test(email)) {
@@ -118,18 +122,22 @@ const SignupScreen = () => {
     setIsLoading(true);
 
     try {
+      const nameParts = full_name.trim().split(" ");
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(" ") || " ";
+
       const response = await authService.register({
         email,
         phone_number,
         password,
-        first_name,
-        last_name,
+        first_name: firstName,
+        last_name: lastName,
         referral_code: referral_code || undefined,
         pin,
       });
 
       if (response.success) {
-        Alert.alert("🎉 Account Created", `Welcome ${first_name}! Your account is ready.`, [
+        Alert.alert("🎉 Account Created", `Welcome ${firstName}! Your account is ready.`, [
           { text: "Continue", onPress: () => router.replace("/(tabs)") }
         ]);
       }
@@ -227,8 +235,7 @@ const SignupScreen = () => {
         <View style={styles.formContainer}>
           {step === 1 && (
             <View>
-              {renderInput("First Name", first_name, setFirstName, "first_name", "Enter your first name", { props: { autoCapitalize: "words" } })}
-              {renderInput("Last Name", last_name, setLastName, "last_name", "Enter your last name", { props: { autoCapitalize: "words" } })}
+              {renderInput("Full Name", full_name, setFullName, "full_name", "Enter your first and last name", { props: { autoCapitalize: "words" } })}
               {renderInput("Email Address", email, setEmail, "email", "Enter your email address", { props: { keyboardType: "email-address", autoCapitalize: "none", autoCorrect: false } })}
               {renderInput("Phone Number", phone_number, setPhoneNumber, "phone_number", "Enter your phone number", {
                 prefix: "+234",
@@ -281,11 +288,13 @@ const SignupScreen = () => {
           {step === 3 && (
             <View>
               {renderInput("Transaction PIN", pin, setPin, "pin", "Enter 4-digit PIN", {
+                helperText: "Must be exactly 4 digits",
                 props: { keyboardType: "number-pad", secureTextEntry: true, maxLength: 4 },
                 onChangeTextHook: (t) => setPin(t.replace(/\D/g, '').slice(0, 4))
               })}
 
               {renderInput("Confirm PIN", confirmPin, setConfirmPin, "confirmPin", "Confirm 4-digit PIN", {
+                helperText: "Must be exactly 4 digits",
                 props: { keyboardType: "number-pad", secureTextEntry: true, maxLength: 4 },
                 onChangeTextHook: (t) => setConfirmPin(t.replace(/\D/g, '').slice(0, 4))
               })}
@@ -296,7 +305,6 @@ const SignupScreen = () => {
                 style={[
                   styles.button,
                   styles.primaryButton,
-                  styles.finishButton,
                   isLoading && styles.buttonDisabled,
                 ]}
                 onPress={handleSignup}
@@ -454,10 +462,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 4,
-  },
-  finishButton: {
-    backgroundColor: "#16A34A", // Green for finish
-    shadowColor: "#16A34A",
   },
   primaryButtonText: {
     color: "#FFFFFF",

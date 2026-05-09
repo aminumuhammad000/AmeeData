@@ -121,8 +121,8 @@ export default function ForgotPasswordScreen() {
                 )}
               </TouchableOpacity>
 
-              <TouchableOpacity style={[styles.button, styles.secondaryButton]} onPress={() => router.replace("/login")}>
-                <Text style={styles.secondaryButtonText}>Back to Sign In</Text>
+              <TouchableOpacity style={{ alignItems: 'center', marginTop: 16 }} onPress={() => router.replace("/login")} hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
+                <Text style={{ color: theme.primary, fontFamily: "Poppins-Medium", fontSize: 14 }}>Back to Sign In</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
   logoContainer: { alignItems: "center", marginBottom: 24 },
   logo: { width: 64, height: 64, resizeMode: "contain", marginBottom: 8 },
   title: { fontSize: 24, fontFamily: "Poppins-Bold" },
-  subtitle: { fontSize: 14, fontFamily: "Poppins-Regular" },
+  subtitle: { fontSize: 14, fontFamily: "Poppins-Regular", textAlign: "center" },
   formContainer: { paddingHorizontal: 24 },
   inputContainer: { marginBottom: 16 },
   inputLabel: { fontSize: 14, marginBottom: 8, fontFamily: "Poppins-Medium" },

@@ -153,12 +153,15 @@ export default function VerifyOTPScreen() {
                 )}
               </TouchableOpacity>
 
-              <TouchableOpacity style={[styles.button, styles.secondaryButton]} onPress={onResend}>
-                <Text style={styles.secondaryButtonText}>Resend OTP</Text>
-              </TouchableOpacity>
+              <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 16, marginBottom: 8 }}>
+                <Text style={{ color: textBodyColor, fontFamily: "Poppins-Medium", fontSize: 14 }}>Didn't receive the code? </Text>
+                <TouchableOpacity onPress={onResend} hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
+                  <Text style={{ color: theme.primary, fontFamily: "Poppins-SemiBold", fontSize: 14 }}>Resend OTP</Text>
+                </TouchableOpacity>
+              </View>
 
-              <TouchableOpacity style={[styles.button, styles.ghostButton]} onPress={() => router.replace("/login")}>
-                <Text style={[styles.secondaryButtonText, { color: textBodyColor }]}>Back to Sign In</Text>
+              <TouchableOpacity style={{ alignItems: 'center', marginTop: 12 }} onPress={() => router.replace("/login")} hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
+                <Text style={{ color: textBodyColor, fontFamily: "Poppins-Medium", fontSize: 14 }}>Back to Sign In</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -175,7 +178,7 @@ const styles = StyleSheet.create({
   logoContainer: { alignItems: "center", marginBottom: 24 },
   logo: { width: 64, height: 64, resizeMode: "contain", marginBottom: 8 },
   title: { fontSize: 24, fontFamily: "Poppins-Bold" },
-  subtitle: { fontSize: 14, fontFamily: "Poppins-Regular" },
+  subtitle: { fontSize: 14, fontFamily: "Poppins-Regular", textAlign: "center" },
   formContainer: { paddingHorizontal: 24 },
   inputContainer: { marginBottom: 16 },
   inputLabel: { fontSize: 14, marginBottom: 8, fontFamily: "Poppins-Medium" },

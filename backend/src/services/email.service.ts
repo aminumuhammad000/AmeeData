@@ -31,7 +31,7 @@ export class EmailService {
             }
 
             const settings = await SystemSetting.findOne({ type: 'global_config' });
-            const senderName = settings?.config?.email_config?.sender_name || 'VTU App';
+            const senderName = settings?.config?.email_config?.sender_name || 'AmeeData';
             const senderEmail = settings?.config?.notification_email || settings?.config?.email_config?.smtp_user;
 
             const info = await transporter.sendMail({
@@ -56,12 +56,12 @@ export class EmailService {
                 <h2 style="color: #333; text-align: center;">Password Reset Request</h2>
                 <p style="color: #666; font-size: 16px;">Hello,</p>
                 <p style="color: #666; font-size: 16px;">You have requested to reset your password. Please use the following One-Time Password (OTP) to proceed:</p>
-                <div style="background-color: #f5f5f5; padding: 15px; text-align: center; border-radius: 5px; margin: 20px 0;">
-                    <span style="font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #007bff;">${otp}</span>
+                <div style="background-color: #f5f5f5; padding: 15px; text-align: center; border-radius: 8px; margin: 24px 0;">
+                    <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #6C2BD9;">${otp}</span>
                 </div>
-                <p style="color: #666; font-size: 14px;">This OTP is valid for 10 minutes. If you did not request this, please ignore this email.</p>
+                <p style="color: #666; font-size: 14px; line-height: 1.5;">This OTP is valid for 10 minutes. If you did not request this, please ignore this email.</p>
                 <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-                <p style="color: #999; font-size: 12px; text-align: center;">&copy; ${new Date().getFullYear()} VTU App. All rights reserved.</p>
+                <p style="color: #999; font-size: 12px; text-align: center;">&copy; ${new Date().getFullYear()} AmeeData. All rights reserved.</p>
             </div>
         `;
         return this.sendEmail(to, subject, html);
