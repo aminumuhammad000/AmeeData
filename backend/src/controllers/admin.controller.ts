@@ -335,7 +335,7 @@ export class AdminController {
    */
   static async createAdminUser(req: AuthRequest, res: Response) {
     try {
-      const { email, first_name, last_name, password, type } = req.body;
+      const { email, first_name, last_name, password, type, role_id } = req.body;
 
       // Check if current admin is super-admin
       if (req.user?.adminType !== 'super-admin') {
@@ -362,6 +362,15 @@ export class AdminController {
       // Hash password
       const password_hash = await bcrypt.hash(password, 10);
 
+      // Handle role_id
+      let finalRoleId = role_id;
+      if (type === 'super-admin' && (!role_id || role_id === '')) {
+         const superAdminRole = await AdminRole.findOne({ name: 'Super Admin' });
+         if (superAdminRole) {
+            finalRoleId = superAdminRole._id;
+         }
+      }
+
       // Create new admin
       const newAdmin = await AdminUser.create({
         email: email.toLowerCase(),
@@ -370,6 +379,7 @@ export class AdminController {
         last_name,
         type: type || 'sub-admin',
         status: 'active',
+        role_id: finalRoleId || undefined,
       });
 
       // Log action
