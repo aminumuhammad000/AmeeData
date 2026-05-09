@@ -4,7 +4,7 @@ import { ThemeProvider } from '@/components/ThemeContext';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { useFonts } from 'expo-font';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, usnow } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
