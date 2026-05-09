@@ -31,6 +31,7 @@ const userSchema = new Schema({
         provider: { type: String },
         status: { type: String },
     },
+    push_token: { type: String },
     status: { type: String, enum: ['active', 'inactive', 'suspended'], default: 'active' },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now }

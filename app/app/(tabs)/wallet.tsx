@@ -141,43 +141,17 @@ export default function WalletTab() {
         }
     };
 
-    const menuItems = [
-        {
-            icon: 'add-circle-outline',
-            label: 'Add Money',
-            sublabel: 'Fund your wallet via card or transfer',
-            route: '/add-money',
-            color: THEME_COLORS.primary
-        },
-        {
-            icon: 'card-outline',
-            label: 'Payment Methods',
-            sublabel: 'Manage your saved cards and banks',
-            route: '/payment-methods',
-            color: '#6C2BD9'
-        },
-        {
-            icon: 'lock-closed-outline',
-            label: 'Transaction PIN',
-            sublabel: 'Secure your wallet with a 4-digit PIN',
-            route: '/security',
-            color: '#8B5CF6'
-        },
-        {
-            icon: 'list-outline',
-            label: 'Transaction History',
-            sublabel: 'View all your recent transactions',
-            route: '/(tabs)/transactions',
-            color: '#10B981'
-        }
-    ];
+
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
             <StatusBar style={isDark ? 'light' : 'dark'} />
 
             {/* Header */}
-            <View style={[styles.header, { backgroundColor: bgColor }]}>
+            <View style={[styles.header, { backgroundColor: bgColor, flexDirection: 'row', alignItems: 'center' }]}>
+                <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 16 }}>
+                    <Ionicons name="arrow-back" size={24} color={textColor} />
+                </TouchableOpacity>
                 <Text style={[styles.headerTitle, { color: textColor }]}>My Wallet</Text>
             </View>
 
@@ -260,31 +234,7 @@ export default function WalletTab() {
                     )}
                 </View>
 
-                {/* Management Options */}
-                <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: textBodyColor }]}>Wallet Management</Text>
-                    <View style={[styles.menuCard, { backgroundColor: cardBg, borderColor, borderWidth: 1 }]}>
-                        {menuItems.map((item, index) => (
-                            <TouchableOpacity
-                                key={index}
-                                style={[
-                                    styles.menuItem,
-                                    index < menuItems.length - 1 && { borderBottomWidth: 1, borderBottomColor: borderColor }
-                                ]}
-                                onPress={() => router.push(item.route as any)}
-                            >
-                                <View style={[styles.iconBox, { backgroundColor: `${item.color}15` }]}>
-                                    <Ionicons name={item.icon as any} size={22} color={item.color} />
-                                </View>
-                                <View style={styles.menuText}>
-                                    <Text style={[styles.menuLabel, { color: textColor }]}>{item.label}</Text>
-                                    <Text style={[styles.menuSublabel, { color: textBodyColor }]}>{item.sublabel}</Text>
-                                </View>
-                                <Ionicons name="chevron-forward" size={18} color={textBodyColor} />
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                </View>
+
 
                 <View style={{ height: 100 }} />
             </ScrollView>

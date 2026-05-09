@@ -15,7 +15,7 @@ export interface ProfileData {
 
 interface ProfileContextType {
   profileData: ProfileData;
-  updateProfile: (data: ProfileData) => void;
+  updateProfile: (data: Partial<ProfileData>) => void;
   getFullName: () => string;
 }
 
@@ -61,7 +61,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
             address: user.address || '',
             city: user.city || '',
             state: user.state || '',
-            profileImage: user.avatar || 'https://i.pravatar.cc/150?img=12',
+            profileImage: user.profile_picture || 'https://i.pravatar.cc/150?img=12',
           });
         } else {
           // Fallback to cached user data
@@ -75,7 +75,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
               address: cachedUser.address || '',
               city: cachedUser.city || '',
               state: cachedUser.state || '',
-              profileImage: cachedUser.avatar || 'https://i.pravatar.cc/150?img=12',
+              profileImage: cachedUser.profile_picture || 'https://i.pravatar.cc/150?img=12',
             });
           }
         }
@@ -92,7 +92,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
             address: cachedUser.address || '',
             city: cachedUser.city || '',
             state: cachedUser.state || '',
-            profileImage: cachedUser.avatar || 'https://i.pravatar.cc/150?img=12',
+            profileImage: cachedUser.profile_picture || 'https://i.pravatar.cc/150?img=12',
           });
         }
       }
@@ -101,8 +101,8 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
     loadUserProfile();
   }, []);
 
-  const updateProfile = (data: ProfileData) => {
-    setProfileData(data);
+  const updateProfile = (data: Partial<ProfileData>) => {
+    setProfileData(prev => ({ ...prev, ...data }));
   };
 
   const getFullName = () => {

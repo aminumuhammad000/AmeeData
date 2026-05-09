@@ -2,7 +2,7 @@ import { useAlert } from '@/components/AlertContext';
 import TransactionPinModal from '@/components/TransactionPinModal';
 import { billPaymentService } from '@/services/billpayment.service';
 import { Ionicons } from '@expo/vector-icons';
-import * as Contacts from 'expo-contacts';
+
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -112,54 +112,7 @@ export default function BuyAirtimeScreen() {
     loadNetworks();
   }, []);
 
-  const selectContact = async () => {
-    const { status } = await Contacts.requestPermissionsAsync();
-    if (status === 'granted') {
-      const { data } = await Contacts.getContactsAsync({
-        fields: [Contacts.Fields.PhoneNumbers],
-      });
-      if (data.length > 0) {
-        try {
-          const contact = await Contacts.presentContactPickerAsync();
-          if (contact && contact.phoneNumbers && contact.phoneNumbers.length > 0) {
-            let number = contact.phoneNumbers[0].number;
-            // Clean number
-            if (number) {
-              number = number.replace(/\D/g, '');
-              // Handle +234
-              if (number.startsWith('234')) {
-                number = '0' + number.slice(3);
-              }
-              // Handle 234 without +
-              if (number.length === 13 && number.startsWith('234')) {
-                number = '0' + number.slice(3);
-              }
-              setPhoneNumber(number);
-            }
-          }
-        } catch (err) {
-          console.log(err);
-          showInfo('Could not open contacts');
-        }
-      } else {
-        showInfo('No contacts found');
-      }
-    } else {
-      const { status: currentStatus, canAskAgain } = await Contacts.getPermissionsAsync();
-      if (!canAskAgain && currentStatus !== 'granted') {
-        Alert.alert(
-          'Permission Denied',
-          'You have denied contact access. Please enable it in your phone settings to use this feature.',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Open Settings', onPress: () => Linking.openSettings() }
-          ]
-        );
-      } else {
-        showError('Permission to access contacts was denied. We need this to help you select phone numbers easily.');
-      }
-    }
-  };
+
 
   const initiatePurchase = () => {
     if (!phoneNumber || !selectedNetwork || (!selectedAmount && !customAmount)) {
@@ -241,9 +194,7 @@ export default function BuyAirtimeScreen() {
           <Ionicons name="arrow-back" size={24} color={textColor} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: textColor }]}>Buy Airtime</Text>
-        <TouchableOpacity onPress={selectContact}>
-          <Ionicons name="people" size={24} color={theme.accent} />
-        </TouchableOpacity>
+        <View style={{ width: 24 }} />
       </View>
 
       <ScrollView
@@ -263,8 +214,8 @@ export default function BuyAirtimeScreen() {
                   styles.networkCard,
                   {
                     backgroundColor: cardBgColor,
-                    borderColor: selectedNetworkIndex === idx ? network.color : borderColor,
-                    borderWidth: 2,
+                    borderColor: selectedNetworkIndex === idx ? network.color : 'transparent',
+                    borderWidth: selectedNetworkIndex === idx ? 2 : 0,
                   },
                 ]}
                 onPress={() => { setSelectedNetwork(network.id); setSelectedNetworkIndex(idx); }}
@@ -310,9 +261,7 @@ export default function BuyAirtimeScreen() {
               keyboardType="phone-pad"
               maxLength={11}
             />
-            <TouchableOpacity onPress={selectContact} style={styles.contactBtn}>
-              <Ionicons name="book-outline" size={22} color={theme.accent} />
-            </TouchableOpacity>
+
           </View>
         </View>
 
@@ -327,12 +276,13 @@ export default function BuyAirtimeScreen() {
                   {
                     backgroundColor:
                       selectedAmount === amount ? (isDark ? theme.primary : theme.primary) : cardBgColor,
-                    borderColor: selectedAmount === amount ? theme.accent : borderColor,
+                    borderColor: selectedAmount === amount ? theme.accent : 'transparent',
+                    borderWidth: selectedAmount === amount ? 2 : 0,
                   },
                 ]}
                 onPress={() => {
                   setSelectedAmount(amount);
-                  setCustomAmount('');
+                  setCustomAmount(amount.toString());
                 }}
                 activeOpacity={0.7}
               >
@@ -557,11 +507,11 @@ const styles = StyleSheet.create({
   },
   networksGrid: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
+    justifyContent: 'space-between',
+    gap: 8,
   },
   networkCard: {
-    width: '23%',
+    flex: 1,
     paddingVertical: 12,
     borderRadius: 12,
     alignItems: 'center',
@@ -576,7 +526,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   networkName: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
   },
   checkMark: {
@@ -621,7 +571,6 @@ const styles = StyleSheet.create({
     width: '30%',
     paddingVertical: 16,
     borderRadius: 12,
-    borderWidth: 2,
     alignItems: 'center',
   },
   amountText: {

@@ -1,9 +1,10 @@
 // controllers/user.controller.ts
+import bcrypt from 'bcryptjs';
 import { Response } from 'express';
 import { User } from '../models/index.js';
-import { ApiResponse } from '../utils/response.js';
 import { AuthRequest } from '../types/index.js';
-import bcrypt from 'bcryptjs';
+import { uploadToCloudinary } from '../utils/cloudinary.js';
+import { ApiResponse } from '../utils/response.js';
 
 export class UserController {
   static async getProfile(req: AuthRequest, res: Response) {
@@ -21,13 +22,18 @@ export class UserController {
 
   static async updateProfile(req: AuthRequest, res: Response) {
     try {
-      const allowedUpdates = ['first_name', 'last_name', 'address', 'city', 'state', 'date_of_birth'];
+      const allowedUpdates = ['first_name', 'last_name', 'address', 'city', 'state', 'date_of_birth', 'profile_picture'];
       const updates = Object.keys(req.body)
         .filter(key => allowedUpdates.includes(key))
         .reduce((obj: any, key) => {
           obj[key] = req.body[key];
           return obj;
         }, {});
+
+      if (req.body.profile_picture && req.body.profile_picture.startsWith('data:image')) {
+        const imageUrl = await uploadToCloudinary(req.body.profile_picture, 'profiles');
+        updates.profile_picture = imageUrl;
+      }
 
       const user = await User.findByIdAndUpdate(
         req.user?.id,
@@ -43,7 +49,14 @@ export class UserController {
 
   static async uploadKYC(req: AuthRequest, res: Response) {
     try {
-      const { kyc_document_id_front_url, kyc_document_id_back_url } = req.body;
+      let { kyc_document_id_front_url, kyc_document_id_back_url } = req.body;
+
+      if (kyc_document_id_front_url && kyc_document_id_front_url.startsWith('data:image')) {
+        kyc_document_id_front_url = await uploadToCloudinary(kyc_document_id_front_url, 'kyc');
+      }
+      if (kyc_document_id_back_url && kyc_document_id_back_url.startsWith('data:image')) {
+        kyc_document_id_back_url = await uploadToCloudinary(kyc_document_id_back_url, 'kyc');
+      }
 
       const user = await User.findByIdAndUpdate(
         req.user?.id,

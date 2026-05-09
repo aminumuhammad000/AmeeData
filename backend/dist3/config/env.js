@@ -33,6 +33,12 @@ export const config = {
         apiKey: process.env.TOPUPMATE_API_KEY || '',
         baseUrl: process.env.TOPUPMATE_BASE_URL || 'https://connect.topupmate.com/api',
     },
+    // Cloudinary Configuration
+    cloudinary: {
+        cloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
+        apiKey: process.env.CLOUDINARY_API_KEY || '',
+        apiSecret: process.env.CLOUDINARY_API_SECRET || '',
+    },
     // Service charges (percentage or flat amount - optional)
     serviceCharges: {
         airtime: parseFloat(process.env.AIRTIME_SERVICE_CHARGE || '0'),

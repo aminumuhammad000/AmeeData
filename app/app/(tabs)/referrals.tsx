@@ -48,11 +48,11 @@ export default function ReferralsScreen() {
         try {
             setLoading(true);
             const [statsRes, settingsRes] = await Promise.all([
-                referralService.getStats(),
-                referralService.getSettings(),
+                referralService.getStats().catch(e => ({ data: { referral_count: 0, total_earnings: 0, referrals: [], referral_code: 'ERROR' } })),
+                referralService.getSettings().catch(e => ({ data: { referrer_bonus_amount: 500, min_transaction_for_bonus: 2000 } }))
             ]);
-            setStats(statsRes.data);
-            setSettings(settingsRes.data);
+            if (statsRes?.data) setStats(statsRes.data);
+            if (settingsRes?.data) setSettings(settingsRes.data);
         } catch (error: any) {
             showError(error.message || 'Failed to load referral data');
         } finally {
@@ -90,7 +90,10 @@ export default function ReferralsScreen() {
             <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
             {/* Header */}
-            <View style={[styles.header, { backgroundColor: bgColor }]}>
+            <View style={[styles.header, { backgroundColor: bgColor, flexDirection: 'row', alignItems: 'center' }]}>
+                <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 16 }}>
+                    <Ionicons name="arrow-back" size={24} color={textColor} />
+                </TouchableOpacity>
                 <Text style={[styles.headerTitle, { color: textColor }]}>Refer & Earn</Text>
             </View>
 

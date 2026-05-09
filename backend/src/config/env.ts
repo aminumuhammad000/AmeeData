@@ -41,6 +41,11 @@ export interface Config {
   paystack: PaystackConfig;
   monnify: MonnifyConfig;
   topupmate: TopupmateConfig;
+  cloudinary: {
+    cloudName: string;
+    apiKey: string;
+    apiSecret: string;
+  };
   serviceCharges: ServiceCharges;
   fundingAccount: {
     bankName: string;
@@ -90,6 +95,12 @@ export const config: Config = {
   topupmate: {
     apiKey: process.env.TOPUPMATE_API_KEY || '',
     baseUrl: process.env.TOPUPMATE_BASE_URL || 'https://connect.topupmate.com/api',
+  },
+  // Cloudinary Configuration
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
+    apiKey: process.env.CLOUDINARY_API_KEY || '',
+    apiSecret: process.env.CLOUDINARY_API_SECRET || '',
   },
 
   // Service charges (percentage or flat amount - optional)

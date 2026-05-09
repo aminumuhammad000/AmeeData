@@ -1,3 +1,4 @@
+import { useProfile } from '@/components/ProfileContext';
 import { useTheme } from '@/components/ThemeContext';
 import { authService } from '@/services/auth.service';
 import { billPaymentService } from '@/services/billpayment.service';
@@ -9,6 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter, useNavigation } from 'expo-router';
 import { transactionService, Transaction as ApiTransaction } from '@/services/transaction.service';
+import { notificationService } from '@/services/api';
 
 import { StatusBar } from 'expo-status-bar';
 import React, { useCallback, useState } from 'react';
@@ -34,7 +36,7 @@ export default function HomeScreen() {
   const [isBalanceHidden, setIsBalanceHidden] = useState(false);
   const [selectedAirtimeIndex, setSelectedAirtimeIndex] = useState<number | null>(null);
   const [selectedDataIndex, setSelectedDataIndex] = useState<number | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const { profileData } = useProfile();
   const [wallet, setWallet] = useState<WalletData | null>(null);
 
   const [loading, setLoading] = useState(true);
@@ -42,6 +44,7 @@ export default function HomeScreen() {
   const [pinPrompted, setPinPrompted] = useState(false);
   const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
   const [transactionsLoading, setTransactionsLoading] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
 
   // Load data when screen comes into focus (e.g., after login)
@@ -76,6 +79,7 @@ export default function HomeScreen() {
         loadUserProfile(),
         loadWalletData(),
         loadRecentTransactions(),
+        loadNotifications()
       ]);
     } catch (error: any) {
       console.error('Error loading data:', error);
@@ -144,6 +148,18 @@ export default function HomeScreen() {
 
 
 
+  const loadNotifications = async () => {
+    try {
+      const response = await notificationService.getNotifications();
+      if (response.data.success && response.data.data) {
+        const unread = response.data.data.filter((n: any) => !n.read).length;
+        setUnreadNotifications(unread);
+      }
+    } catch (error) {
+      console.log('Error loading notifications:', error);
+    }
+  };
+
   const onRefresh = async () => {
     setRefreshing(true);
     await loadAllData();
@@ -178,8 +194,8 @@ export default function HomeScreen() {
     try {
       setTransactionsLoading(true);
       const response = await transactionService.getTransactions(1, 5);
-      if (response.success && response.data && Array.isArray(response.data)) {
-        const mapped = response.data.map(mapApiTransactionToLocal);
+      if (response.success && response.data && Array.isArray(response.data.transactions)) {
+        const mapped = response.data.transactions.map(mapApiTransactionToLocal);
         setRecentTransactions(mapped);
       } else {
         setRecentTransactions([]);
@@ -308,7 +324,7 @@ export default function HomeScreen() {
             onPress={() => router.push('/profile')}
           >
             <Image
-              source={{ uri: user?.profile_picture || 'https://i.pravatar.cc/150?img=12' }}
+              source={{ uri: profileData?.profileImage || 'https://i.pravatar.cc/150?img=12' }}
               style={styles.profileImage}
             />
           </TouchableOpacity>
@@ -316,15 +332,30 @@ export default function HomeScreen() {
             <Text style={[styles.welcomeLabel, { color: textBodyColor }]}>
               {new Date().getHours() < 12 ? 'Good Morning' : new Date().getHours() < 18 ? 'Good Afternoon' : 'Good Evening'} 👋
             </Text>
-            <Text style={[styles.welcomeText, { color: textColor }]}>{user?.first_name || 'Guest'}</Text>
+            <Text style={[styles.welcomeText, { color: textColor }]}>{profileData?.firstName || 'Guest'}</Text>
           </View>
         </View>
-        <TouchableOpacity
-          style={styles.notificationBtn}
-          onPress={() => router.push('/notifications')}
-        >
-          <Ionicons name="notifications-outline" size={24} color={textColor} />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+          <TouchableOpacity
+            style={styles.notificationBtn}
+            onPress={() => router.push('/help-support')}
+          >
+            <Ionicons name="help-circle-outline" size={20} color={textColor} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.notificationBtn}
+            onPress={() => router.push('/notifications')}
+          >
+            <Ionicons name="notifications-outline" size={20} color={textColor} />
+            {unreadNotifications > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
+                  {unreadNotifications > 99 ? '99+' : unreadNotifications}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
 
       {loading ? (
@@ -377,23 +408,29 @@ export default function HomeScreen() {
 
           {/* Quick Actions */}
           <View style={styles.quickActions}>
-            <TouchableOpacity
-              style={[styles.actionItem, { marginRight: 8 }]}
-              onPress={() => router.push('/buy-airtime')}
-            >
-              <View style={[styles.actionIcon, { backgroundColor: isDark ? 'rgba(108, 43, 217, 0.2)' : '#EDE9FE', width: '100%', height: 120 }]}>
-                <Ionicons name="phone-portrait" size={48} color="#6C2BD9" />
-                <Text style={[styles.actionTextLarge, { color: textColor }]}>Buy Airtime</Text>
+            <TouchableOpacity style={styles.actionItem} onPress={() => router.push('/buy-airtime')}>
+              <View style={[styles.actionIcon, { backgroundColor: cardBg }]}>
+                <Ionicons name="call" size={24} color={theme.primary} />
               </View>
+              <Text style={[styles.actionTextSmall, { color: textColor }]}>Airtime</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.actionItem, { marginLeft: 8 }]}
-              onPress={() => router.push('/buy-data')}
-            >
-              <View style={[styles.actionIcon, { backgroundColor: isDark ? 'rgba(108, 43, 217, 0.2)' : '#EDE9FE', width: '100%', height: 120 }]}>
-                <Ionicons name="wifi" size={48} color="#6C2BD9" />
-                <Text style={[styles.actionTextLarge, { color: textColor }]}>Buy Data</Text>
+            <TouchableOpacity style={styles.actionItem} onPress={() => router.push('/buy-data')}>
+              <View style={[styles.actionIcon, { backgroundColor: cardBg }]}>
+                <Ionicons name="wifi" size={24} color={theme.primary} />
               </View>
+              <Text style={[styles.actionTextSmall, { color: textColor }]}>Data</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionItem} onPress={() => router.push('/wallet')}>
+              <View style={[styles.actionIcon, { backgroundColor: cardBg }]}>
+                <Ionicons name="wallet" size={24} color={theme.primary} />
+              </View>
+              <Text style={[styles.actionTextSmall, { color: textColor }]}>Wallet</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionItem} onPress={() => router.push('/referrals')}>
+              <View style={[styles.actionIcon, { backgroundColor: cardBg }]}>
+                <Ionicons name="gift" size={24} color={theme.primary} />
+              </View>
+              <Text style={[styles.actionTextSmall, { color: textColor }]}>Referral</Text>
             </TouchableOpacity>
           </View>
 
@@ -467,7 +504,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   seeAllText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
   },
   transactionItem: {
@@ -486,7 +523,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   txName: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
   },
   txDate: {
@@ -494,7 +531,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   txAmount: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
   },
   txStatus: {
@@ -533,9 +570,9 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   profilePic: {
-    width: 45,
-    height: 45,
-    borderRadius: 25,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     overflow: 'hidden',
     borderWidth: 2,
     borderColor: '#FFF',
@@ -545,18 +582,38 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   welcomeLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '500',
     marginBottom: 2,
   },
   welcomeText: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: '700',
   },
   notificationBtn: {
     padding: 8,
     backgroundColor: 'rgba(0,0,0,0.05)',
     borderRadius: 20,
+    position: 'relative',
+  },
+  badge: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    backgroundColor: '#EF4444',
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 1.5,
+    borderColor: '#FFF',
+  },
+  badgeText: {
+    color: '#FFF',
+    fontSize: 9,
+    fontWeight: 'bold',
   },
   balanceCardContainer: {
     paddingHorizontal: 16,
@@ -564,7 +621,7 @@ const styles = StyleSheet.create({
   },
   balanceCard: {
     borderRadius: 20,
-    padding: 24,
+    padding: 20,
     shadowColor: '#6C2BD9',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
@@ -575,11 +632,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   balanceLabel: {
     color: 'rgba(255,255,255,0.7)',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '500',
   },
   hideButton: {
@@ -598,9 +655,9 @@ const styles = StyleSheet.create({
   },
   balanceAmount: {
     color: '#FFFFFF',
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '800',
-    marginBottom: 20,
+    marginBottom: 16,
     letterSpacing: 0.5,
   },
   addMoneyBtn: {
@@ -615,7 +672,7 @@ const styles = StyleSheet.create({
   },
   addMoneyText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '700',
   },
   quickActions: {
@@ -630,15 +687,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   actionIcon: {
-    paddingVertical: 24,
-    borderRadius: 24,
+    width: 60,
+    height: 60,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#6C2BD9',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
+  },
+  actionTextSmall: {
+    fontSize: 11,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: 4,
   },
   actionText: {
     fontSize: 12,
@@ -651,7 +712,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
   },
   formContainer: {

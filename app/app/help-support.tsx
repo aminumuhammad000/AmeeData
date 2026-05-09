@@ -39,9 +39,7 @@ export default function HelpSupportScreen() {
   const borderColor = isDark ? '#374151' : '#E5E7EB';
   const inputBgColor = isDark ? '#374151' : '#F9FAFB';
 
-  const [selectedFAQ, setSelectedFAQ] = useState<number | null>(null);
-  const [supportMessage, setSupportMessage] = useState('');
-  const [isSubmittingTicket, setIsSubmittingTicket] = useState(false);
+
   const [supportContent, setSupportContent] = useState<SupportContent | null>(null);
 
   useEffect(() => {
@@ -59,32 +57,7 @@ export default function HelpSupportScreen() {
     }
   };
 
-  const faqData = [
-    {
-      question: 'How do I buy airtime or data?',
-      answer: 'To buy airtime or data, go to the home screen and select either "Buy Airtime" or "Buy Data". Choose your network provider, enter the phone number, select the amount, and confirm your purchase.'
-    },
-    {
-      question: 'How long does it take for transactions to be processed?',
-      answer: 'Most transactions are processed instantly. However, in some cases, it may take up to 5 minutes. If your transaction takes longer than expected, please contact our support team.'
-    },
-    {
-      question: 'How do I add money to my wallet?',
-      answer: 'You can add money to your wallet by tapping "Add Money" on the home screen. Choose your preferred payment method (bank transfer, card payment, or USSD) and follow the instructions.'
-    },
-    {
-      question: 'What should I do if a transaction fails?',
-      answer: 'If a transaction fails, the amount will be automatically refunded to your wallet within 24 hours. If you don\'t receive your refund, please contact our support team with your transaction reference.'
-    },
-    {
-      question: 'How do I change my password?',
-      answer: 'Go to Profile > Security > Change Password. Enter your current password and your new password. Make sure your new password is at least 8 characters long and includes letters and numbers.'
-    },
-    {
-      question: 'Is my money safe in the app?',
-      answer: 'Yes, your money is completely safe. We use bank-level security encryption and comply with all financial regulations. Your wallet funds are held in secure escrow accounts.'
-    }
-  ];
+
 
   const contactOptions = [
     {
@@ -121,30 +94,7 @@ export default function HelpSupportScreen() {
     }
   ];
 
-  const handleSubmitTicket = async () => {
-    if (!supportMessage.trim()) {
-      showError('Please enter your message');
-      return;
-    }
 
-    setIsSubmittingTicket(true);
-
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      showSuccess('Support ticket submitted successfully! We\'ll get back to you within 24 hours.');
-      setSupportMessage('');
-    } catch (error) {
-      showError('Failed to submit support ticket. Please try again.');
-    } finally {
-      setIsSubmittingTicket(false);
-    }
-  };
-
-  const toggleFAQ = (index: number) => {
-    setSelectedFAQ(selectedFAQ === index ? null : index);
-  };
 
   return (
     <View style={[styles.container, { backgroundColor: bgColor }]}>
@@ -191,70 +141,7 @@ export default function HelpSupportScreen() {
           ))}
         </View>
 
-        {/* Submit Support Ticket */}
-        <View style={[styles.section, { backgroundColor: cardBgColor }]}>
-          <Text style={[styles.sectionTitle, { color: textColor }]}>Submit a Support Ticket</Text>
 
-          <Text style={[styles.inputLabel, { color: textBodyColor }]}>Describe your issue</Text>
-          <TextInput
-            style={[styles.textArea, {
-              backgroundColor: inputBgColor,
-              borderColor: borderColor,
-              color: textColor
-            }]}
-            value={supportMessage}
-            onChangeText={setSupportMessage}
-            placeholder="Please describe your issue in detail..."
-            placeholderTextColor={textBodyColor}
-            multiline
-            numberOfLines={5}
-            textAlignVertical="top"
-          />
-
-          <TouchableOpacity
-            style={[styles.submitButton, {
-              backgroundColor: theme.primary,
-              opacity: isSubmittingTicket ? 0.7 : 1
-            }]}
-            onPress={handleSubmitTicket}
-            disabled={isSubmittingTicket}
-          >
-            <Text style={styles.submitButtonText}>
-              {isSubmittingTicket ? 'Submitting...' : 'Submit Ticket'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* FAQ Section */}
-        <View style={[styles.section, { backgroundColor: cardBgColor }]}>
-          <Text style={[styles.sectionTitle, { color: textColor }]}>Frequently Asked Questions</Text>
-
-          {faqData.map((faq, index) => (
-            <View key={index} style={styles.faqItem}>
-              <TouchableOpacity
-                style={styles.faqQuestion}
-                onPress={() => toggleFAQ(index)}
-              >
-                <Text style={[styles.faqQuestionText, { color: textColor }]}>
-                  {faq.question}
-                </Text>
-                <Ionicons
-                  name={selectedFAQ === index ? "chevron-up" : "chevron-down"}
-                  size={20}
-                  color={textBodyColor}
-                />
-              </TouchableOpacity>
-
-              {selectedFAQ === index && (
-                <View style={styles.faqAnswer}>
-                  <Text style={[styles.faqAnswerText, { color: textBodyColor }]}>
-                    {faq.answer}
-                  </Text>
-                </View>
-              )}
-            </View>
-          ))}
-        </View>
 
 
 

@@ -2,7 +2,7 @@ import { useAlert } from '@/components/AlertContext';
 import TransactionPinModal from '@/components/TransactionPinModal';
 import { billPaymentService } from '@/services/billpayment.service';
 import { Ionicons } from '@expo/vector-icons';
-import * as Contacts from 'expo-contacts';
+
 import { useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
@@ -132,47 +132,7 @@ export default function BuyDataScreen() {
     return plans.filter(p => p.category === selectedFilter);
   }, [plans, selectedFilter]);
 
-  const selectContact = async () => {
-    const { status } = await Contacts.requestPermissionsAsync();
-    if (status === 'granted') {
-      const { data } = await Contacts.getContactsAsync({
-        fields: [Contacts.Fields.PhoneNumbers],
-      });
-      if (data.length > 0) {
-        try {
-          const contact = await Contacts.presentContactPickerAsync();
-          if (contact && contact.phoneNumbers && contact.phoneNumbers.length > 0) {
-            let number = contact.phoneNumbers[0].number;
-            if (number) {
-              number = number.replace(/\D/g, '');
-              if (number.startsWith('234')) number = '0' + number.slice(3);
-              if (number.length === 13 && number.startsWith('234')) number = '0' + number.slice(3);
-              setPhoneNumber(number);
-            }
-          }
-        } catch (err) {
-          console.log(err);
-          showInfo('Could not open contacts');
-        }
-      } else {
-        showInfo('No contacts found');
-      }
-    } else {
-      const { status: currentStatus, canAskAgain } = await Contacts.getPermissionsAsync();
-      if (!canAskAgain && currentStatus !== 'granted') {
-        Alert.alert(
-          'Permission Denied',
-          'You have denied contact access. Please enable it in your phone settings to use this feature.',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Open Settings', onPress: () => Linking.openSettings() }
-          ]
-        );
-      } else {
-        showError('Permission to access contacts was denied. We need this to help you select phone numbers easily.');
-      }
-    }
-  };
+
 
   const initiatePurchase = () => {
     if (!phoneNumber || !selectedNetwork || !selectedPlan) {
@@ -246,8 +206,8 @@ export default function BuyDataScreen() {
                   styles.networkCard,
                   {
                     backgroundColor: cardBgColor,
-                    borderColor: selectedNetwork === network.id ? network.color : borderColor,
-                    borderWidth: selectedNetwork === network.id ? 2 : 1,
+                    borderColor: selectedNetwork === network.id ? network.color : 'transparent',
+                    borderWidth: selectedNetwork === network.id ? 2 : 0,
                   },
                 ]}
                 onPress={() => {
@@ -284,17 +244,7 @@ export default function BuyDataScreen() {
               maxLength={11}
             />
           </View>
-          {/* Contact Button Outside */}
-          <TouchableOpacity
-            onPress={selectContact}
-            style={[
-              styles.contactBtnFull,
-              { borderColor: THEME.accent, backgroundColor: isDark ? 'rgba(255, 159, 67, 0.1)' : '#FFF7ED' }
-            ]}
-          >
-            <Ionicons name="people" size={20} color={THEME.accent} />
-            <Text style={{ color: THEME.accent, fontWeight: '600', marginLeft: 8 }}>Select from Contacts</Text>
-          </TouchableOpacity>
+
         </View>
 
         {/* Data Plans with Improved Filter Layout */}
@@ -333,7 +283,8 @@ export default function BuyDataScreen() {
                       styles.planCard,
                       {
                         backgroundColor: selectedPlan?.id === plan.id ? THEME.primary : cardBgColor,
-                        borderColor: selectedPlan?.id === plan.id ? THEME.accent : borderColor,
+                        borderColor: selectedPlan?.id === plan.id ? THEME.accent : 'transparent',
+                        borderWidth: selectedPlan?.id === plan.id ? 2 : 0,
                       },
                     ]}
                     onPress={() => setSelectedPlan(plan)}
@@ -420,9 +371,9 @@ const styles = StyleSheet.create({
   scrollContent: { padding: 20 },
   section: { marginBottom: 24 },
   sectionTitle: { fontSize: 16, fontWeight: '600', marginBottom: 12 },
-  networksGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  networksGrid: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
   networkCard: {
-    width: '22%',
+    flex: 1,
     paddingVertical: 12,
     borderRadius: 12,
     alignItems: 'center',
@@ -434,7 +385,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
     marginBottom: 8
   },
-  networkName: { fontSize: 13, fontWeight: '600' },
+  networkName: { fontSize: 12, fontWeight: '600' },
   checkMark: {
     position: 'absolute', top: 6, right: 6, width: 16, height: 16, borderRadius: 8, alignItems: 'center', justifyContent: 'center'
   },
@@ -456,7 +407,6 @@ const styles = StyleSheet.create({
     width: '47%',
     padding: 16,
     borderRadius: 16,
-    borderWidth: 2,
   },
   planData: { fontSize: 16, fontWeight: '700', marginBottom: 4 },
   planValidity: { fontSize: 12, marginBottom: 8 },

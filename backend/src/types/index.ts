@@ -43,6 +43,7 @@ export interface IUser extends Document {
   transaction_pin?: string;
   api_key?: string;
   api_key_enabled?: boolean;
+  push_token?: string;
 }
 
 export interface IWallet extends Document {

@@ -5,6 +5,7 @@ import { authService } from '@/services/auth.service';
 import { userService } from '@/services/user.service';
 import { walletService } from '@/services/wallet.service';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -33,7 +34,7 @@ const theme_colors = {
 export default function ProfileScreen() {
   const { isDark } = useTheme();
   const router = useRouter();
-  const { profileData, getFullName } = useProfile();
+  const { profileData, getFullName, updateProfile } = useProfile();
   const [user, setUser] = useState<any>(null);
   const [wallet, setWallet] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -63,6 +64,13 @@ export default function ProfileScreen() {
       const response = await userService.getProfile();
       if (response.success) {
         setUser(response.data);
+        updateProfile({
+          firstName: response.data.first_name,
+          lastName: response.data.last_name,
+          email: response.data.email,
+          phoneNumber: response.data.phone_number,
+          profileImage: response.data.profile_picture
+        });
       }
     } catch (error: any) {
       const userData = await authService.getCurrentUser();
@@ -101,6 +109,45 @@ export default function ProfileScreen() {
     ]);
   };
 
+  const handleEditAvatar = async () => {
+    try {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        Alert.alert('Permission needed', 'We need permission to access your photos to change your avatar.');
+        return;
+      }
+
+      const pickerResult = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.5,
+        base64: true,
+      });
+
+      if (!pickerResult.canceled && pickerResult.assets && pickerResult.assets.length > 0) {
+        const asset = pickerResult.assets[0];
+        const base64Image = `data:image/jpeg;base64,${asset.base64}`;
+
+        setLoading(true);
+        const response = await userService.updateProfile({ profile_picture: base64Image });
+        if (response.success) {
+          const imageUrl = response.data?.profile_picture || base64Image;
+          setUser((prev: any) => ({ ...prev, profile_picture: imageUrl }));
+          updateProfile({ profileImage: imageUrl });
+          Alert.alert('Success', 'Profile picture updated successfully');
+        } else {
+          Alert.alert('Error', 'Failed to update profile picture');
+        }
+      }
+    } catch (error) {
+       console.log('Error updating avatar:', error);
+       Alert.alert('Error', 'An error occurred while updating profile picture');
+    } finally {
+       setLoading(false);
+    }
+  };
+
   const bgColor = isDark ? theme_colors.backgroundDark : theme_colors.backgroundLight;
   const textColor = isDark ? '#FFFFFF' : theme_colors.textHeadings;
   const textBodyColor = isDark ? '#9CA3AF' : theme_colors.textBody;
@@ -111,24 +158,22 @@ export default function ProfileScreen() {
     {
       title: 'Account Settings',
       items: [
-        { icon: 'person-outline', label: 'Personal Information', route: '/edit-profile', color: '#6C2BD9' },
-        { icon: 'wallet-outline', label: 'Wallet Settings', route: '/wallet-settings', color: '#10B981' },
-        { icon: 'share-social-outline', label: 'Referrals', route: '/referrals', color: '#F59E0B' },
+        { icon: 'person-outline', label: 'Personal Information', route: '/edit-profile' },
+        { icon: 'share-social-outline', label: 'Referrals', route: '/referrals' },
       ],
     },
     {
       title: 'Security',
       items: [
-        { icon: 'lock-closed-outline', label: 'Transaction PIN', route: '/security', color: '#8B5CF6' },
-        { icon: 'finger-print-outline', label: 'Biometrics', route: '/security', color: '#EC4899' },
+        { icon: 'lock-closed-outline', label: 'Transaction PIN', route: '/security' },
       ],
     },
     {
       title: 'Support & Info',
       items: [
-        { icon: 'help-circle-outline', label: 'Help & Support', route: '/help-support', color: '#06B6D4' },
-        { icon: 'notifications-outline', label: 'Notifications', route: '/notifications', color: '#F43F5E' },
-        { icon: 'information-circle-outline', label: 'About AmeeData', route: '/about', color: '#64748B' },
+        { icon: 'help-circle-outline', label: 'Help & Support', route: '/help-support' },
+        { icon: 'notifications-outline', label: 'Notifications', route: '/notifications' },
+        { icon: 'information-circle-outline', label: 'About AmeeData', route: '/about' },
       ],
     },
   ];
@@ -150,38 +195,35 @@ export default function ProfileScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme_colors.accent} />}
       >
         {/* Header Profile Info */}
-        <View style={[styles.profileHeader, { backgroundColor: theme_colors.primary }]}>
+        <View style={styles.profileHeader}>
           <View style={styles.headerTop}>
-            <Text style={styles.headerTitle}>Profile</Text>
+            <Text style={[styles.headerTitle, { color: textColor }]}>Profile</Text>
             <View style={{ flexDirection: 'row', gap: 16 }}>
               <TouchableOpacity onPress={() => router.push('/settings')}>
-                <Ionicons name="settings-outline" size={24} color="#FFF" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleLogout}>
-                <Ionicons name="log-out-outline" size={24} color="#FF6B6B" />
+                <Ionicons name="settings-outline" size={24} color={textColor} />
               </TouchableOpacity>
             </View>
           </View>
 
           <View style={styles.userInfoContainer}>
-            <View style={[styles.avatarContainer, { borderColor: theme_colors.accent }]}>
+            <View style={[styles.avatarContainer, { borderColor: borderColor }]}>
               <Image
-                source={{ uri: profileData?.profileImage || user?.profile_picture || 'https://i.pravatar.cc/150?u=vtpay' }}
+                source={{ uri: user?.profile_picture || profileData?.profileImage || 'https://i.pravatar.cc/150?u=vtpay' }}
                 style={styles.avatar}
               />
-              <TouchableOpacity style={styles.editAvatarBtn}>
-                <Ionicons name="camera" size={16} color="#FFF" />
+              <TouchableOpacity style={styles.editAvatarBtn} onPress={handleEditAvatar}>
+                <Ionicons name="camera" size={14} color="#FFF" />
               </TouchableOpacity>
             </View>
-            <Text style={styles.userName}>
+            <Text style={[styles.userName, { color: textColor }]}>
               {profileData ? getFullName() : (user ? `${user.first_name} ${user.last_name}` : 'User')}
             </Text>
-            <Text style={styles.userEmail}>{profileData?.email || user?.email || ''}</Text>
+            <Text style={[styles.userEmail, { color: textBodyColor }]}>{profileData?.email || user?.email || ''}</Text>
 
             <View style={styles.badgeContainer}>
-              <View style={[styles.verifiedBadge, { backgroundColor: user?.kyc_status === 'verified' ? theme_colors.success : theme_colors.accent }]}>
-                <Ionicons name={user?.kyc_status === 'verified' ? "checkmark-circle" : "alert-circle"} size={14} color="#FFF" />
-                <Text style={styles.verifiedText}>{user?.kyc_status === 'verified' ? 'Verified Account' : 'KYC Pending'}</Text>
+              <View style={[styles.verifiedBadge, { backgroundColor: user?.kyc_status === 'verified' ? 'rgba(0, 212, 170, 0.1)' : 'rgba(255, 159, 67, 0.1)' }]}>
+                <Ionicons name={user?.kyc_status === 'verified' ? "checkmark-circle" : "alert-circle"} size={12} color={user?.kyc_status === 'verified' ? theme_colors.success : theme_colors.accent} />
+                <Text style={[styles.verifiedText, { color: user?.kyc_status === 'verified' ? theme_colors.success : theme_colors.accent }]}>{user?.kyc_status === 'verified' ? 'Verified Account' : 'KYC Pending'}</Text>
               </View>
             </View>
           </View>
@@ -189,11 +231,11 @@ export default function ProfileScreen() {
 
         {/* Stats Section */}
         <View style={styles.statsContainer}>
-          <View style={[styles.statBox, { backgroundColor: cardBg }]}>
+          <View style={[styles.statBox, { backgroundColor: cardBg, borderColor, borderWidth: 1 }]}>
             <Text style={[styles.statValue, { color: textColor }]}>₦{wallet?.balance?.toLocaleString() || '0'}</Text>
             <Text style={[styles.statLabel, { color: textBodyColor }]}>Wallet Balance</Text>
           </View>
-          <View style={[styles.statBox, { backgroundColor: cardBg }]}>
+          <View style={[styles.statBox, { backgroundColor: cardBg, borderColor, borderWidth: 1 }]}>
             <Text style={[styles.statValue, { color: textColor }]}>{user?.referral_code || '---'}</Text>
             <Text style={[styles.statLabel, { color: textBodyColor }]}>Referral Code</Text>
           </View>
@@ -210,11 +252,9 @@ export default function ProfileScreen() {
                   style={[styles.menuItem, itemIdx < section.items.length - 1 && { borderBottomWidth: 1, borderBottomColor: borderColor }]}
                   onPress={() => router.push(item.route as any)}
                 >
-                  <View style={[styles.iconBox, { backgroundColor: `${item.color}15` }]}>
-                    <Ionicons name={item.icon as any} size={20} color={item.color} />
-                  </View>
+                  <Ionicons name={item.icon as any} size={20} color={textBodyColor} style={{ marginRight: 12 }} />
                   <Text style={[styles.menuLabel, { color: textColor }]}>{item.label}</Text>
-                  <Ionicons name="chevron-forward" size={18} color={textBodyColor} />
+                  <Ionicons name="chevron-forward" size={16} color={textBodyColor} />
                 </TouchableOpacity>
               ))}
             </View>
@@ -223,8 +263,8 @@ export default function ProfileScreen() {
 
         {/* Logout */}
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={22} color="#FF4B4B" />
-          <Text style={styles.logoutText}>Logout from Account</Text>
+          <Ionicons name="log-out-outline" size={20} color="#FF4B4B" />
+          <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
 
         <View style={{ height: 100 }} />
@@ -237,42 +277,39 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   profileHeader: {
-    paddingTop: 60, paddingBottom: 40, borderBottomLeftRadius: 30, borderBottomRightRadius: 30, paddingHorizontal: 20,
+    paddingTop: 60, paddingBottom: 20, paddingHorizontal: 20,
   },
   headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  headerTitle: { color: '#FFF', fontSize: 22, fontWeight: '800' },
+  headerTitle: { fontSize: 20, fontWeight: '700' },
   userInfoContainer: { alignItems: 'center' },
-  avatarContainer: { width: 100, height: 100, borderRadius: 50, borderWidth: 4, position: 'relative', marginBottom: 16 },
-  avatar: { width: '100%', height: '100%', borderRadius: 50 },
-  editAvatarBtn: { position: 'absolute', bottom: 0, right: 0, backgroundColor: '#FF9F43', width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: '#6C2BD9' },
-  userName: { color: '#FFF', fontSize: 20, fontWeight: '700', marginBottom: 4 },
-  userEmail: { color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 12 },
+  avatarContainer: { width: 80, height: 80, borderRadius: 40, borderWidth: 1, position: 'relative', marginBottom: 12 },
+  avatar: { width: '100%', height: '100%', borderRadius: 40 },
+  editAvatarBtn: { position: 'absolute', bottom: 0, right: 0, backgroundColor: '#6C2BD9', width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#FFF' },
+  userName: { fontSize: 18, fontWeight: '700', marginBottom: 4 },
+  userEmail: { fontSize: 13, marginBottom: 12 },
   badgeContainer: { flexDirection: 'row' },
-  verifiedBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, gap: 6 },
-  verifiedText: { color: '#FFF', fontSize: 11, fontWeight: '700' },
-  statsContainer: { flexDirection: 'row', paddingHorizontal: 20, marginTop: -25, gap: 15 },
-  statBox: { flex: 1, padding: 16, borderRadius: 16, alignItems: 'center', elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8 },
-  statValue: { fontSize: 18, fontWeight: '800', marginBottom: 4 },
-  statLabel: { fontSize: 12, fontWeight: '500' },
+  verifiedBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, gap: 4 },
+  verifiedText: { fontSize: 11, fontWeight: '600' },
+  statsContainer: { flexDirection: 'row', paddingHorizontal: 20, marginTop: 10, gap: 12 },
+  statBox: { flex: 1, padding: 12, borderRadius: 12, alignItems: 'center' },
+  statValue: { fontSize: 16, fontWeight: '700', marginBottom: 4 },
+  statLabel: { fontSize: 11, fontWeight: '500' },
   menuSection: { marginTop: 24, paddingHorizontal: 20 },
-  sectionTitle: { fontSize: 13, fontWeight: '700', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 1 },
-  sectionCard: { borderRadius: 20, borderWidth: 1, overflow: 'hidden' },
-  menuItem: { flexDirection: 'row', alignItems: 'center', padding: 16 },
-  iconBox: { width: 40, height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 16 },
-  menuLabel: { flex: 1, fontSize: 15, fontWeight: '600' },
+  sectionTitle: { fontSize: 11, fontWeight: '600', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 },
+  sectionCard: { borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: '#E5E7EB' },
+  menuItem: { flexDirection: 'row', alignItems: 'center', padding: 14 },
+  menuLabel: { flex: 1, fontSize: 14, fontWeight: '500' },
   logoutBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 32,
+    marginTop: 24,
     marginHorizontal: 20,
-    padding: 15,
+    padding: 14,
     backgroundColor: 'rgba(255, 75, 75, 0.1)',
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 75, 75, 0.3)',
-    gap: 10,
+    gap: 8,
     marginBottom: 20
   },
-  logoutText: { color: '#FF4B4B', fontSize: 16, fontWeight: '700' }
+  logoutText: { color: '#FF4B4B', fontSize: 14, fontWeight: '600' }
 });

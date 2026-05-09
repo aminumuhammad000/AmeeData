@@ -66,14 +66,13 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="support"
+        name="referrals"
         options={{
           href: null,
         }}
       />
-
       <Tabs.Screen
-        name="explore"
+        name="wallet"
         options={{
           href: null,
         }}

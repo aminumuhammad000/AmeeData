@@ -213,6 +213,7 @@ const userService = {
     city?: string;
     state?: string;
     country?: string;
+    profile_picture?: string;
   }) => api.put<ApiResponse<{ user: User }>>('/users/profile', userData),
 
   deleteAccount: () => api.delete<ApiResponse>('/users/profile'),

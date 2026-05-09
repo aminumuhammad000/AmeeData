@@ -9,6 +9,7 @@ export interface UserUpdateData {
   city?: string;
   state?: string;
   country?: string;
+  profile_picture?: string;
 }
 
 export const userService = {
