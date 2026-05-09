@@ -45,12 +45,16 @@ export class AdminController {
             const activeUsers = await User.countDocuments({ status: 'active' });
             const totalTransactions = await Transaction.countDocuments();
             const successfulTransactions = await Transaction.countDocuments({ status: 'successful' });
-            // Calculate total data sales (sum of successful data transactions)
+            const startOfMonth = new Date();
+            startOfMonth.setDate(1);
+            startOfMonth.setHours(0, 0, 0, 0);
+            // Calculate total data sales (sum of successful data transactions this month)
             const dataSalesResult = await Transaction.aggregate([
                 {
                     $match: {
-                        type: 'data',
-                        status: 'successful'
+                        type: 'data_purchase',
+                        status: 'successful',
+                        created_at: { $gte: startOfMonth }
                     }
                 },
                 {
@@ -61,12 +65,13 @@ export class AdminController {
                 }
             ]);
             const totalDataSales = dataSalesResult.length > 0 ? dataSalesResult[0].totalAmount : 0;
-            // Calculate total airtime sales (sum of successful airtime transactions)
+            // Calculate total airtime sales (sum of successful airtime transactions this month)
             const airtimeSalesResult = await Transaction.aggregate([
                 {
                     $match: {
-                        type: 'airtime',
-                        status: 'successful'
+                        type: 'airtime_topup',
+                        status: 'successful',
+                        created_at: { $gte: startOfMonth }
                     }
                 },
                 {
@@ -281,7 +286,7 @@ export class AdminController {
      */
     static async createAdminUser(req, res) {
         try {
-            const { email, first_name, last_name, password, type } = req.body;
+            const { email, first_name, last_name, password, type, role_id } = req.body;
             // Check if current admin is super-admin
             if (req.user?.adminType !== 'super-admin') {
                 return ApiResponse.error(res, 'Only super-admins can create other admins', 403);
@@ -302,6 +307,14 @@ export class AdminController {
             }
             // Hash password
             const password_hash = await bcrypt.hash(password, 10);
+            // Handle role_id
+            let finalRoleId = role_id;
+            if (type === 'super-admin' && (!role_id || role_id === '')) {
+                const superAdminRole = await AdminRole.findOne({ name: 'Super Admin' });
+                if (superAdminRole) {
+                    finalRoleId = superAdminRole._id;
+                }
+            }
             // Create new admin
             const newAdmin = await AdminUser.create({
                 email: email.toLowerCase(),
@@ -310,6 +323,7 @@ export class AdminController {
                 last_name,
                 type: type || 'sub-admin',
                 status: 'active',
+                role_id: finalRoleId || undefined,
             });
             // Log action
             await AdminService.logAction({
