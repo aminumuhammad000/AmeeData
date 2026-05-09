@@ -61,12 +61,17 @@ export class AdminController {
       const totalTransactions = await Transaction.countDocuments();
       const successfulTransactions = await Transaction.countDocuments({ status: 'successful' });
 
-      // Calculate total data sales (sum of successful data transactions)
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+
+      // Calculate total data sales (sum of successful data transactions this month)
       const dataSalesResult = await Transaction.aggregate([
         {
           $match: {
-            type: 'data',
-            status: 'successful'
+            type: 'data_purchase',
+            status: 'successful',
+            created_at: { $gte: startOfMonth }
           }
         },
         {
@@ -78,12 +83,13 @@ export class AdminController {
       ]);
       const totalDataSales = dataSalesResult.length > 0 ? dataSalesResult[0].totalAmount : 0;
 
-      // Calculate total airtime sales (sum of successful airtime transactions)
+      // Calculate total airtime sales (sum of successful airtime transactions this month)
       const airtimeSalesResult = await Transaction.aggregate([
         {
           $match: {
-            type: 'airtime',
-            status: 'successful'
+            type: 'airtime_topup',
+            status: 'successful',
+            created_at: { $gte: startOfMonth }
           }
         },
         {

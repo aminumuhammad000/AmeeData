@@ -64,7 +64,7 @@ const Dashboard: React.FC = () => {
       textColor: 'text-emerald-600',
     },
     {
-      label: 'Total Data Sales',
+      label: 'Monthly Data Sales',
       value: statsData?.data?.data?.totalDataSales || 0,
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,7 +77,7 @@ const Dashboard: React.FC = () => {
       isCurrency: true,
     },
     {
-      label: 'Total Airtime Sales',
+      label: 'Monthly Airtime Sales',
       value: statsData?.data?.data?.totalAirtimeSales || 0,
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
