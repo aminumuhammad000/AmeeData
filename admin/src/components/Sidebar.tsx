@@ -122,6 +122,15 @@ const navItems = [
       </svg>
     ),
   },
+  {
+    to: '/admin-management',
+    label: 'Admin Management',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-2a6 6 0 0112 0v2zm6-12h-3m0 0h-3m3 0v3m0-3v-3m0 0h3" />
+      </svg>
+    ),
+  },
 ];
 
 interface SidebarProps {
@@ -148,6 +157,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, setIsMobileOpen }) => {
 
   // Filter nav items based on role
   const filteredNavItems = navItems.filter(item => {
+    if (item.to === '/admin-management') {
+      return user?.role?.name === 'Super Admin' || user?.adminType === 'super-admin';
+    }
     if (user?.role?.name === 'API Manager') {
       return ['/api-management', '/notifications'].includes(item.to);
     }
