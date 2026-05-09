@@ -14,6 +14,7 @@ router.put('/profile/password', authMiddleware, AdminController.changeAdminPassw
 // Admin user management
 router.post('/admins', authMiddleware, AdminController.createAdminUser);
 router.get('/admins', authMiddleware, AdminController.getAllAdmins); // Keeping this as it's not explicitly removed
+router.delete('/admins/:id', authMiddleware, AdminController.deleteAdminUser);
 router.get('/roles', authMiddleware, AdminController.getRoles);
 // User management
 router.get('/users', authMiddleware, AdminController.getAllUsers);
@@ -118,5 +119,10 @@ router.post('/airtime-to-cash/settings', authMiddleware, async (req, res) => {
 router.put('/airtime-to-cash/settings/:id', authMiddleware, async (req, res) => {
     const { AdminAirtimeToCashController } = await import('../controllers/admin_airtime_to_cash.controller.js');
     return AdminAirtimeToCashController.updateSetting(req, res);
+});
+// Analytics
+router.get('/analytics/leaderboard', authMiddleware, async (req, res) => {
+    const { AnalyticsController } = await import('../controllers/analytics.controller.js');
+    return AnalyticsController.getLeaderboard(req, res);
 });
 export default router;

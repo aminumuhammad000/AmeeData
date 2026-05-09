@@ -167,7 +167,7 @@ export class VTStackController {
                         metadata: { currency, raw_payload: data }
                     });
                     // Credit wallet ONLY AFTER transaction record is successfully created
-                    await WalletService.creditWallet(virtualAccount.user, amountInNaira);
+                    await WalletService.creditWallet(virtualAccount.user, amountInNaira, true);
                     console.log(`✅ Wallet funded: user=${virtualAccount.user}, amount=₦${amountInNaira}, ref=${reference}`);
                 }
                 catch (error) {

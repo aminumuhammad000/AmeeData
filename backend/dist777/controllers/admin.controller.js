@@ -30,7 +30,7 @@ export class AdminController {
             }
             admin.last_login_at = new Date();
             await admin.save();
-            const token = jwt.sign({ id: admin._id, role: 'admin' }, config.jwtSecret, { expiresIn: config.jwtExpiry });
+            const token = jwt.sign({ id: admin._id, role: 'admin', adminType: admin.type }, config.jwtSecret, { expiresIn: config.jwtExpiry });
             console.log('Admin login successful');
             return ApiResponse.success(res, { admin, token }, 'Login successful');
         }
@@ -235,6 +235,10 @@ export class AdminController {
     static async creditUserWallet(req, res) {
         try {
             const { userId, amount, description } = req.body;
+            // Check if current admin is super-admin
+            if (req.user?.adminType !== 'super-admin') {
+                return ApiResponse.error(res, 'Only super-admins can credit wallets', 403);
+            }
             if (!userId || !amount) {
                 return ApiResponse.error(res, 'User ID and amount are required', 400);
             }
@@ -277,7 +281,11 @@ export class AdminController {
      */
     static async createAdminUser(req, res) {
         try {
-            const { email, first_name, last_name, password } = req.body;
+            const { email, first_name, last_name, password, type } = req.body;
+            // Check if current admin is super-admin
+            if (req.user?.adminType !== 'super-admin') {
+                return ApiResponse.error(res, 'Only super-admins can create other admins', 403);
+            }
             // Validate required fields
             if (!email || !first_name || !last_name || !password) {
                 return ApiResponse.error(res, 'Email, first name, last name, and password are required', 400);
@@ -300,6 +308,7 @@ export class AdminController {
                 password_hash,
                 first_name,
                 last_name,
+                type: type || 'sub-admin',
                 status: 'active',
             });
             // Log action
@@ -516,6 +525,37 @@ export class AdminController {
         }
         catch (error) {
             return ApiResponse.error(res, error.message, 500);
+        }
+    }
+    /**
+     * Delete an admin user
+     * @route DELETE /api/admin/admins/:id
+     * @access Private - Super Admin only
+     */
+    static async deleteAdminUser(req, res) {
+        try {
+            // Check if current admin is super-admin
+            if (req.user?.adminType !== 'super-admin') {
+                return ApiResponse.error(res, 'Only super-admins can delete other admins', 403);
+            }
+            const admin = await AdminUser.findByIdAndDelete(req.params.id);
+            if (!admin) {
+                return ApiResponse.error(res, 'Admin user not found', 404);
+            }
+            // Log action
+            await AdminService.logAction({
+                admin_id: req.user?.id,
+                action: 'admin_deleted',
+                entity_type: 'AdminUser',
+                entity_id: admin._id,
+                old_value: { email: admin.email },
+                ip_address: req.ip
+            });
+            return ApiResponse.success(res, null, 'Admin user deleted successfully');
+        }
+        catch (error) {
+            console.error('Error deleting admin:', error);
+            return ApiResponse.error(res, error.message || 'Error deleting admin user', 500);
         }
     }
 }

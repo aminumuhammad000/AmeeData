@@ -38,7 +38,7 @@ export class WalletController {
             });
             // Process payment (integrate with payment gateway)
             // For now, we'll simulate success
-            await WalletService.creditWallet(wallet.user_id, amount);
+            await WalletService.creditWallet(wallet.user_id, amount, true);
             transaction.status = 'successful';
             await transaction.save();
             return ApiResponse.success(res, { transaction, wallet }, 'Wallet funded successfully');

@@ -1,4 +1,3 @@
-import airtimeToCashRoutes from './airtime_to_cash.routes.js';
 import billPaymentRoutes from './billpayment.routes.js';
 import referralRoutes from './referral.routes.js';
 export { default as adminRoutes } from './admin.routes.js';
@@ -29,8 +28,6 @@ export default (app) => {
     app.use('/api/v1/admin', adminRoutes);
     // Bill payment routes
     app.use('/api/v1/billpayment', billPaymentRoutes);
-    // Airtime to Cash routes
-    app.use('/api/v1/airtime-to-cash', airtimeToCashRoutes);
     // Referral routes
     app.use('/api/v1/referrals', referralRoutes);
     // Health check
