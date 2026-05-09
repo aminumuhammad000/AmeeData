@@ -71,18 +71,8 @@ const AdminManagement: React.FC = () => {
 
   const roles = rolesData || [];
 
-  // Only Super Admin can access this page
-  if (user?.role?.name !== 'Super Admin' && user?.adminType !== 'super-admin') {
-    return (
-      <div className="flex h-screen items-center justify-center bg-slate-50">
-        <div className="text-center">
-          <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h1>
-          <p className="text-slate-600">You do not have permission to view this page.</p>
-        </div>
-      </div>
-    );
-  }
+  const isSuperAdmin = user?.role?.name === 'Super Admin' || user?.adminType === 'super-admin' || user?.type === 'super-admin';
+
 
   return (
     <div className="flex h-screen bg-slate-50">
@@ -96,13 +86,15 @@ const AdminManagement: React.FC = () => {
                 <h1 className="text-3xl font-bold text-slate-900 mb-2">Admin Management</h1>
                 <p className="text-slate-600">Create and manage admin users and roles</p>
               </div>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
-              >
-                <UserPlus className="w-4 h-4" />
-                Create Admin
-              </button>
+              {isSuperAdmin && (
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  Create Admin
+                </button>
+              )}
             </div>
 
             {/* Create Admin Modal */}
@@ -257,15 +249,17 @@ const AdminManagement: React.FC = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => handleDelete(admin._id)}
-                            className="text-red-500 hover:bg-red-50 p-2 rounded transition"
-                            title="Delete Admin"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
+                          {isSuperAdmin && admin.email !== user?.email && (
+                            <button
+                              onClick={() => handleDelete(admin._id)}
+                              className="text-red-500 hover:bg-red-50 p-2 rounded transition"
+                              title="Delete Admin"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))
