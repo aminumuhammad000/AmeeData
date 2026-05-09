@@ -41,7 +41,7 @@ export class AdminController {
       await admin.save();
 
       const token = jwt.sign(
-        { id: admin._id, role: 'admin' },
+        { id: admin._id, role: 'admin', adminType: admin.type },
         config.jwtSecret as string,
         { expiresIn: config.jwtExpiry } as SignOptions
       );
@@ -277,6 +277,11 @@ export class AdminController {
     try {
       const { userId, amount, description } = req.body;
 
+      // Check if current admin is super-admin
+      if (req.user?.adminType !== 'super-admin') {
+        return ApiResponse.error(res, 'Only super-admins can credit wallets', 403);
+      }
+
       if (!userId || !amount) {
         return ApiResponse.error(res, 'User ID and amount are required', 400);
       }
@@ -330,7 +335,12 @@ export class AdminController {
    */
   static async createAdminUser(req: AuthRequest, res: Response) {
     try {
-      const { email, first_name, last_name, password } = req.body;
+      const { email, first_name, last_name, password, type } = req.body;
+
+      // Check if current admin is super-admin
+      if (req.user?.adminType !== 'super-admin') {
+        return ApiResponse.error(res, 'Only super-admins can create other admins', 403);
+      }
 
       // Validate required fields
       if (!email || !first_name || !last_name || !password) {
@@ -358,6 +368,7 @@ export class AdminController {
         password_hash,
         first_name,
         last_name,
+        type: type || 'sub-admin',
         status: 'active',
       });
 
@@ -595,6 +606,40 @@ export class AdminController {
       return ApiResponse.success(res, plan, 'Developer price updated successfully');
     } catch (error: any) {
       return ApiResponse.error(res, error.message, 500);
+    }
+  }
+
+  /**
+   * Delete an admin user
+   * @route DELETE /api/admin/admins/:id
+   * @access Private - Super Admin only
+   */
+  static async deleteAdminUser(req: AuthRequest, res: Response) {
+    try {
+      // Check if current admin is super-admin
+      if (req.user?.adminType !== 'super-admin') {
+        return ApiResponse.error(res, 'Only super-admins can delete other admins', 403);
+      }
+
+      const admin = await AdminUser.findByIdAndDelete(req.params.id);
+      if (!admin) {
+        return ApiResponse.error(res, 'Admin user not found', 404);
+      }
+
+      // Log action
+      await AdminService.logAction({
+        admin_id: req.user?.id as any,
+        action: 'admin_deleted',
+        entity_type: 'AdminUser',
+        entity_id: admin._id,
+        old_value: { email: admin.email },
+        ip_address: req.ip
+      });
+
+      return ApiResponse.success(res, null, 'Admin user deleted successfully');
+    } catch (error: any) {
+      console.error('Error deleting admin:', error);
+      return ApiResponse.error(res, error.message || 'Error deleting admin user', 500);
     }
   }
 }

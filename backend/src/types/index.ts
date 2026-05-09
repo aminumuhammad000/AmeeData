@@ -143,7 +143,8 @@ export interface IAdminUser extends Document {
   password_hash: string;
   first_name: string;
   last_name: string;
-  role_id: Types.ObjectId;
+  role_id?: Types.ObjectId;
+  type: 'super-admin' | 'sub-admin';
   last_login_at?: Date;
   status: 'active' | 'inactive';
   created_at: Date;
@@ -252,5 +253,6 @@ export interface AuthRequest extends Request {
     id: string;
     email?: string;
     role?: string;
+    adminType?: 'super-admin' | 'sub-admin';
   };
 }

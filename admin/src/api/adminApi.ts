@@ -29,6 +29,7 @@ export const createAdmin = (data: any) => api.post('/admins', data);
 export const getRoles = () => api.get('/roles');
 export const creditUserWallet = (userId: string, amount: number, description: string) =>
   api.post('/wallet/credit', { userId, amount, description });
+export const deleteAdmin = (id: string) => api.delete(`/admins/${id}`);
 
 // Audit Logs
 export const getAuditLogs = (params?: { page?: number; limit?: number }) =>

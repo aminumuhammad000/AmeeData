@@ -17,6 +17,7 @@ router.put('/profile/password', authMiddleware, AdminController.changeAdminPassw
 // Admin user management
 router.post('/admins', authMiddleware, AdminController.createAdminUser);
 router.get('/admins', authMiddleware, AdminController.getAllAdmins); // Keeping this as it's not explicitly removed
+router.delete('/admins/:id', authMiddleware, AdminController.deleteAdminUser);
 router.get('/roles', authMiddleware, AdminController.getRoles);
 
 // User management
