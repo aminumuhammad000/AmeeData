@@ -1,5 +1,4 @@
 import { AlertProvider } from '@/components/AlertContext';
-import AppLock from '@/components/AppLock';
 import { ProfileProvider } from '@/components/ProfileContext';
 import { ThemeProvider } from '@/components/ThemeContext';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
@@ -34,49 +33,12 @@ function AuthLayout() {
     }
   }, [isAuthenticated, isLoading, segments]);
 
-  const { isLocked, setIsLocked } = useAuth();
-  const appState = useRef(AppState.currentState);
-  const backgroundTime = useRef<number | null>(null);
 
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', async (nextAppState) => {
-      const inAuthGroup = ['login', 'signup', 'forgot-password', 'verify-otp'].includes(segments[0] as string);
-
-      if (appState.current.match(/active/) && nextAppState === 'background') {
-        // App went to background
-        backgroundTime.current = Date.now();
-      }
-
-      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
-        // App came to foreground
-        if (backgroundTime.current && isAuthenticated && !inAuthGroup) {
-          const elapsedSeconds = (Date.now() - backgroundTime.current) / 1000;
-
-          // If in background for more than 15 seconds
-          if (elapsedSeconds > 15) {
-            const hasHardware = await LocalAuthentication.hasHardwareAsync();
-            const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-
-            if (hasHardware && isEnrolled) {
-              setIsLocked(true);
-            }
-          }
-        }
-        backgroundTime.current = null;
-      }
-
-      appState.current = nextAppState;
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, [isAuthenticated, segments]);
 
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#111418' }}>
-        <ActivityIndicator size="large" color="#3B82F6" />
+        <ActivityIndicator size="large" color="#6C2BD9" />
       </View>
     );
   }
@@ -95,11 +57,8 @@ function AuthLayout() {
         <Stack.Screen name="verify-otp" />
         <Stack.Screen name="set-pin" />
         <Stack.Screen name="notifications" />
-        <Stack.Screen name="more" />
         <Stack.Screen name="buy-airtime" />
         <Stack.Screen name="buy-data" />
-        <Stack.Screen name="buy-electricity" />
-        <Stack.Screen name="buy-exampin" />
         <Stack.Screen name="add-money" />
         <Stack.Screen name="edit-profile" />
         <Stack.Screen name="security" />
@@ -113,7 +72,7 @@ function AuthLayout() {
         <Stack.Screen name="admin-notifications" />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
-      <AppLock visible={isLocked} />
+
     </>
   );
 }

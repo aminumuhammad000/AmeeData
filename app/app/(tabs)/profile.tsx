@@ -21,7 +21,7 @@ import {
 } from 'react-native';
 
 const theme_colors = {
-  primary: '#0A2540',
+  primary: '#6C2BD9',
   accent: '#FF9F43',
   backgroundLight: '#F8F9FA',
   backgroundDark: '#0A0A0B',
@@ -111,7 +111,7 @@ export default function ProfileScreen() {
     {
       title: 'Account Settings',
       items: [
-        { icon: 'person-outline', label: 'Personal Information', route: '/edit-profile', color: '#3B82F6' },
+        { icon: 'person-outline', label: 'Personal Information', route: '/edit-profile', color: '#6C2BD9' },
         { icon: 'wallet-outline', label: 'Wallet Settings', route: '/wallet-settings', color: '#10B981' },
         { icon: 'share-social-outline', label: 'Referrals', route: '/referrals', color: '#F59E0B' },
       ],
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
   userInfoContainer: { alignItems: 'center' },
   avatarContainer: { width: 100, height: 100, borderRadius: 50, borderWidth: 4, position: 'relative', marginBottom: 16 },
   avatar: { width: '100%', height: '100%', borderRadius: 50 },
-  editAvatarBtn: { position: 'absolute', bottom: 0, right: 0, backgroundColor: '#FF9F43', width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: '#0A2540' },
+  editAvatarBtn: { position: 'absolute', bottom: 0, right: 0, backgroundColor: '#FF9F43', width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: '#6C2BD9' },
   userName: { color: '#FFF', fontSize: 20, fontWeight: '700', marginBottom: 4 },
   userEmail: { color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 12 },
   badgeContainer: { flexDirection: 'row' },

@@ -11,7 +11,7 @@ export default function TabLayout() {
   const insets = useSafeAreaInsets();
 
   const theme = {
-    primary: '#0A2540',
+    primary: '#6C2BD9',
     accent: '#FF9F43',
   };
 
@@ -55,13 +55,7 @@ export default function TabLayout() {
         }}
       />
 
-      <Tabs.Screen
-        name="referrals"
-        options={{
-          title: 'Referrals',
-          tabBarIcon: ({ color, size }) => <Ionicons name="people-outline" size={24} color={color} />,
-        }}
-      />
+
 
       <Tabs.Screen
         name="profile"

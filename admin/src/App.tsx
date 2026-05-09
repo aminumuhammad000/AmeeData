@@ -3,7 +3,7 @@
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import PrivateRoute from './components/PrivateRoute';
 import AdminManagement from './pages/AdminManagement';
-import AirtimeToCash from './pages/AirtimeToCash';
+
 import ApiManagement from './pages/ApiManagement';
 import AuditLogs from './pages/AuditLogs';
 import Dashboard from './pages/Dashboard';
@@ -34,7 +34,7 @@ function App() {
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/pricing" element={<PricingPlans />} />
           <Route path="/referrals" element={<Referrals />} />
-          <Route path="/airtime-to-cash" element={<AirtimeToCash />} />
+
           <Route path="/funding" element={<Funding />} />
           <Route path="/providers" element={<Providers />} />
           <Route path="/wallet-credit" element={<WalletCredit />} />

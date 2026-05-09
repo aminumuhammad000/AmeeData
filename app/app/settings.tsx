@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 
 const theme = {
-  primary: '#0A2540',
+  primary: '#6C2BD9',
   accent: '#FF9F43',
   success: '#00D4AA',
   error: '#FF5B5B',
@@ -140,7 +140,7 @@ export default function SettingsScreen() {
             activeOpacity={0.7}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? '#0A254020' : '#0A254015' }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? '#6C2BD920' : '#6C2BD915' }}>
                 <Ionicons name="key-outline" size={20} color={theme.primary} />
               </View>
               <View style={{ marginLeft: 12 }}>
@@ -159,7 +159,7 @@ export default function SettingsScreen() {
             activeOpacity={0.7}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? '#0A254020' : '#0A254015' }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? '#6C2BD920' : '#6C2BD915' }}>
                 <Ionicons name="lock-closed-outline" size={20} color={theme.primary} />
               </View>
               <View style={{ marginLeft: 12 }}>
@@ -181,7 +181,7 @@ export default function SettingsScreen() {
             activeOpacity={0.7}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? '#0A254020' : '#06B6D415' }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? '#6C2BD920' : '#06B6D415' }}>
                 <Ionicons name="help-circle-outline" size={20} color="#06B6D4" />
               </View>
               <View style={{ marginLeft: 12 }}>
@@ -205,7 +205,7 @@ export default function SettingsScreen() {
               activeOpacity={0.7}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? '#0A254020' : '#0A254015' }}>
+                <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? '#6C2BD920' : '#6C2BD915' }}>
                   <Ionicons name="people-outline" size={20} color={theme.primary} />
                 </View>
                 <View style={{ marginLeft: 12 }}>
@@ -222,7 +222,7 @@ export default function SettingsScreen() {
               activeOpacity={0.7}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? '#0A254020' : '#0A254015' }}>
+                <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? '#6C2BD920' : '#6C2BD915' }}>
                   <Ionicons name="notifications-outline" size={20} color={theme.primary} />
                 </View>
                 <View style={{ marginLeft: 12 }}>
@@ -239,7 +239,7 @@ export default function SettingsScreen() {
               activeOpacity={0.7}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? '#0A254020' : '#0A254015' }}>
+                <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? '#6C2BD920' : '#6C2BD915' }}>
                   <Ionicons name="settings-outline" size={20} color={theme.primary} />
                 </View>
                 <View style={{ marginLeft: 12 }}>

@@ -46,6 +46,8 @@ async function createAdmin() {
     const mongoUri = process.env.MONGO_URI || 'mongodb://0.0.0.0/connecta_vtu';
     await mongoose.connect(mongoUri);
     console.log('✅ Connected to MongoDB');
+    console.log('📍 Host:', mongoose.connection.host);
+    console.log('📁 Database:', mongoose.connection.name);
 
     // Step 1: Create or get Super Admin role
     console.log('\n🎭 Setting up admin role...');
@@ -64,50 +66,37 @@ async function createAdmin() {
     }
 
     // Step 2: Check if admin already exists
-    const existingAdmin = await AdminUser.findOne({ email: 'admin@connectavtu.com' });
+    const targetEmail = 'admin@ameedata.com.ng';
+    const existingAdmin = await AdminUser.findOne({ email: targetEmail });
     if (existingAdmin) {
-      console.log('⚠️  Admin user already exists!');
-      console.log('📧 Email:', existingAdmin.email);
-      console.log('👤 Name:', `${existingAdmin.first_name} ${existingAdmin.last_name}`);
-
-      const readline = await import('readline');
-      const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-      });
-
-      rl.question('Do you want to update the password? (yes/no): ', async (answer) => {
-        if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
-          const password = 'Admin@123456';
-          const password_hash = await bcrypt.hash(password, 10);
-          await AdminUser.updateOne(
-            { email: 'admin@connectavtu.com' },
-            {
-              password_hash,
-              role_id: superAdminRole!._id,
-              updated_at: new Date()
-            }
-          );
-          console.log('✅ Admin password updated successfully!');
-          console.log('📧 Email: admin@connectavtu.com');
-          console.log('🔑 Password: Admin@123456');
+      console.log('⚠️  Admin user already exists! Updating password...');
+      const password = 'AmeeData@2026';
+      const password_hash = await bcrypt.hash(password, 10);
+      await AdminUser.updateOne(
+        { email: targetEmail },
+        { 
+          password_hash,
+          role_id: superAdminRole!._id,
+          updated_at: new Date()
         }
-        rl.close();
-        await mongoose.disconnect();
-        process.exit(0);
-      });
+      );
+      console.log('✅ Admin password updated successfully!');
+      console.log('📧 Email:', targetEmail);
+      console.log('🔑 Password: AmeeData@2026');
+      await mongoose.disconnect();
+      process.exit(0);
     } else {
       console.log('\n🔐 Creating admin user...');
 
       // Hash the password
-      const password = 'Admin@123456';
+      const password = 'AmeeData@2026';
       const password_hash = await bcrypt.hash(password, 10);
 
       // Create admin user with role_id
       const admin = await AdminUser.create({
-        email: 'admin@connectavtu.com',
+        email: targetEmail,
         password_hash,
-        first_name: 'Super',
+        first_name: 'Amee',
         last_name: 'Admin',
         role_id: superAdminRole._id,
         status: 'active',
@@ -117,14 +106,14 @@ async function createAdmin() {
 
       console.log('\n✅ Admin user created successfully!');
       console.log('═══════════════════════════════════════');
-      console.log('📧 Email: admin@connectavtu.com');
-      console.log('🔑 Password: Admin@123456');
-      console.log('👤 Name: Super Admin');
+      console.log('📧 Email:', targetEmail);
+      console.log('🔑 Password: AmeeData@2026');
+      console.log('👤 Name: Amee Admin');
       console.log('🎭 Role: super_admin');
       console.log('📅 Created:', new Date().toLocaleString());
       console.log('═══════════════════════════════════════');
       console.log('\n⚠️  IMPORTANT: Change the password after first login!');
-      console.log('\n🚀 You can now login at: POST http://localhost:5000/api/admin/login');
+      console.log('\n🚀 You can now login at: POST https://api.ameedata.com.ng/api/admin/login');
 
       await mongoose.disconnect();
       process.exit(0);

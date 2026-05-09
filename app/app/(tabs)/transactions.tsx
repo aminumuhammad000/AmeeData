@@ -45,7 +45,7 @@ export default function TransactionsScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const theme = {
-    primary: '#0A2540',
+    primary: '#6C2BD9',
     accent: '#FF9F43',
     backgroundLight: '#F8F9FA',
     backgroundDark: '#111921',

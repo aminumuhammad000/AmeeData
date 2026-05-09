@@ -32,7 +32,7 @@ export default function TransactionDetailsModal({
     const [tx, setTx] = useState<ApiTransaction | null>(null);
 
     const theme = {
-        primary: '#0A2540',
+        primary: '#6C2BD9',
         accent: '#FF9F43',
         backgroundLight: '#F8F9FA',
         backgroundDark: '#111921',

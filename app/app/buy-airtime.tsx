@@ -20,10 +20,10 @@ import {
 } from 'react-native';
 
 const theme = {
-  primary: '#0A2540',
-  accent: '#FF9F43',
-  success: '#00D4AA',
-  error: '#FF5B5B',
+    primary: '#6C2BD9',
+    accent: '#FF9F43',
+    success: '#00D4AA',
+    error: '#EF4444',
 };
 
 export default function BuyAirtimeScreen() {
@@ -48,14 +48,14 @@ export default function BuyAirtimeScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [isPinModalVisible, setIsPinModalVisible] = useState(false);
 
-  const [networks, setNetworks] = useState<Array<{ id: string; name: string; color: string; icon: string }>>([
-    { id: 'mtn', name: 'MTN', color: '#FFCC00', icon: 'phone-portrait' },
-    { id: 'glo', name: 'Glo', color: '#00A95C', icon: 'phone-portrait' },
-    { id: 'airtel', name: 'Airtel', color: '#FF0000', icon: 'phone-portrait' },
-    { id: '9mobile', name: '9mobile', color: '#00693E', icon: 'phone-portrait' },
-  ]);
-  const [netLoading, setNetLoading] = useState(false);
-  const [netError, setNetError] = useState<string | null>(null);
+    const [networks, setNetworks] = useState<Array<{ id: string; name: string; color: string; icon: string }>>([
+        { id: 'mtn', name: 'MTN', color: '#FFCC00', icon: 'phone-portrait' },
+        { id: 'airtel', name: 'Airtel', color: '#FF0000', icon: 'phone-portrait' },
+        { id: 'glo', name: 'Glo', color: '#00A95C', icon: 'phone-portrait' },
+        { id: '9mobile', name: '9mobile', color: '#00693E', icon: 'phone-portrait' },
+    ]);
+    const [netLoading, setNetLoading] = useState(false);
+    const [netError, setNetError] = useState<string | null>(null);
 
   const quickAmounts = [100, 200, 500, 1000, 2000, 5000];
 
@@ -87,7 +87,7 @@ export default function BuyAirtimeScreen() {
             const id = baseId || `net-${i}`;
 
             // Map network colors to match Buy Data screen
-            let color = '#0A2540'; // default
+            let color = '#6C2BD9'; // default
             const networkName = (n.name || n.network || n.network_code || '').toLowerCase();
             if (networkName.includes('mtn')) color = '#FFCC00';
             else if (networkName.includes('glo')) color = '#00A95C';
@@ -412,7 +412,7 @@ export default function BuyAirtimeScreen() {
             {
               backgroundColor: (!phoneNumber || phoneNumber.replace(/\D/g, '').length !== 11 || !selectedNetwork || (!selectedAmount && !customAmount) || isLoading)
                 ? (isDark ? '#374151' : '#D1D5DB')
-                : theme.accent,
+                : theme.primary,
             },
           ]}
           onPress={initiatePurchase}
@@ -432,7 +432,7 @@ export default function BuyAirtimeScreen() {
           <Ionicons
             name="information-circle-outline"
             size={24}
-            color={isDark ? theme.accent : '#3B82F6'}
+            color={isDark ? theme.accent : '#6C2BD9'}
           />
           <Text style={[styles.infoText, { color: isDark ? textBodyColor : '#1E40AF' }]}>
             Airtime will be delivered instantly to the phone number provided
@@ -561,8 +561,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   networkCard: {
-    width: '47%',
-    padding: 16,
+    width: '23%',
+    paddingVertical: 12,
     borderRadius: 12,
     alignItems: 'center',
     position: 'relative',

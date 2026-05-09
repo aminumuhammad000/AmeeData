@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { adminService } from '@/services/admin.service';
 
 const theme = {
-  primary: '#0A2540',
+  primary: '#6C2BD9',
   accent: '#FF9F43',
   success: '#00D4AA',
   error: '#FF5B5B',

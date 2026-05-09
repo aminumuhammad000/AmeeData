@@ -20,7 +20,7 @@ import {
 } from 'react-native';
 
 const THEME = {
-    primary: '#0A2540',
+    primary: '#6C2BD9',
     accent: '#FF9F43',
     success: '#00D4AA',
     error: '#FF5B5B',
@@ -238,7 +238,7 @@ export default function BuyDataScreen() {
         {/* Network Selection */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: textColor }]}>Select Network</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
+          <View style={styles.networksGrid}>
             {networks.map((network) => (
               <TouchableOpacity
                 key={network.id}
@@ -266,7 +266,7 @@ export default function BuyDataScreen() {
                 )}
               </TouchableOpacity>
             ))}
-          </ScrollView>
+          </View>
         </View>
 
         {/* Phone Number with Improved Contact Button */}
@@ -361,7 +361,7 @@ export default function BuyDataScreen() {
             {
               backgroundColor: (!phoneNumber || !selectedNetwork || !selectedPlan || isLoading)
                 ? (isDark ? '#374151' : '#D1D5DB')
-                : THEME.accent,
+                : THEME.primary,
             },
           ]}
           onPress={initiatePurchase}
@@ -420,10 +420,10 @@ const styles = StyleSheet.create({
   scrollContent: { padding: 20 },
   section: { marginBottom: 24 },
   sectionTitle: { fontSize: 16, fontWeight: '600', marginBottom: 12 },
-  networksGrid: { flexDirection: 'row', gap: 12 },
+  networksGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   networkCard: {
-    width: 100,
-    padding: 12,
+    width: '22%',
+    paddingVertical: 12,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',

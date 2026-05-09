@@ -1,5 +1,4 @@
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import * as LocalAuthentication from 'expo-local-authentication';
+import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import * as SecureStore from 'expo-secure-store';
 import { useCallback, useEffect, useState } from "react";
@@ -26,7 +25,6 @@ const LoginScreen = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [isBiometricAvailable, setIsBiometricAvailable] = useState(false);
   const [alert, setAlert] = useState({
     visible: false,
     message: "",
@@ -46,23 +44,6 @@ const LoginScreen = () => {
     setAlert((prev) => ({ ...prev, visible: false }));
   }, []);
 
-  // Check biometric support and saved credentials
-  useEffect(() => {
-    checkBiometricAvailability();
-  }, []);
-
-  const checkBiometricAvailability = async () => {
-    if (Platform.OS === 'web') return;
-    try {
-      const hasHardware = await LocalAuthentication.hasHardwareAsync();
-      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-      const savedCredentials = await SecureStore.getItemAsync('user_credentials');
-
-      setIsBiometricAvailable(hasHardware && isEnrolled && !!savedCredentials);
-    } catch (error) {
-      console.log('Biometric check error:', error);
-    }
-  };
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -80,13 +61,7 @@ const LoginScreen = () => {
       });
 
       if (response.success) {
-        // Save credentials for biometric login
-        if (Platform.OS !== 'web') {
-          await SecureStore.setItemAsync('user_credentials', JSON.stringify({
-            email: loginEmail.trim().toLowerCase(),
-            password: loginPassword
-          }));
-        }
+
 
         showAlert("Welcome back!", "success");
         // No need to replace router here, AuthContext update should trigger useEffect but to be safe
@@ -133,31 +108,10 @@ const LoginScreen = () => {
     await processLogin(email, password);
   };
 
-  const handleBiometricAuth = async () => {
-    try {
-      const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Login with Biometrics',
-        fallbackLabel: 'Use Password',
-      });
 
-      if (result.success) {
-        const credentials = await SecureStore.getItemAsync('user_credentials');
-        if (credentials) {
-          const { email: savedEmail, password: savedPassword } = JSON.parse(credentials);
-          if (savedEmail && savedPassword) {
-            setEmail(savedEmail);
-            setPassword(savedPassword);
-            await processLogin(savedEmail, savedPassword);
-          }
-        }
-      }
-    } catch (error) {
-      // Silent error or retry
-    }
-  };
 
   const theme = {
-    primary: "#0A2540",
+    primary: "#6C2BD9",
     accent: "#FF9F43",
     backgroundLight: "#F8F9FA",
     backgroundDark: "#111921",
@@ -210,7 +164,7 @@ const LoginScreen = () => {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
-                  selectionColor="#3B82F6"
+                  selectionColor="#6C2BD9"
                 />
               </View>
             </View>
@@ -225,7 +179,7 @@ const LoginScreen = () => {
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
-                  selectionColor="#3B82F6"
+                  selectionColor="#6C2BD9"
                 />
                 <TouchableOpacity
                   style={styles.eyeIcon}
@@ -264,15 +218,7 @@ const LoginScreen = () => {
                 )}
               </TouchableOpacity>
 
-              {isBiometricAvailable && !isLoggingIn && (
-                <TouchableOpacity
-                  onPress={handleBiometricAuth}
-                  style={{ alignItems: 'center', marginTop: 16 }}
-                >
-                  <Ionicons name="finger-print-outline" size={40} color={isDark ? theme.accent : theme.primary} />
-                  <Text style={{ marginTop: 8, color: textBodyColor, fontSize: 12 }}>Tap to login with biometrics</Text>
-                </TouchableOpacity>
-              )}
+
             </View>
 
             <View style={styles.signupContainer}>
@@ -380,8 +326,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   primaryButton: {
-    backgroundColor: "#0A2A4E",
-    shadowColor: "#0A2A4E",
+    backgroundColor: "#6C2BD9",
+    shadowColor: "#6C2BD9",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -398,7 +344,7 @@ const styles = StyleSheet.create({
   },
   forgotPassword: {
     fontSize: 14,
-    color: "#3B82F6",
+    color: "#6C2BD9",
     fontWeight: "600",
   },
   signupContainer: {
@@ -412,7 +358,7 @@ const styles = StyleSheet.create({
   },
   signupLink: {
     fontSize: 14,
-    color: "#3B82F6",
+    color: "#6C2BD9",
     fontWeight: "600",
   },
 });

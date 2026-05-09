@@ -7,7 +7,9 @@ import { userService } from '@/services/user.service';
 import { WalletData, walletService } from '@/services/wallet.service';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useRouter, useNavigation } from 'expo-router';
+import { transactionService, Transaction as ApiTransaction } from '@/services/transaction.service';
+
 import { StatusBar } from 'expo-status-bar';
 import React, { useCallback, useState } from 'react';
 import {
@@ -38,6 +40,9 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [pinPrompted, setPinPrompted] = useState(false);
+  const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
+  const [transactionsLoading, setTransactionsLoading] = useState(false);
+
 
   // Load data when screen comes into focus (e.g., after login)
   useFocusEffect(
@@ -70,7 +75,7 @@ export default function HomeScreen() {
       await Promise.all([
         loadUserProfile(),
         loadWalletData(),
-        loadDashPlans(),
+        loadRecentTransactions(),
       ]);
     } catch (error: any) {
       console.error('Error loading data:', error);
@@ -146,8 +151,8 @@ export default function HomeScreen() {
   };
 
   const theme = {
-    primary: '#0A2540',
-    accent: '#FF9F43',
+    primary: '#6C2BD9',
+    accent: '#6C2BD9',
     backgroundLight: '#F8F9FA',
     backgroundDark: '#111921',
     textHeadings: '#1E293B',
@@ -169,28 +174,62 @@ export default function HomeScreen() {
   const [dashPlansLoading, setDashPlansLoading] = useState(false);
   const [dashPlansError, setDashPlansError] = useState<string | null>(null);
 
-  const loadDashPlans = async () => {
+  const loadRecentTransactions = async () => {
     try {
-      setDashPlansLoading(true);
-      setDashPlansError(null);
-      const res = await billPaymentService.getDataPlans(); // no network => fetch all
-      if (res?.success && Array.isArray(res.data)) {
-        const mapped = res.data.map((p: any) => ({
-          label: p.plan_name || p.data_value || p.name || 'Plan',
-          price: Number(p.price || p.amount || 0),
-          duration: p.validity || p.duration || '',
-        })).slice(0, 6);
-        setDashPlans(mapped);
+      setTransactionsLoading(true);
+      const response = await transactionService.getTransactions(1, 5);
+      if (response.success && response.data && Array.isArray(response.data)) {
+        const mapped = response.data.map(mapApiTransactionToLocal);
+        setRecentTransactions(mapped);
       } else {
-        setDashPlans([]);
+        setRecentTransactions([]);
       }
-    } catch (e: any) {
-      setDashPlansError(e?.message || 'Failed to load plans');
-      setDashPlans([]);
+    } catch (error) {
+      console.log('Error loading recent transactions:', error);
+      setRecentTransactions([]);
     } finally {
-      setDashPlansLoading(false);
+      setTransactionsLoading(false);
     }
   };
+
+  const mapApiTransactionToLocal = (transaction: ApiTransaction) => {
+    const date = new Date(transaction.created_at);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
+    let dateString = '';
+    if (date.toDateString() === today.toDateString()) {
+      dateString = `Today, ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      dateString = `Yesterday, ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+    } else {
+      dateString = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    return {
+      id: transaction._id,
+      name: formatTransactionType(transaction.type),
+      amount: `₦${transaction.amount.toLocaleString()}`,
+      status: transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1),
+      date: dateString,
+      bgColor: getTransactionColor(transaction.type),
+    };
+  };
+
+  const formatTransactionType = (type: string) =>
+    type.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
+
+  const getTransactionColor = (type: string) => {
+    switch (type) {
+      case 'airtime_topup': return '#FFCB05';
+      case 'data_purchase': return '#EF4444';
+      case 'bill_payment': return '#2563EB';
+      case 'wallet_topup': return '#10B981';
+      default: return '#6B7280';
+    }
+  };
+
 
   const selectContact = async () => {
     const { status } = await Contacts.requestPermissionsAsync();
@@ -274,7 +313,9 @@ export default function HomeScreen() {
             />
           </TouchableOpacity>
           <View>
-            <Text style={[styles.welcomeLabel, { color: textBodyColor }]}>Good Morning 👋</Text>
+            <Text style={[styles.welcomeLabel, { color: textBodyColor }]}>
+              {new Date().getHours() < 12 ? 'Good Morning' : new Date().getHours() < 18 ? 'Good Afternoon' : 'Good Evening'} 👋
+            </Text>
             <Text style={[styles.welcomeText, { color: textColor }]}>{user?.first_name || 'Guest'}</Text>
           </View>
         </View>
@@ -325,11 +366,11 @@ export default function HomeScreen() {
                 {isBalanceHidden ? '₦••••••' : formatCurrency(wallet?.balance || 0)}
               </Text>
               <TouchableOpacity
-                style={[styles.addMoneyBtn, { backgroundColor: theme.accent }]}
+                style={[styles.addMoneyBtn, { backgroundColor: '#FFFFFF' }]}
                 onPress={() => router.push('/add-money')}
               >
-                <Ionicons name="add" size={20} color="#FFFFFF" />
-                <Text style={styles.addMoneyText}>Add Money</Text>
+                <Ionicons name="add" size={20} color={theme.primary} />
+                <Text style={[styles.addMoneyText, { color: theme.primary }]}>Add Money</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -337,179 +378,74 @@ export default function HomeScreen() {
           {/* Quick Actions */}
           <View style={styles.quickActions}>
             <TouchableOpacity
-              style={styles.actionItem}
+              style={[styles.actionItem, { marginRight: 8 }]}
               onPress={() => router.push('/buy-airtime')}
             >
-              <View style={[styles.actionIcon, { backgroundColor: isDark ? 'rgba(79, 70, 229, 0.2)' : '#EEF2FF' }]}>
-                <Ionicons name="phone-portrait" size={24} color="#4F46E5" />
+              <View style={[styles.actionIcon, { backgroundColor: isDark ? 'rgba(108, 43, 217, 0.2)' : '#EDE9FE', width: '100%', height: 120 }]}>
+                <Ionicons name="phone-portrait" size={48} color="#6C2BD9" />
+                <Text style={[styles.actionTextLarge, { color: textColor }]}>Buy Airtime</Text>
               </View>
-              <Text style={[styles.actionText, { color: textBodyColor }]}>Buy Airtime</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.actionItem}
+              style={[styles.actionItem, { marginLeft: 8 }]}
               onPress={() => router.push('/buy-data')}
             >
-              <View style={[styles.actionIcon, { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.2)' : '#ECFDF5' }]}>
-                <Ionicons name="wifi" size={24} color="#10B981" />
+              <View style={[styles.actionIcon, { backgroundColor: isDark ? 'rgba(108, 43, 217, 0.2)' : '#EDE9FE', width: '100%', height: 120 }]}>
+                <Ionicons name="wifi" size={48} color="#6C2BD9" />
+                <Text style={[styles.actionTextLarge, { color: textColor }]}>Buy Data</Text>
               </View>
-              <Text style={[styles.actionText, { color: textBodyColor }]}>Buy Data</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionItem}
-              onPress={() => router.push('/airtime-to-cash')}
-            >
-              <View style={[styles.actionIcon, { backgroundColor: isDark ? 'rgba(236, 72, 153, 0.2)' : '#FCE7F3' }]}>
-                <Ionicons name="cash-outline" size={24} color="#EC4899" />
-              </View>
-              <Text style={[styles.actionText, { color: textBodyColor }]}>Airtime 2 Cash</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionItem}
-              onPress={() => router.push('/more')}
-            >
-              <View style={[styles.actionIcon, { backgroundColor: isDark ? 'rgba(37, 99, 235, 0.2)' : '#EBF5FF' }]}>
-                <Ionicons name="grid-outline" size={24} color="#2563EB" />
-              </View>
-              <Text style={[styles.actionText, { color: textBodyColor }]}>More</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Quick Top-up Form - Enclosed in Card */}
-          <View style={[styles.topupCard, { backgroundColor: cardBg }]}>
-            <Text style={[styles.sectionTitle, { color: textColor, marginBottom: 16 }]}>Quick Top-up ⚡</Text>
-
-            {/* Tabs */}
-            <View style={[styles.segmentContainer, { backgroundColor: isDark ? '#111827' : '#F3F4F6' }]}>
-              <TouchableOpacity
-                style={[
-                  styles.segmentBtn,
-                  selectedTab === 'airtime' && { backgroundColor: theme.primary }
-                ]}
-                onPress={() => setSelectedTab('airtime')}
-              >
-                <Text style={[
-                  styles.segmentText,
-                  { color: selectedTab === 'airtime' ? '#FFF' : textBodyColor }
-                ]}>
-                  Airtime
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.segmentBtn,
-                  selectedTab === 'data' && { backgroundColor: theme.primary }
-                ]}
-                onPress={() => setSelectedTab('data')}
-              >
-                <Text style={[
-                  styles.segmentText,
-                  { color: selectedTab === 'data' ? '#FFF' : textBodyColor }
-                ]}>
-                  Data
-                </Text>
+          {/* Recent Transactions */}
+          <View style={styles.transactionsSection}>
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: textColor }]}>Recent Transactions</Text>
+              <TouchableOpacity onPress={() => router.push('/transactions')}>
+                <Text style={[styles.seeAllText, { color: theme.accent }]}>See All</Text>
               </TouchableOpacity>
             </View>
 
-            {/* Phone Input */}
-            <View style={styles.formContainer}>
-              <Text style={[styles.inputLabel, { color: textBodyColor }]}>Phone Number</Text>
-              <View style={[styles.inputContainer, { backgroundColor: isDark ? '#374151' : '#F9FAFB', borderColor: isDark ? '#4B5563' : '#E5E7EB', borderWidth: 1 }]}>
-                <TextInput
-                  style={[styles.input, { color: textColor }]}
-                  placeholder="080 1234 5678"
-                  placeholderTextColor={textBodyColor}
-                  value={phoneNumber}
-                  onChangeText={setPhoneNumber}
-                  keyboardType="phone-pad"
-                />
-                <TouchableOpacity onPress={selectContact}>
-                  <Ionicons name="people" size={20} color={theme.accent} style={styles.inputIcon} />
+            {transactionsLoading ? (
+              <ActivityIndicator size="small" color={theme.primary} style={{ marginTop: 20 }} />
+            ) : recentTransactions.length > 0 ? (
+              recentTransactions.map((tx) => (
+                <TouchableOpacity
+                  key={tx.id}
+                  style={[styles.transactionItem, { backgroundColor: cardBg }]}
+                  onPress={() => router.push('/transactions')}
+                >
+                  <View style={[styles.txIcon, { backgroundColor: tx.bgColor + '20' }]}>
+                    <Ionicons 
+                      name={tx.name.toLowerCase().includes('topup') || tx.name.toLowerCase().includes('wallet') ? 'add' : 'remove'} 
+                      size={20} 
+                      color={tx.bgColor} 
+                    />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.txName, { color: textColor }]}>{tx.name}</Text>
+                    <Text style={[styles.txDate, { color: textBodyColor }]}>{tx.date}</Text>
+                  </View>
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text style={[styles.txAmount, { color: textColor }]}>
+                      {tx.name.toLowerCase().includes('topup') || tx.name.toLowerCase().includes('wallet') ? '+' : '-'}{tx.amount}
+                    </Text>
+                    <Text style={[styles.txStatus, { 
+                      color: tx.status === 'Successful' ? '#10B981' : tx.status === 'Failed' ? '#EF4444' : '#FF9F43' 
+                    }]}>
+                      {tx.status}
+                    </Text>
+                  </View>
+
                 </TouchableOpacity>
+              ))
+            ) : (
+              <View style={[styles.emptyTx, { backgroundColor: cardBg }]}>
+                <Text style={{ color: textBodyColor }}>No transactions yet</Text>
               </View>
-
-              {/* Amount Buttons */}
-              <Text style={[styles.inputLabel, { color: textBodyColor, marginTop: 8 }]}>Select Amount</Text>
-              <View style={styles.amountGrid}>
-                {selectedTab === 'airtime' ? (
-                  airtimeAmounts.map((amount, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      style={[
-                        styles.amountBtn,
-                        {
-                          backgroundColor: selectedAirtimeIndex === index
-                            ? theme.primary
-                            : (isDark ? '#374151' : '#fff'),
-                          borderColor: selectedAirtimeIndex === index ? theme.primary : (isDark ? '#4B5563' : '#E5E7EB'),
-                          borderWidth: 1
-                        }
-                      ]}
-                      onPress={() => setSelectedAirtimeIndex(index)}
-                    >
-                      <Text style={[
-                        styles.amountText,
-                        {
-                          color: selectedAirtimeIndex === index
-                            ? '#FFFFFF'
-                            : textColor,
-                          fontSize: 14
-                        }
-                      ]}>
-                        {amount}
-                      </Text>
-                    </TouchableOpacity>
-                  ))
-                ) : (
-                  (dashPlans.length ? dashPlans : []).map((plan, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      style={[
-                        styles.dataPlanBtn,
-                        {
-                          backgroundColor: selectedDataIndex === index
-                            ? theme.primary
-                            : (isDark ? '#374151' : '#fff'),
-                          borderColor: selectedDataIndex === index ? theme.primary : (isDark ? '#4B5563' : '#E5E7EB'),
-                          borderWidth: 1
-                        }
-                      ]}
-                      onPress={() => setSelectedDataIndex(index)}
-                    >
-                      <Text style={[
-                        styles.planLabel,
-                        {
-                          color: selectedDataIndex === index
-                            ? '#FFFFFF'
-                            : textColor
-                        }
-                      ]}>
-                        {plan.label}
-                      </Text>
-                      <Text style={[
-                        styles.planPrice,
-                        {
-                          color: selectedDataIndex === index
-                            ? '#FFFFFF'
-                            : theme.accent
-                        }
-                      ]}>
-                        ₦{Number(plan.price || 0).toLocaleString()}
-                      </Text>
-                    </TouchableOpacity>
-                  ))
-                )}
-              </View>
-
-              {/* Proceed Button */}
-              <TouchableOpacity
-                style={[styles.proceedBtn, { backgroundColor: theme.primary, marginTop: 16 }]}
-                onPress={handleQuickProceed}
-              >
-                <Text style={styles.proceedText}>Continue</Text>
-                <Ionicons name="arrow-forward" size={20} color="#FFF" />
-              </TouchableOpacity>
-            </View>
+            )}
           </View>
+
 
           {/* Bottom Spacing */}
           <View style={{ height: 100 }} />
@@ -520,84 +456,59 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  topupCard: {
+  transactionsSection: {
     marginHorizontal: 16,
     marginTop: 32,
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
   },
-  segmentContainer: {
+  sectionHeader: {
     flexDirection: 'row',
-    borderRadius: 12,
-    padding: 4,
-    marginBottom: 20,
-  },
-  segmentBtn: {
-    flex: 1,
-    paddingVertical: 10,
+    justifyContent: 'space-between',
     alignItems: 'center',
-    borderRadius: 8,
+    marginBottom: 16,
   },
-  segmentText: {
+  seeAllText: {
     fontSize: 14,
     fontWeight: '600',
   },
-  inputLabel: {
-    fontSize: 12,
+  transactionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 16,
+    marginBottom: 12,
+  },
+  txIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  txName: {
+    fontSize: 15,
     fontWeight: '600',
-    marginBottom: 4,
   },
-  welcomeLabel: {
+  txDate: {
     fontSize: 12,
-    fontWeight: '400',
+    marginTop: 2,
   },
-  inputContainer: {
-    flexDirection: 'row',
+  txAmount: {
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  txStatus: {
+    fontSize: 12,
+    marginTop: 2,
+    fontWeight: '600',
+  },
+  emptyTx: {
+    padding: 30,
+    borderRadius: 16,
     alignItems: 'center',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    height: 52,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  amountBtn: {
-    width: '30%',
-    height: 44,
-    borderRadius: 8,
     justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
   },
-  dataPlanBtn: {
-    width: '30%',
-    minHeight: 70,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 8,
-    marginBottom: 8,
-  },
-  proceedBtn: {
-    height: 52,
-    borderRadius: 12,
-    flexDirection: 'row',
-    gap: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 3,
-  },
+
   // Keep original styles for others
   container: {
     flex: 1,
@@ -633,6 +544,11 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  welcomeLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+    marginBottom: 2,
+  },
   welcomeText: {
     fontSize: 16,
     fontWeight: '700',
@@ -649,7 +565,7 @@ const styles = StyleSheet.create({
   balanceCard: {
     borderRadius: 20,
     padding: 24,
-    shadowColor: '#0A2540',
+    shadowColor: '#6C2BD9',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
     shadowRadius: 16,
@@ -714,17 +630,25 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   actionIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 20,
+    paddingVertical: 24,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 4,
+    shadowColor: '#6C2BD9',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 6,
   },
   actionText: {
     fontSize: 12,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  actionTextLarge: {
+    fontSize: 18,
+    fontWeight: '800',
+    marginTop: 12,
   },
   sectionTitle: {
     fontSize: 18,

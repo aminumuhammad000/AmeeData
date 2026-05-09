@@ -25,7 +25,7 @@ interface TransactionFilterProps {
 }
 
 const theme = {
-  primary: '#0A2540',
+  primary: '#6C2BD9',
   accent: '#FF9F43',
   success: '#00D4AA',
   error: '#FF5B5B',

@@ -37,7 +37,7 @@ export default function TransactionPinModal({
         subText: isDark ? '#9CA3AF' : '#6B7280',
         border: isDark ? '#374151' : '#E5E7EB',
         keypadParams: isDark ? '#2C2C2E' : '#F3F4F6',
-        primary: '#0A2540',
+        primary: '#6C2BD9',
         accent: '#FF9F43',
     };
 

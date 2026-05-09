@@ -98,13 +98,13 @@ export const GlobalAlert: React.FC<GlobalAlertProps> = ({
         };
       case 'info':
         return {
-          backgroundColor: isDark ? '#2563EB' : '#3B82F6',
+          backgroundColor: isDark ? '#2563EB' : '#6C2BD9',
           iconName: 'information-circle',
           iconBg: '#DBEAFE',
         };
       default:
         return {
-          backgroundColor: '#3B82F6',
+          backgroundColor: '#6C2BD9',
           iconName: 'information-circle',
           iconBg: '#DBEAFE',
         };

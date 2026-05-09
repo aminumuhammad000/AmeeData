@@ -1,6 +1,6 @@
 // routes/index.ts - Add this to your existing routes
 import { Express, Request, Response } from 'express';
-import airtimeToCashRoutes from './airtime_to_cash.routes.js';
+
 import billPaymentRoutes from './billpayment.routes.js';
 import referralRoutes from './referral.routes.js';
 
@@ -37,8 +37,7 @@ export default (app: Express) => {
   // Bill payment routes
   app.use('/api/v1/billpayment', billPaymentRoutes);
 
-  // Airtime to Cash routes
-  app.use('/api/v1/airtime-to-cash', airtimeToCashRoutes);
+
 
   // Referral routes
   app.use('/api/v1/referrals', referralRoutes);

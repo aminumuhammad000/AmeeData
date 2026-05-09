@@ -49,7 +49,7 @@ export default function LoginScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.otpContainer}>
           <TouchableOpacity onPress={handleBackToLogin} style={styles.backButton}>
-            <MaterialIcons name="arrow-back" size={24} color="#3B82F6" />
+            <MaterialIcons name="arrow-back" size={24} color="#6C2BD9" />
           </TouchableOpacity>
 
           <View style={styles.otpContent}>
@@ -72,7 +72,7 @@ export default function LoginScreen() {
                       otpInputs.current[index - 1]?.focus();
                     }
                   }}
-                  selectionColor="#3B82F6"
+                  selectionColor="#6C2BD9"
                 />
               ))}
             </View>
@@ -118,7 +118,7 @@ export default function LoginScreen() {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
-                selectionColor="#3B82F6"
+                selectionColor="#6C2BD9"
               />
             </View>
           </View>
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   primaryButton: {
-    backgroundColor: '#0A2A4E',
+    backgroundColor: '#6C2BD9',
   },
   primaryButtonText: {
     color: '#FFFFFF',
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   linkText: {
-    color: '#3B82F6',
+    color: '#6C2BD9',
     textDecorationLine: 'underline',
   },
   // OTP Screen Styles
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   resendLink: {
-    color: '#3B82F6',
+    color: '#6C2BD9',
     fontWeight: '500',
   },
 });

@@ -77,7 +77,7 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
         return { backgroundColor: '#F59E0B', icon: 'warning' as const };
       case 'info':
       default:
-        return { backgroundColor: '#3B82F6', icon: 'info' as const };
+        return { backgroundColor: '#6C2BD9', icon: 'info' as const };
     }
   };
 

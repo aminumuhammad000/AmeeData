@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
         width: 64,
         height: 64,
         borderRadius: 32,
-        backgroundColor: '#0A2540',
+        backgroundColor: '#6C2BD9',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 20,
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
         lineHeight: 22,
     },
     updateButton: {
-        backgroundColor: '#0A2540',
+        backgroundColor: '#6C2BD9',
         paddingVertical: 14,
         paddingHorizontal: 32,
         borderRadius: 12,

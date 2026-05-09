@@ -28,7 +28,7 @@ a,
 }
 /* Overrides */
 .header-nav {
-  background: transparent !important;
+  background: transparent;
 }
 
 .header-nav .navbar-nav .nav-link,

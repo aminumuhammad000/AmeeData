@@ -35,7 +35,7 @@ const SignupScreen = () => {
   const { isDark } = useTheme();
 
   const theme = {
-    primary: "#0A2540",
+    primary: "#6C2BD9",
     accent: "#FF9F43",
     backgroundLight: "#F8F9FA",
     backgroundDark: "#111921",
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E2E8F0',
   },
   progressDotActive: {
-    backgroundColor: '#0A2540',
+    backgroundColor: '#6C2BD9',
 
   },
   progressLine: {
@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 3,
   },
   progressLineActive: {
-    backgroundColor: '#0A2540',
+    backgroundColor: '#6C2BD9',
   },
   formContainer: {
     width: "100%",
@@ -448,8 +448,8 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   primaryButton: {
-    backgroundColor: "#0A2A4E",
-    shadowColor: "#0A2A4E",
+    backgroundColor: "#6C2BD9",
+    shadowColor: "#6C2BD9",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -477,7 +477,7 @@ const styles = StyleSheet.create({
   },
   loginLink: {
     fontSize: 14,
-    color: "#3B82F6",
+    color: "#6C2BD9",
     fontWeight: "600",
   },
   termsText: {
@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   linkText: {
-    color: "#3B82F6",
+    color: "#6C2BD9",
     textDecorationLine: "underline",
   },
   buttonDisabled: {

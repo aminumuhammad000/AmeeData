@@ -52,6 +52,96 @@
             /* No background here */
             max-width: 100%;
         }
+
+        /* Header Style */
+        .fixed-header, .header-nav {
+            background-color: #ffffff !important;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .nav-link {
+            color: #333 !important;
+        }
+
+        .navbar-brand span {
+            color: #333 !important;
+        }
+
+        /* Modern Service Cards */
+        .service-card {
+            padding: 40px;
+            border-radius: 16px;
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            height: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border-color: var(--primary-color);
+        }
+
+        .service-card .icon-box {
+            width: 80px;
+            height: 80px;
+            background: rgba(108, 43, 217, 0.08);
+            color: var(--primary-color);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 32px;
+            transition: all 0.3s ease;
+        }
+
+        .service-card:hover .icon-box {
+            background: var(--primary-color);
+            color: #fff;
+            transform: rotate(10deg);
+        }
+
+        .service-card h4 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+        }
+
+        .service-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 0;
+            font-size: 0.95rem;
+        }
+
+        .section-heading {
+            margin-bottom: 60px;
+        }
+
+        .section-heading h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+        }
+
+        /* Footer Alignment */
+        @media (max-width: 767px) {
+            .footer .col-md-4 {
+                text-align: left !important;
+                margin-bottom: 30px;
+            }
+            .footer .text-center, .footer .text-right {
+                text-align: left !important;
+            }
+        }
     </style>
 </head>
 
@@ -83,7 +173,7 @@
                         <li><a class="nav-link" href="#features">Features</a></li>
                         <li><a class="nav-link" href="https://wa.me/2348100015498?text=Hi%20AmeeData%21">Contact</a>
                         </li>
-                        <li><a class="nav-link-btn btn btn-theme m-15px-l md-m-0px-l" href="/login">Login</a></li>
+                        <li><a class="nav-link-btn btn btn-theme m-15px-l md-m-0px-l" href="https://app.ameedata.com.ng/login">Login</a></li>
                     </ul>
                 </div>
             </div>
@@ -103,9 +193,9 @@
                             <p class="lead">Get the most affordable Data plans, Airtime top-ups, and easy Bill payments.
                                 Fast, secure, and available 24/7.</p>
                             <div class="btn-bar m-30px-t">
-                                <a class="btn btn-theme btn-lg mb-3 mb-sm-0 mr-sm-2" href="/signup">Register Now <i
+                                <a class="btn btn-theme btn-lg mb-3 mb-sm-0 mr-sm-2" href="https://app.ameedata.com.ng/register">Register Now <i
                                         class="fa fa-user-plus"></i></a>
-                                <a class="btn btn-outline-primary btn-lg" href="/login"
+                                <a class="btn btn-outline-primary btn-lg" href="https://app.ameedata.com.ng/login"
                                     style="border: 2px solid var(--primary-color); color: var(--primary-color); font-weight: bold;">Login
                                     <i class="fa fa-sign-in-alt"></i></a>
                             </div>
@@ -162,27 +252,58 @@
         </section>
 
         <!-- Services Preview -->
-        <section class="section border-bottom">
+        <section class="section border-bottom bg-white" id="services">
             <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-md-8 text-left">
+                <div class="row justify-content-center section-heading">
+                    <div class="col-lg-8 text-center">
                         <h2 class="dark-color font-alt">One Platform, Many Solutions</h2>
-                        <ul class="list-unstyled p-20px-t">
-                            <li class="m-10px-b"><i class="fa fa-check-circle text-success mr-2"></i> <strong>Cheap
-                                    Data:</strong> MTN, Airtel, Glo, & 9mobile.</li>
-                            <li class="m-10px-b"><i class="fa fa-check-circle text-success mr-2"></i> <strong>Airtime
-                                    Topup:</strong> Instant recharge with discounts.</li>
-                            <li class="m-10px-b"><i class="fa fa-check-circle text-success mr-2"></i> <strong>Cable
-                                    TV:</strong> DSTV, GOTV, & Startimes.</li>
-                            <li class="m-10px-b"><i class="fa fa-check-circle text-success mr-2"></i>
-                                <strong>Electricity:</strong> Pay for all discos in Nigeria.
-                            </li>
-                            <li class="m-10px-b"><i class="fa fa-check-circle text-success mr-2"></i> <strong>Exam
-                                    PINs:</strong> WAEC, NECO, and more.</li>
-                        </ul>
-                        <div class="m-30px-t">
-                            <a class="btn btn-theme" href="/signup">Get Started Now</a>
+                        <p class="lead">Everything you need to stay connected and powered up, all in one place. Fast,
+                            reliable, and secure.</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Service 1 -->
+                    <div class="col-md-4 mb-4">
+                        <div class="service-card">
+                            <div class="icon-box">
+                                <i class="fa fa-wifi"></i>
+                            </div>
+                            <h4>Cheap Data</h4>
+                            <p>Get the most affordable data plans for all networks including MTN, Airtel, Glo, and
+                                9mobile instantly.</p>
                         </div>
+                    </div>
+
+                    <!-- Service 2 -->
+                    <div class="col-md-4 mb-4">
+                        <div class="service-card">
+                            <div class="icon-box">
+                                <i class="fa fa-phone-alt"></i>
+                            </div>
+                            <h4>Airtime Topup</h4>
+                            <p>Enjoy instant airtime recharge with amazing discounts across all major Nigerian
+                                telecommunication giants.</p>
+                        </div>
+                    </div>
+
+                    <!-- Service 3 -->
+                    <div class="col-md-4 mb-4">
+                        <div class="service-card">
+                            <div class="icon-box">
+                                <i class="fa fa-wallet"></i>
+                            </div>
+                            <h4>Automated Funding</h4>
+                            <p>Dedicated virtual accounts for instant wallet credit. No manual interference, no delays.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-5">
+                    <div class="col-12 text-center">
+                        <a class="btn btn-theme btn-lg" href="https://app.ameedata.com.ng/register">Get Started Now <i
+                                class="fa fa-arrow-right ml-2"></i></a>
                     </div>
                 </div>
             </div>
@@ -201,7 +322,7 @@
                         <p>Enjoy a smoother experience by purchasing data and airtime directly from our mobile
                             application. Get notified of special deals and track your transactions easily.</p>
                         <div class="m-30px-t">
-                            <a href="https://play.google.com/store/apps/details?id=com.aminuamee.vtuapp"
+                            <a href="#"
                                 target="_blank">
                                 <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
                                     alt="Get it on Google Play" height="80">
@@ -227,8 +348,8 @@
                     <ul class="list-unstyled">
                         <li><a href="#about" class="text-muted">About Us</a></li>
                         <li><a href="#features" class="text-muted">Features</a></li>
-                        <li><a href="/login" class="text-muted">Login</a></li>
-                        <li><a href="/signup" class="text-muted">Sign Up</a></li>
+                        <li><a href="https://app.ameedata.com.ng/login" class="text-muted">Login</a></li>
+                        <li><a href="https://app.ameedata.com.ng/register" class="text-muted">Sign Up</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4 text-right sm-text-left">
