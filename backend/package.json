@@ -12,15 +12,7 @@
     "test": "NODE_ENV=test jest --detectOpenHandles --forceExit",
     "test:watch": "NODE_ENV=test jest --watch --detectOpenHandles",
     "test:coverage": "NODE_ENV=test jest --coverage",
-    "seed:admin": "tsx src/scripts/seed-admin.ts",
-    "init:admin": "tsx src/scripts/init-admin.ts",
-    "seed:pricing": "tsx src/scripts/seed_pricing.ts",
-    "seed:providers": "tsx src/scripts/seed_providers.ts",
-    "seed:data-plans": "tsx src/scripts/seed_mtn_data_plans.ts",
-    "seed:data-generic": "tsx src/scripts/seed_pricing.ts",
-    "seed:all": "npm run seed:providers && npm run seed:data-plans",
-    "verify:seed": "tsx src/scripts/verify_seed.ts",
-    "reset:wallets": "tsx src/scripts/reset_wallet_balances.ts"
+    "seed:admin": "tsx src/scripts/seed-admin.ts"
   },
   "jest": {
     "preset": "ts-jest/presets/default-esm",

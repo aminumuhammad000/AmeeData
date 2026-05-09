@@ -36,7 +36,7 @@ export default function HomeScreen() {
   const [isBalanceHidden, setIsBalanceHidden] = useState(false);
   const [selectedAirtimeIndex, setSelectedAirtimeIndex] = useState<number | null>(null);
   const [selectedDataIndex, setSelectedDataIndex] = useState<number | null>(null);
-  const { profileData } = useProfile();
+  const { profileData, updateProfile } = useProfile();
   const [wallet, setWallet] = useState<WalletData | null>(null);
 
   const [loading, setLoading] = useState(true);
@@ -63,7 +63,15 @@ export default function HomeScreen() {
       } else {
         // No token, just load cached user data
         const userData = await authService.getCurrentUser();
-        setUser(userData);
+        if (userData) {
+          updateProfile({
+            firstName: userData.first_name,
+            lastName: userData.last_name,
+            email: userData.email,
+            phoneNumber: userData.phone_number,
+            profileImage: userData.profile_picture
+          });
+        }
         setLoading(false);
       }
     } catch (error) {
@@ -97,15 +105,30 @@ export default function HomeScreen() {
       if (!token) {
         console.log('Failed to load profile from server, using cached data');
         const userData = await authService.getCurrentUser();
-        setUser(userData);
+        if (userData) {
+          updateProfile({
+            firstName: userData.first_name,
+            lastName: userData.last_name,
+            email: userData.email,
+            phoneNumber: userData.phone_number,
+            profileImage: userData.profile_picture
+          });
+        }
         return;
       }
 
       const response = await userService.getProfile();
       if (response.success) {
-        setUser(response.data);
+        const user = response.data;
+        updateProfile({
+          firstName: user.first_name,
+          lastName: user.last_name,
+          email: user.email,
+          phoneNumber: user.phone_number,
+          profileImage: user.profile_picture
+        });
         // Prompt to set PIN if not set (legacy/new users)
-        if (!pinPrompted && !response.data?.transaction_pin) {
+        if (!pinPrompted && !user?.transaction_pin) {
           setPinPrompted(true);
           Alert.alert(
             'Set Transaction PIN',
@@ -121,7 +144,15 @@ export default function HomeScreen() {
       console.log('Error loading profile:', error);
       // Fallback to local storage
       const userData = await authService.getCurrentUser();
-      setUser(userData);
+      if (userData) {
+        updateProfile({
+          firstName: userData.first_name,
+          lastName: userData.last_name,
+          email: userData.email,
+          phoneNumber: userData.phone_number,
+          profileImage: userData.profile_picture
+        });
+      }
     }
   };
 
