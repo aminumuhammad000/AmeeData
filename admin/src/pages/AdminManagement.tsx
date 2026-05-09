@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { RefreshCw, Shield, User, UserPlus } from 'lucide-react';
+import { RefreshCw, User, UserPlus } from 'lucide-react';
 import React, { useState } from 'react';
 import { createAdmin, deleteAdmin, getAllAdmins, getRoles } from '../api/adminApi';
 import Sidebar from '../components/Sidebar';
