@@ -4,13 +4,16 @@ import mongoose from 'mongoose';
 import { config } from '../config/bootstrap.js';
 import { AdminRole, AdminUser } from '../models/index.js';
 
+const ADMIN_EMAIL = 'admin@ameedata.com.ng';
+const ADMIN_PASSWORD = 'Admin@123456';
+
 async function seedAdmin() {
   try {
     console.log('🔌 Connecting to MongoDB...');
     await mongoose.connect(config.mongoUri);
     console.log('✅ Connected to MongoDB');
 
-    // Check if admin role exists, if not create it
+    // Ensure Super Admin role exists
     let adminRole = await AdminRole.findOne({ name: 'Super Admin' });
     
     if (!adminRole) {
@@ -26,51 +29,31 @@ async function seedAdmin() {
       console.log('✅ Super Admin role already exists');
     }
 
-    // Check if admin user exists
-    const existingAdmin = await AdminUser.findOne({ email: 'admin@vtuapp.com' });
-    
-    if (existingAdmin) {
-      console.log('⚠️  Admin user already exists');
-      console.log('📧 Email: admin@vtuapp.com');
-      console.log('🔑 If you forgot the password, delete the admin and run this script again');
-      
-      // Update password anyway
-      const password = 'Admin@123456';
-      const password_hash = await bcrypt.hash(password, 10);
-      
-      existingAdmin.password_hash = password_hash;
-      existingAdmin.role_id = adminRole._id;
-      existingAdmin.updated_at = new Date();
-      await existingAdmin.save();
-      
-      console.log('\n✅ Admin password reset successfully!');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📧 Email: admin@vtuapp.com');
-      console.log('🔑 Password: Admin@123456');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    } else {
-      console.log('📝 Creating admin user...');
-      
-      // Create admin user
-      const password = 'Admin@123456';
-      const password_hash = await bcrypt.hash(password, 10);
-      
-      const admin = await AdminUser.create({
-        email: 'admin@vtuapp.com',
+    const password_hash = await bcrypt.hash(ADMIN_PASSWORD, 10);
+
+    // Upsert the super-admin user
+    const admin = await AdminUser.findOneAndUpdate(
+      { email: ADMIN_EMAIL },
+      {
+        email: ADMIN_EMAIL,
         password_hash,
         first_name: 'Super',
         last_name: 'Admin',
         role_id: adminRole._id,
-        status: 'active'
-      });
-      
-      console.log('\n✅ Admin user created successfully!');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📧 Email: admin@vtuapp.com');
-      console.log('🔑 Password: Admin@123456');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('⚠️  IMPORTANT: Change this password after first login!');
-    }
+        type: 'super-admin',   // ✅ Full access
+        status: 'active',
+        updated_at: new Date()
+      },
+      { upsert: true, new: true }
+    );
+
+    console.log('\n✅ Super Admin created/updated successfully!');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log(`📧 Email:    ${ADMIN_EMAIL}`);
+    console.log(`🔑 Password: ${ADMIN_PASSWORD}`);
+    console.log('👑 Type:     super-admin (full access)');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('⚠️  IMPORTANT: Change this password after first login!');
 
     await mongoose.disconnect();
     console.log('\n✅ Done! MongoDB disconnected');

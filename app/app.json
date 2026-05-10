@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "AmeeData",
-    "slug": "amee-data",
+    "slug": "vtu-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/ameedatalogo.png",
-    "scheme": "vtuapp",
+    "scheme": "ameedata",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -14,7 +14,7 @@
     },
     "android": {
       "package": "com.ameedata.app",
-      "versionCode": 32,
+      "versionCode": 33,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
