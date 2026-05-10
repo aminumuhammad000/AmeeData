@@ -1,4 +1,4 @@
-package com.aminuamee.vtuapp
+package com.ameedata.app
 
 import android.app.Application
 import android.content.res.Configuration

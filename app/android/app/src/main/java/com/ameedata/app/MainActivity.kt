@@ -1,4 +1,4 @@
-package com.aminuamee.vtuapp
+package com.ameedata.app
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

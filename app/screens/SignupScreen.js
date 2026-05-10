@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   ScrollView,
   StyleSheet,
@@ -328,8 +329,8 @@ const SignupScreen = () => {
 
           <Text style={[styles.termsText, { color: textBodyColor }]}>
             By signing up, you agree to our{" "}
-            <Text style={styles.linkText}>Terms of Service</Text> and{" "}
-            <Text style={styles.linkText}>Privacy Policy</Text>.
+            <Text style={styles.linkText} onPress={() => Linking.openURL('https://ameedata.com.ng/terms')}>Terms of Service</Text> and{" "}
+            <Text style={styles.linkText} onPress={() => Linking.openURL('https://ameedata.com.ng/privacy')}>Privacy Policy</Text>.
           </Text>
         </View>
       </ScrollView>

@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "AmeeData",
-    "slug": "vtu-app",
+    "slug": "amee-data",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/ameedatalogo.png",
@@ -10,10 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.aminuamee.vtuapp"
+      "bundleIdentifier": "com.ameedata.app"
     },
     "android": {
-      "package": "com.aminuamee.vtuapp",
+      "package": "com.ameedata.app",
       "versionCode": 32,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",

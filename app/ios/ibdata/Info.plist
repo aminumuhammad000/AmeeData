@@ -28,7 +28,7 @@
         <key>CFBundleURLSchemes</key>
         <array>
           <string>vtuapp</string>
-          <string>com.aminuamee.vtuapp</string>
+          <string>com.ameedata.app</string>
         </array>
       </dict>
     </array>

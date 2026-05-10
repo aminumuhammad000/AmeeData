@@ -48,8 +48,8 @@ export default function ReferralsScreen() {
         try {
             setLoading(true);
             const [statsRes, settingsRes] = await Promise.all([
-                referralService.getStats().catch(e => ({ data: { referral_count: 0, total_earnings: 0, referrals: [], referral_code: 'ERROR' } })),
-                referralService.getSettings().catch(e => ({ data: { referrer_bonus_amount: 500, min_transaction_for_bonus: 2000 } }))
+                referralService.getStats(),
+                referralService.getSettings()
             ]);
             if (statsRes?.data) setStats(statsRes.data);
             if (settingsRes?.data) setSettings(settingsRes.data);
@@ -101,9 +101,9 @@ export default function ReferralsScreen() {
                 {/* Banner Card */}
                 <View style={[styles.bannerCard, { backgroundColor: theme.primary }]}>
                     <View style={styles.bannerInfo}>
-                        <Text style={styles.bannerTitle}>Earn ₦{settings?.referrer_bonus_amount ?? '...'} per friend</Text>
+                        <Text style={styles.bannerTitle}>Earn ₦{settings?.referrer_bonus_amount?.toLocaleString() ?? '...'} per friend</Text>
                         <Text style={styles.bannerSubtitle}>
-                            Invite your friends to AmeeData and earn a bonus when they make their first transaction of ₦{settings?.min_transaction_for_bonus ?? '...'} or more.
+                            Invite your friends to AmeeData and earn a bonus when they make their first transaction of ₦{settings?.min_transaction_for_bonus?.toLocaleString() ?? '...'} or more.
                         </Text>
                     </View>
                     <View style={styles.bannerIconContainer}>
