@@ -102,7 +102,8 @@ export default function LoginScreen() {
             style={styles.logo}
           />
           <Text style={styles.title}>Welcome to AmeeData</Text>
-          <Text style={styles.subtitle}>Enter your email or phone number to get started.</Text>
+          <Text style={styles.subtitle}>Your trusted partner for seamless mobile transactions</Text>
+
         </View>
 
         <View style={styles.formContainer}>

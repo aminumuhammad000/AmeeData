@@ -148,7 +148,8 @@ const LoginScreen = () => {
               style={styles.logo}
             />
             <Text style={[styles.title, { color: textColor }]}>Welcome Back!</Text>
-            <Text style={[styles.subtitle, { color: textBodyColor }]}>Login to continue using the app</Text>
+            <Text style={[styles.subtitle, { color: textBodyColor }]}>Your trusted partner for seamless mobile transactions</Text>
+
           </View>
 
           <View style={styles.formContainer}>

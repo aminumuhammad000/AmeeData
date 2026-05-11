@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "AmeeData",
-    "slug": "vtu-app",
-    "version": "1.0.0",
+    "slug": "ameedata-vtu",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/ameedatalogo.png",
     "scheme": "ameedata",
@@ -10,11 +10,12 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ameedata.app"
+      "bundleIdentifier": "com.ameedata.app",
+      "buildNumber": "2"
     },
     "android": {
       "package": "com.ameedata.app",
-      "versionCode": 33,
+      "versionCode": 2,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -51,7 +52,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "398ca600-948f-4c4e-b795-48287307b259"
+        "projectId": "12ca339b-3205-4f9e-ab8f-1ceee7be6ae4"
       }
     }
   }

@@ -3,6 +3,7 @@ import { ProfileProvider } from '@/components/ProfileContext';
 import { ThemeProvider } from '@/components/ThemeContext';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { useFonts } from 'expo-font';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -78,6 +79,9 @@ export default function RootLayout() {
     'Poppins-Medium': require('../assets/fonts/Poppins-Medium.ttf'),
     'Poppins-SemiBold': require('../assets/fonts/Poppins-SemiBold.ttf'),
     'Poppins-Bold': require('../assets/fonts/Poppins-Bold.ttf'),
+    // Load icon fonts for web — native bundles them but web needs explicit loading
+    ...Ionicons.font,
+    ...MaterialIcons.font,
   });
 
   useEffect(() => {
