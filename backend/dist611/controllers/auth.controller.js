@@ -3,7 +3,6 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/bootstrap.js';
 import { User } from '../models/index.js';
-import { EmailService } from '../services/email.service.js';
 import { OTPService } from '../services/otp.service.js';
 import { WalletService } from '../services/wallet.service.js';
 import { ApiResponse } from '../utils/response.js';
@@ -116,10 +115,8 @@ export class AuthController {
             if (!user) {
                 return ApiResponse.error(res, 'User not found', 404);
             }
-            // Generate OTP for email (using email as identifier)
-            const otp = await OTPService.createOTP(email, email, user._id.toString());
-            // Send OTP via Email
-            await EmailService.sendOtpEmail(email, otp);
+            // Generate OTP and send via email
+            await OTPService.createOTP(email, email, user._id.toString());
             return ApiResponse.success(res, null, 'OTP sent to your email');
         }
         catch (error) {

@@ -1,5 +1,6 @@
 import { Notification } from '../models/index.js';
 import { NotificationService } from '../services/notification.service.js';
+import { EmailService } from '../services/email.service.js';
 import { ApiResponse } from '../utils/response.js';
 export class NotificationController {
     static async getNotifications(req, res) {
@@ -158,15 +159,32 @@ export class NotificationController {
     static async sendEmailNotification(req, res) {
         try {
             const { subject, message, recipients } = req.body;
-            if (!subject || !message || !recipients || recipients.length === 0) {
-                return ApiResponse.error(res, 'Subject, message, and recipients are required', 400);
+            if (!subject || !message || !recipients || !Array.isArray(recipients) || recipients.length === 0) {
+                return ApiResponse.error(res, 'Subject, message, and a valid list of recipients are required', 400);
             }
-            // TODO: Integrate actual email service (e.g., Nodemailer, SendGrid, etc.)
-            console.log(`[Email Service] Sending email to ${recipients.length} recipients...`);
-            console.log(`[Email Service] Subject: ${subject}`);
-            // Simulate some processing time
-            await new Promise(resolve => setTimeout(resolve, 500));
-            return ApiResponse.success(res, { count: recipients.length }, `Email queued for ${recipients.length} recipients`);
+            console.log(`[Email Service] Attempting to send email to ${recipients.length} recipients...`);
+            // Basic HTML wrapper for the email
+            const htmlMessage = `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+          <h2 style="color: #6C2BD9; border-bottom: 2px solid #6C2BD9; padding-bottom: 10px;">${subject}</h2>
+          <div style="margin-top: 20px;">
+            ${message.replace(/\n/g, '<br>')}
+          </div>
+          <p style="margin-top: 30px; font-size: 12px; color: #777; border-top: 1px solid #eee; padding-top: 20px;">
+            This is an automated notification from AmeeData. Please do not reply to this email.
+          </p>
+        </div>
+      `;
+            // We'll send them in parallel - for very large lists, a queue would be better
+            // Using Settled to ensure we try all even if some fail
+            const results = await Promise.allSettled(recipients.map(email => EmailService.sendEmail(email, subject, htmlMessage)));
+            const successful = results.filter(r => r.status === 'fulfilled' && r.value?.success).length;
+            const failed = recipients.length - successful;
+            console.log(`[Email Service] Finished: ${successful} successful, ${failed} failed.`);
+            if (successful === 0 && failed > 0) {
+                return ApiResponse.error(res, 'Failed to send emails. Please check your SMTP configuration.', 500);
+            }
+            return ApiResponse.success(res, { total: recipients.length, successful, failed }, `Email process completed: ${successful} sent, ${failed} failed.`);
         }
         catch (error) {
             return ApiResponse.error(res, error.message, 500);

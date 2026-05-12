@@ -1,6 +1,6 @@
-// services/otp.service.ts
 import { config } from '../config/bootstrap.js';
 import { OTP } from '../models/index.js';
+import { EmailService } from './email.service.js';
 export class OTPService {
     static async generateOTP() {
         return Math.floor(100000 + Math.random() * 900000).toString();
@@ -16,7 +16,11 @@ export class OTPService {
             expires_at,
             is_used: false
         });
-        // TODO: Send OTP via SMS/Email service
+        if (email) {
+            await EmailService.sendOtpEmail(email, otp_code).catch(err => {
+                console.error('Failed to send OTP email:', err);
+            });
+        }
         return otp_code;
     }
     static async verifyOTP(phone_number, otp_code) {

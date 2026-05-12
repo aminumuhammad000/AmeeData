@@ -140,11 +140,8 @@ export class AuthController {
         return ApiResponse.error(res, 'User not found', 404);
       }
 
-      // Generate OTP for email (using email as identifier)
-      const otp = await OTPService.createOTP(email, email, user._id.toString());
-
-      // Send OTP via Email
-      await EmailService.sendOtpEmail(email, otp);
+      // Generate OTP and send via email
+      await OTPService.createOTP(email, email, user._id.toString());
 
       return ApiResponse.success(res, null, 'OTP sent to your email');
     } catch (error: any) {
