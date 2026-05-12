@@ -4,6 +4,7 @@ import AirtimePlan from '../models/airtime_plan.model.js';
 import { Transaction, User } from '../models/index.js';
 import { Plan } from '../models/plan.model.js';
 import providerRegistry from '../services/providerRegistry.service.js';
+import smeplugService from '../services/smeplug.service.js';
 import topupmateService from '../services/topupmate.service.js';
 import { WalletService } from '../services/wallet.service.js';
 import { AuthRequest } from '../types/index.js';
@@ -15,8 +16,8 @@ export class BillPaymentController {
   async getNetworks(req: Request, res: Response, next: NextFunction) {
     try {
       const selected = await providerRegistry.getPreferredProviderFor('airtime');
-      const client = selected?.client || topupmateService;
-      const networks = await (client.getNetworks ? client.getNetworks() : topupmateService.getNetworks());
+      const client = selected?.client || smeplugService;
+      const networks = await (client.getNetworks ? client.getNetworks() : smeplugService.getNetworks());
       const payload = (networks as any).response || networks;
       return ApiResponse.success(res, 'Networks retrieved successfully', payload);
     } catch (error) {
@@ -200,7 +201,7 @@ export class BillPaymentController {
 
       try {
         const selected = await providerRegistry.getPreferredProviderFor('airtime');
-        const client = selected?.client || topupmateService;
+        const client = selected?.client || smeplugService;
         const result = await (client.purchaseAirtime
           ? client.purchaseAirtime({
             network: String(providerId),
@@ -210,7 +211,7 @@ export class BillPaymentController {
             ported_number,
             amount: String(amount),
           })
-          : topupmateService.purchaseAirtime({
+          : smeplugService.purchaseAirtime({
             network: String(providerId),
             phone: String(phone),
             ref,
@@ -221,7 +222,7 @@ export class BillPaymentController {
 
         // Update transaction status
         const isSuccess = (result.status === 'success' || result.status === true || result.status === 'true');
-        const hasErrorMsg = result.msg || result.error || result.message;
+        const hasErrorMsg = result.error || result.message || (result.status !== true && result.status !== 'success' && result.status !== 'true' ? result.msg || result.message : null);
 
         if (isSuccess && !hasErrorMsg) {
           await Transaction.findByIdAndUpdate(transaction._id, {
@@ -355,7 +356,7 @@ export class BillPaymentController {
 
       try {
         const selected = await providerRegistry.getPreferredProviderFor('data');
-        const client = selected?.client || topupmateService;
+        const client = selected?.client || smeplugService;
         const result = await (client.purchaseData
           ? client.purchaseData({
             network: String(providerId),
@@ -364,7 +365,7 @@ export class BillPaymentController {
             plan: String(dbPlan.externalPlanId || dbPlan.code), // Use external ID from DB
             ported_number,
           })
-          : topupmateService.purchaseData({
+          : smeplugService.purchaseData({
             network: String(providerId),
             phone: String(phone),
             ref,
@@ -374,7 +375,7 @@ export class BillPaymentController {
 
         // Update transaction status
         const isSuccess = (result.status === 'success' || result.status === true || result.status === 'true');
-        const hasErrorMsg = result.msg || result.error || result.message;
+        const hasErrorMsg = result.error || result.message || (result.status !== true && result.status !== 'success' && result.status !== 'true' ? result.msg || result.message : null);
 
         if (isSuccess && !hasErrorMsg) {
           await Transaction.findByIdAndUpdate(transaction._id, {
@@ -552,12 +553,12 @@ export class BillPaymentController {
       if (!isApiRequest) {
         const user = await User.findById(userId);
         if (!user) return ApiResponse.error(res, 'User not found', 404);
-        
+
         if (!user.transaction_pin) {
-           // Allow legacy
-           if (String(pin) !== '1234') {
-             return ApiResponse.error(res, 'Incorrect transaction PIN', 400);
-           }
+          // Allow legacy
+          if (String(pin) !== '1234') {
+            return ApiResponse.error(res, 'Incorrect transaction PIN', 400);
+          }
         } else {
           const pinOk = await import('bcryptjs').then(({ default: bcrypt }) => bcrypt.compare(String(pin), user.transaction_pin as string));
           if (!pinOk) {
@@ -650,11 +651,11 @@ export class BillPaymentController {
       if (!isApiRequest) {
         const user = await User.findById(userId);
         if (!user) return ApiResponse.error(res, 'User not found', 404);
-        
+
         if (!user.transaction_pin) {
-           if (String(pin) !== '1234') {
-             return ApiResponse.error(res, 'Incorrect transaction PIN', 400);
-           }
+          if (String(pin) !== '1234') {
+            return ApiResponse.error(res, 'Incorrect transaction PIN', 400);
+          }
         } else {
           const pinOk = await import('bcryptjs').then(({ default: bcrypt }) => bcrypt.compare(String(pin), user.transaction_pin as string));
           if (!pinOk) {

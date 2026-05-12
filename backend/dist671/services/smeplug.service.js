@@ -79,6 +79,8 @@ class SMEPlugService {
                 data: error.response?.data,
                 message: error.message
             });
+            if (error.response?.data)
+                return error.response.data;
             throw error;
         }
     }
@@ -100,6 +102,8 @@ class SMEPlugService {
                 data: error.response?.data,
                 message: error.message
             });
+            if (error.response?.data)
+                return error.response.data;
             throw error;
         }
     }
@@ -116,6 +120,8 @@ class SMEPlugService {
         }
         catch (error) {
             logger.error('SMEPlug getDataPlans error:', error.response?.data || error.message);
+            if (error.response?.data)
+                return error.response.data;
             throw error;
         }
     }
@@ -147,6 +153,8 @@ class SMEPlugService {
                 data: error.response?.data,
                 message: error.message
             });
+            if (error.response?.data)
+                return error.response.data;
             throw error;
         }
     }
@@ -179,6 +187,8 @@ class SMEPlugService {
                 data: error.response?.data,
                 message: error.message
             });
+            if (error.response?.data)
+                return error.response.data;
             throw error;
         }
     }
@@ -195,6 +205,8 @@ class SMEPlugService {
         }
         catch (error) {
             logger.error('SMEPlug getTransactionStatus error:', error.response?.data || error.message);
+            if (error.response?.data)
+                return error.response.data;
             throw error;
         }
     }

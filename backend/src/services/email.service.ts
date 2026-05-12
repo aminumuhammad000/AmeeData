@@ -3,22 +3,27 @@ import { SystemSetting } from '../models/system_setting.model.js';
 
 export class EmailService {
     private static async getTransporter() {
-        // Fetch settings from DB
         const settings = await SystemSetting.findOne({ type: 'global_config' });
         const config = settings?.config?.email_config;
 
-        if (!config || !config.smtp_host) {
+        const host = config?.smtp_host || process.env.SMTP_HOST;
+        const port = config?.smtp_port || process.env.SMTP_PORT;
+        const secure = config?.smtp_secure !== undefined ? config?.smtp_secure : process.env.SMTP_SECURE === 'true';
+        const user = config?.smtp_user || process.env.SMTP_USER;
+        const pass = config?.smtp_pass || process.env.SMTP_PASS;
+
+        if (!host || !user || !pass) {
             console.warn('Email configuration is missing or incomplete.');
             return null;
         }
 
         return nodemailer.createTransport({
-            host: config.smtp_host,
-            port: config.smtp_port,
-            secure: config.smtp_secure, // true for 465, false for other ports
+            host,
+            port: Number(port) || 465,
+            secure, // true for 465, false for other ports
             auth: {
-                user: config.smtp_user,
-                pass: config.smtp_pass,
+                user,
+                pass,
             },
         });
     }
@@ -31,8 +36,10 @@ export class EmailService {
             }
 
             const settings = await SystemSetting.findOne({ type: 'global_config' });
-            const senderName = settings?.config?.email_config?.sender_name || 'AmeeData';
-            const senderEmail = settings?.config?.notification_email || settings?.config?.email_config?.smtp_user;
+            const config = settings?.config?.email_config;
+            const notificationEmail = settings?.config?.notification_email || process.env.SMTP_USER;
+            const senderName = config?.sender_name || process.env.SMTP_FROM_NAME || 'AmeeData';
+            const senderEmail = notificationEmail || config?.smtp_user || process.env.SMTP_USER;
 
             const info = await transporter.sendMail({
                 from: `"${senderName}" <${senderEmail}>`,
