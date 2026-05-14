@@ -15,8 +15,8 @@ import PricingViewModal from '../components/PricingViewModal';
 
 const PROVIDERS = [
   { id: 1, name: 'MTN' },
-  { id: 2, name: 'Glo' },
-  { id: 3, name: 'Airtel' },
+  { id: 2, name: 'Airtel' },
+  { id: 3, name: 'Glo' },
   { id: 4, name: '9mobile' },
 ];
 
