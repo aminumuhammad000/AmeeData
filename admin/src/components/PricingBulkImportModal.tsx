@@ -96,7 +96,7 @@ const PricingBulkImportModal: React.FC<PricingBulkImportModalProps> = ({ onClose
         active: true
       },
       {
-        providerId: 2,
+        providerId: 3,
         providerName: "Glo",
         externalPlanId: "glo-100",
         code: "GLO100",
@@ -118,8 +118,8 @@ const PricingBulkImportModal: React.FC<PricingBulkImportModalProps> = ({ onClose
   const downloadSampleCsv = () => {
     const sample = `providerId,providerName,externalPlanId,code,name,price,type,discount,active
 1,MTN,mtn-100,MTN100,MTN 1GB Daily,300,DATA,5,true
-2,Glo,glo-100,GLO100,Glo 1GB Daily,250,DATA,3,true
-3,Airtel,airtel-100,AIRTEL100,Airtel 1GB Daily,280,DATA,4,true`;
+2,Airtel,airtel-100,AIRTEL100,Airtel 1GB Daily,280,DATA,4,true
+3,Glo,glo-100,GLO100,Glo 1GB Daily,250,DATA,3,true`;
     const blob = new Blob([sample], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -205,7 +205,7 @@ const PricingBulkImportModal: React.FC<PricingBulkImportModalProps> = ({ onClose
                 onChange={(e) => setCsvInput(e.target.value)}
                 placeholder={`providerId,providerName,name,price,type,discount,active
 1,MTN,MTN 1GB Daily,300,DATA,5,true
-2,Glo,Glo 1GB Daily,250,DATA,3,true`}
+3,Glo,Glo 1GB Daily,250,DATA,3,true`}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-sm h-32"
               />
             </div>
@@ -222,7 +222,7 @@ const PricingBulkImportModal: React.FC<PricingBulkImportModalProps> = ({ onClose
         <div className="bg-purple-50 border border-purple-200 rounded p-3 mb-4 text-sm text-purple-800">
           <p className="font-semibold mb-1">Required Fields:</p>
           <ul className="list-disc list-inside space-y-1 text-xs">
-            <li><code>providerId</code> - 1=MTN, 2=Glo, 3=Airtel, 4=9mobile</li>
+            <li><code>providerId</code> - 1=MTN, 2=Airtel, 3=Glo, 4=9mobile</li>
             <li><code>providerName</code> - Provider name (MTN, Glo, etc.)</li>
             <li><code>name</code> - Plan name (e.g., MTN 1GB Daily)</li>
             <li><code>price</code> - Price in Naira</li>

@@ -182,15 +182,10 @@ export default function Notifications() {
 
         setIsSubmitting(true);
         try {
-            // In a real app, we would fetch users based on 'emailRecipients' filter
-            // For now, we simulate sending to "All Users" which the backend handles or expects a list
-            // Let's assume the backend will fetch users if we pass a special flag, or we send a dummy list for testing
-            const dummyRecipients = ['test@example.com']; // In reality, fetch from API
-
             const response = await adminApi.sendEmail({
                 subject: emailSubject,
                 message: emailMessage,
-                recipients: dummyRecipients
+                target: emailRecipients
             });
 
             if (response.data?.success) {

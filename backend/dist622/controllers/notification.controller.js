@@ -158,11 +158,25 @@ export class NotificationController {
     }
     static async sendEmailNotification(req, res) {
         try {
-            const { subject, message, recipients } = req.body;
-            if (!subject || !message || !recipients || !Array.isArray(recipients) || recipients.length === 0) {
-                return ApiResponse.error(res, 'Subject, message, and a valid list of recipients are required', 400);
+            const { subject, message, recipients, target } = req.body;
+            let targetEmails = [];
+            if (target) {
+                const query = {};
+                if (target === 'active')
+                    query.status = 'active';
+                if (target === 'inactive')
+                    query.status = 'inactive';
+                const User = (await import('../models/index.js')).User;
+                const users = await User.find(query).select('email').lean();
+                targetEmails = users.map((u) => u.email).filter(Boolean);
             }
-            console.log(`[Email Service] Attempting to send email to ${recipients.length} recipients...`);
+            else if (Array.isArray(recipients) && recipients.length > 0) {
+                targetEmails = recipients;
+            }
+            if (!subject || !message || targetEmails.length === 0) {
+                return ApiResponse.error(res, 'Subject, message, and at least one recipient are required', 400);
+            }
+            console.log(`[Email Service] Attempting to send email to ${targetEmails.length} recipients...`);
             // Basic HTML wrapper for the email
             const htmlMessage = `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
@@ -177,14 +191,14 @@ export class NotificationController {
       `;
             // We'll send them in parallel - for very large lists, a queue would be better
             // Using Settled to ensure we try all even if some fail
-            const results = await Promise.allSettled(recipients.map(email => EmailService.sendEmail(email, subject, htmlMessage)));
+            const results = await Promise.allSettled(targetEmails.map((email) => EmailService.sendEmail(email, subject, htmlMessage)));
             const successful = results.filter(r => r.status === 'fulfilled' && r.value?.success).length;
-            const failed = recipients.length - successful;
+            const failed = targetEmails.length - successful;
             console.log(`[Email Service] Finished: ${successful} successful, ${failed} failed.`);
             if (successful === 0 && failed > 0) {
                 return ApiResponse.error(res, 'Failed to send emails. Please check your SMTP configuration.', 500);
             }
-            return ApiResponse.success(res, { total: recipients.length, successful, failed }, `Email process completed: ${successful} sent, ${failed} failed.`);
+            return ApiResponse.success(res, { total: targetEmails.length, successful, failed }, `Email process completed: ${successful} sent, ${failed} failed.`);
         }
         catch (error) {
             return ApiResponse.error(res, error.message, 500);

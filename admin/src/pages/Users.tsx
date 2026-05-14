@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
-import { deleteUser, getUsers, updateUser, updateUserStatus } from '../api/adminApi';
+import { deleteUser, getUsers, updateUser, updateUserStatus, sendEmail } from '../api/adminApi';
 import Layout from '../components/Layout';
 import UserDeleteModal from '../components/UserDeleteModal';
 import UserEditModal from '../components/UserEditModal';
 import UserStatusModal from '../components/UserStatusModal';
 import UserViewModal from '../components/UserViewModal';
+import UserEmailModal from '../components/UserEmailModal';
 
 const Users: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -42,6 +43,13 @@ const Users: React.FC = () => {
     };
   }, [searchTerm]);
 
+  const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+
+  useEffect(() => {
+    setSelectedEmails([]);
+  }, [page, debouncedSearch, kycFilter, accountStatusFilter]);
+
   const [viewUser, setViewUser] = useState<any | null>(null);
   const [editUser, setEditUser] = useState<any | null>(null);
   const [statusUser, setStatusUser] = useState<any | null>(null);
@@ -73,6 +81,18 @@ const Users: React.FC = () => {
     },
   });
 
+  const emailMutation = useMutation({
+    mutationFn: (data: { subject: string; message: string; recipients: string[] }) => sendEmail(data).then((res: any) => res.data),
+    onSuccess: () => {
+      setShowEmailModal(false);
+      setSelectedEmails([]);
+      alert("Email sent successfully!");
+    },
+    onError: (error: any) => {
+      alert("Failed to send email: " + error.message);
+    }
+  });
+
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'active': return 'bg-green-100 text-green-800 border-green-200';
@@ -101,9 +121,20 @@ const Users: React.FC = () => {
               <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Users Management</h1>
               <p className="text-sm sm:text-base text-slate-500 mt-1">Manage and monitor all user accounts</p>
             </div>
-            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200">
-              <span className="text-sm text-slate-500">Total Users:</span>
-              <span className="text-lg font-bold text-purple-600">{pagination.total || 0}</span>
+            <div className="flex items-center gap-4">
+              {selectedEmails.length > 0 && (
+                <button
+                  onClick={() => setShowEmailModal(true)}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                  Send Email ({selectedEmails.length})
+                </button>
+              )}
+              <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200">
+                <span className="text-sm text-slate-500">Total Users:</span>
+                <span className="text-lg font-bold text-purple-600">{pagination.total || 0}</span>
+              </div>
             </div>
           </div>
 
@@ -181,6 +212,20 @@ const Users: React.FC = () => {
                   <table className="w-full text-left">
                     <thead className="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500 font-semibold">
                       <tr>
+                        <th className="px-6 py-4 w-12 text-center">
+                          <input
+                            type="checkbox"
+                            className="rounded border-slate-300 text-purple-600 focus:ring-purple-500"
+                            checked={users.length > 0 && selectedEmails.length === users.length}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedEmails(users.map((u: any) => u.email).filter(Boolean));
+                              } else {
+                                setSelectedEmails([]);
+                              }
+                            }}
+                          />
+                        </th>
                         <th className="px-6 py-4">User</th>
                         <th className="px-6 py-4">Contact</th>
                         <th className="px-6 py-4">Account Status</th>
@@ -191,7 +236,21 @@ const Users: React.FC = () => {
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {users.map((user: any) => (
-                        <tr key={user._id} className="hover:bg-slate-50/80 transition-colors group">
+                        <tr key={user._id} className={`hover:bg-slate-50/80 transition-colors group ${selectedEmails.includes(user.email) ? 'bg-purple-50/50' : ''}`}>
+                          <td className="px-6 py-4 text-center">
+                            <input
+                              type="checkbox"
+                              className="rounded border-slate-300 text-purple-600 focus:ring-purple-500"
+                              checked={selectedEmails.includes(user.email)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  if (user.email) setSelectedEmails(prev => [...prev, user.email]);
+                                } else {
+                                  setSelectedEmails(prev => prev.filter(email => email !== user.email));
+                                }
+                              }}
+                            />
+                          </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm ring-2 ring-white">
@@ -248,8 +307,20 @@ const Users: React.FC = () => {
                 {/* Mobile Card View */}
                 <div className="md:hidden p-4 space-y-4">
                   {users.map((user: any) => (
-                    <div key={user._id} className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col gap-4">
+                    <div key={user._id} className={`bg-white rounded-xl border p-4 shadow-sm flex flex-col gap-4 ${selectedEmails.includes(user.email) ? 'border-purple-300 bg-purple-50/30' : 'border-slate-200'}`}>
                       <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          className="rounded border-slate-300 text-purple-600 focus:ring-purple-500 w-5 h-5"
+                          checked={selectedEmails.includes(user.email)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              if (user.email) setSelectedEmails(prev => [...prev, user.email]);
+                            } else {
+                              setSelectedEmails(prev => prev.filter(email => email !== user.email));
+                            }
+                          }}
+                        />
                         <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm">
                           {`${user.first_name?.[0] || 'U'}${user.last_name?.[0] || 'U'}`.toUpperCase()}
                         </div>
@@ -318,6 +389,7 @@ const Users: React.FC = () => {
         {editUser && <UserEditModal user={editUser} onClose={() => setEditUser(null)} onSave={editMutation.mutate} isSaving={editMutation.status === 'pending'} />}
         {statusUser && <UserStatusModal user={statusUser} onClose={() => setStatusUser(null)} onSave={statusMutation.mutate} isSaving={statusMutation.status === 'pending'} />}
         {deleteUserObj && <UserDeleteModal user={deleteUserObj} onClose={() => setDeleteUserObj(null)} onDelete={deleteMutation.mutate} isDeleting={deleteMutation.status === 'pending'} />}
+        {showEmailModal && <UserEmailModal emails={selectedEmails} onClose={() => setShowEmailModal(false)} onSend={emailMutation.mutate} isSending={emailMutation.status === 'pending'} />}
       </div>
     </Layout>
   );

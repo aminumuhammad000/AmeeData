@@ -191,13 +191,27 @@ export class NotificationController {
 
   static async sendEmailNotification(req: AuthRequest, res: Response) {
     try {
-      const { subject, message, recipients } = req.body;
+      const { subject, message, recipients, target } = req.body;
 
-      if (!subject || !message || !recipients || !Array.isArray(recipients) || recipients.length === 0) {
-        return ApiResponse.error(res, 'Subject, message, and a valid list of recipients are required', 400);
+      let targetEmails: string[] = [];
+
+      if (target) {
+          const query: any = {};
+          if (target === 'active') query.status = 'active';
+          if (target === 'inactive') query.status = 'inactive';
+          
+          const User = (await import('../models/index.js')).User;
+          const users = await User.find(query).select('email').lean();
+          targetEmails = users.map((u: any) => u.email).filter(Boolean) as string[];
+      } else if (Array.isArray(recipients) && recipients.length > 0) {
+          targetEmails = recipients;
       }
 
-      console.log(`[Email Service] Attempting to send email to ${recipients.length} recipients...`);
+      if (!subject || !message || targetEmails.length === 0) {
+        return ApiResponse.error(res, 'Subject, message, and at least one recipient are required', 400);
+      }
+
+      console.log(`[Email Service] Attempting to send email to ${targetEmails.length} recipients...`);
       
       // Basic HTML wrapper for the email
       const htmlMessage = `
@@ -215,11 +229,11 @@ export class NotificationController {
       // We'll send them in parallel - for very large lists, a queue would be better
       // Using Settled to ensure we try all even if some fail
       const results = await Promise.allSettled(
-        recipients.map(email => EmailService.sendEmail(email, subject, htmlMessage))
+        targetEmails.map((email: string) => EmailService.sendEmail(email, subject, htmlMessage))
       );
 
       const successful = results.filter(r => r.status === 'fulfilled' && (r as any).value?.success).length;
-      const failed = recipients.length - successful;
+      const failed = targetEmails.length - successful;
 
       console.log(`[Email Service] Finished: ${successful} successful, ${failed} failed.`);
 
@@ -228,7 +242,7 @@ export class NotificationController {
       }
 
       return ApiResponse.success(res, 
-        { total: recipients.length, successful, failed }, 
+        { total: targetEmails.length, successful, failed }, 
         `Email process completed: ${successful} sent, ${failed} failed.`
       );
     } catch (error: any) {

@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import { Request, Response } from 'express';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { config } from '../config/bootstrap.js';
-import { AdminRole, AdminUser, AuditLog, Plan, Transaction, User } from '../models/index.js';
+import { AdminRole, AdminUser, AuditLog, Plan, Transaction, User, Wallet } from '../models/index.js';
 import { AdminService } from '../services/admin.service.js';
 import { AuthRequest } from '../types/index.js';
 import { ApiResponse } from '../utils/response.js';
@@ -196,11 +196,20 @@ export class AdminController {
         .select('-password_hash')
         .skip(skip)
         .limit(limit)
-        .sort({ created_at: -1 });
+        .sort({ created_at: -1 })
+        .lean();
+
+      const usersWithBalance = await Promise.all(users.map(async (user: any) => {
+        const wallet = await Wallet.findOne({ user_id: user._id });
+        return {
+          ...user,
+          balance: wallet ? wallet.balance : 0
+        };
+      }));
 
       const total = await User.countDocuments(query);
 
-      return ApiResponse.paginated(res, users, {
+      return ApiResponse.paginated(res, usersWithBalance, {
         page,
         limit,
         total,
@@ -213,10 +222,16 @@ export class AdminController {
 
   static async getUserById(req: AuthRequest, res: Response) {
     try {
-      const user = await User.findById(req.params.id).select('-password_hash');
+      let user = await User.findById(req.params.id).select('-password_hash').lean();
       if (!user) {
         return ApiResponse.error(res, 'User not found', 404);
       }
+
+      const wallet = await Wallet.findOne({ user_id: user._id });
+      user = {
+        ...user,
+        balance: wallet ? wallet.balance : 0
+      } as any;
 
       return ApiResponse.success(res, user, 'User retrieved successfully');
     } catch (error: any) {

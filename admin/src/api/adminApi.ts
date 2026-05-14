@@ -105,7 +105,7 @@ export const updateBroadcast = (id: string, data: { title: string; message: stri
   api.put(`/notifications/broadcast/${id}`, data);
 
 // Email Notifications
-export const sendEmail = (data: { subject: string; message: string; recipients: string[] }) =>
+export const sendEmail = (data: { subject: string; message: string; recipients?: string[]; target?: string }) =>
   api.post('/notifications/email', data);
 
 // System Settings
