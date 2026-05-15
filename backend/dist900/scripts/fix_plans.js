@@ -1,6 +1,6 @@
+import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import AirtimePlan from '../models/airtime_plan.model.js';
-import dotenv from 'dotenv';
 dotenv.config();
 async function checkPlans() {
     try {

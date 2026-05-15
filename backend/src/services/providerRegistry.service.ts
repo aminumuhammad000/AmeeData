@@ -44,8 +44,10 @@ class ProviderRegistryService {
       const client = this.getClient(p.code);
       if (client) return { code: p.code, client };
     }
-    const fallback = this.getClient('topupmate');
-    return fallback ? { code: 'topupmate', client: fallback } : null;
+    const fallback = this.getClient('smeplug') || this.getClient('topupmate');
+    if (fallback === smeplugService) return { code: 'smeplug', client: fallback };
+    if (fallback === topupmateService) return { code: 'topupmate', client: fallback };
+    return null;
   }
 }
 

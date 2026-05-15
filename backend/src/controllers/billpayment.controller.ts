@@ -9,6 +9,7 @@ import topupmateService from '../services/topupmate.service.js';
 import { WalletService } from '../services/wallet.service.js';
 import { AuthRequest } from '../types/index.js';
 import { normalizeNetwork } from '../utils/network.js';
+import { generateReference } from '../utils/reference.js';
 import { ApiResponse } from '../utils/response.js';
 
 export class BillPaymentController {
@@ -177,7 +178,7 @@ export class BillPaymentController {
       }
 
       // Generate reference
-      const ref = topupmateService.generateReference('AIRTIME');
+      const ref = generateReference('AIRTIME');
 
       // Get wallet for wallet_id
       const walletData = await WalletService.getWalletByUserId(userId);
@@ -331,7 +332,7 @@ export class BillPaymentController {
       }
 
       // Generate reference
-      const ref = topupmateService.generateReference('DATA');
+      const ref = generateReference('DATA');
 
       // Get wallet for wallet_id
       const walletData = await WalletService.getWalletByUserId(userId);
@@ -462,7 +463,7 @@ export class BillPaymentController {
       }
 
       // Generate reference
-      const ref = topupmateService.generateReference('CABLE');
+      const ref = generateReference('CABLE');
 
       // Deduct from wallet
       await WalletService.debit(userId, amount, 'Cable TV purchase');
@@ -574,7 +575,7 @@ export class BillPaymentController {
       }
 
       // Generate reference
-      const ref = topupmateService.generateReference('ELECTRIC');
+      const ref = generateReference('ELECTRIC');
 
       // Deduct from wallet
       await WalletService.debit(userId, parseFloat(amount), 'Electricity purchase');
@@ -685,7 +686,7 @@ export class BillPaymentController {
       }
 
       // Generate reference
-      const ref = topupmateService.generateReference('EXAMPIN');
+      const ref = generateReference('EXAMPIN');
 
       // Deduct from wallet
       await WalletService.debit(userId, totalAmount, 'Exam pin purchase');
@@ -757,10 +758,10 @@ export class BillPaymentController {
       const { reference } = req.params;
 
       const selected = await providerRegistry.getPreferredProviderFor('airtime');
-      const client = selected?.client || topupmateService;
+      const client = selected?.client || smeplugService;
       const result = await (client.getTransactionStatus
         ? client.getTransactionStatus(reference)
-        : topupmateService.getTransactionStatus(reference));
+        : smeplugService.getTransactionStatus(reference));
 
       if (result.status === 'success' || result.status === true || result.status === 'true') {
         return ApiResponse.success(res, 'Transaction status retrieved', result.response);
