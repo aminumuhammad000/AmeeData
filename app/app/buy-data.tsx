@@ -29,7 +29,6 @@ const THEME = {
 interface DataPlanItem {
     id: string;
     data: string;
-    validity: string;
     price: number;
     category?: string;
 }
@@ -108,7 +107,6 @@ export default function BuyDataScreen() {
             return {
               id: String(p.planid || p.plan_id || p.id || p.plan || `plan-${i}`),
               data: name,
-              validity: p.validity || p.duration || '30 Days',
               price: Number(p.price || p.amount || 0),
               category
             };
@@ -291,9 +289,6 @@ export default function BuyDataScreen() {
                   >
                     <Text style={[styles.planData, { color: selectedPlan?.id === plan.id ? '#FFF' : textColor }]}>
                       {plan.data}
-                    </Text>
-                    <Text style={[styles.planValidity, { color: selectedPlan?.id === plan.id ? '#D1D5DB' : textBodyColor }]}>
-                      {plan.validity}
                     </Text>
                     <Text style={[styles.planPrice, { color: selectedPlan?.id === plan.id ? THEME.accent : THEME.primary }]}>
                       ₦{plan.price.toLocaleString()}

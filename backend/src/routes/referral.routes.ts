@@ -10,6 +10,7 @@ router.get('/settings', authMiddleware, ReferralController.getReferralSettings);
 
 // Admin routes
 router.get('/admin/stats', authMiddleware, authorize(['admin']), ReferralController.getAdminReferralStats);
+router.get('/admin/referees/:userId', authMiddleware, authorize(['admin']), ReferralController.getReferees);
 router.put('/admin/settings', authMiddleware, authorize(['admin']), ReferralController.updateReferralSettings);
 
 export default router;

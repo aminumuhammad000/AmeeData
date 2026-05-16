@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
-import { getReferralSettings, getReferralStats, updateReferralSettings } from '../api/adminApi';
+import { getReferees, getReferralSettings, getReferralStats, updateReferralSettings } from '../api/adminApi';
 import Layout from '../components/Layout';
+import Modal from '../components/Modal';
 import Toast from '../components/Toast';
 
 const Referrals: React.FC = () => {
@@ -9,6 +10,8 @@ const Referrals: React.FC = () => {
     const [showToast, setShowToast] = useState(false);
     const [toastMsg, setToastMsg] = useState('');
     const [toastType, setToastType] = useState<'success' | 'error'>('success');
+    const [selectedReferrer, setSelectedReferrer] = useState<any>(null);
+    const [showRefereesModal, setShowRefereesModal] = useState(false);
 
     const { data: statsData } = useQuery({
         queryKey: ['referralStats'],
@@ -18,6 +21,12 @@ const Referrals: React.FC = () => {
     const { data: settingsData, isLoading: settingsLoading } = useQuery({
         queryKey: ['referralSettings'],
         queryFn: () => getReferralSettings().then((res: any) => res.data.data),
+    });
+
+    const { data: refereesData, isLoading: refereesLoading } = useQuery({
+        queryKey: ['referees', selectedReferrer?._id],
+        queryFn: () => getReferees(selectedReferrer?._id).then((res: any) => res.data.data),
+        enabled: !!selectedReferrer?._id && showRefereesModal,
     });
 
     const updateMutation = useMutation({
@@ -90,7 +99,17 @@ const Referrals: React.FC = () => {
                                         <tbody className="divide-y divide-slate-100">
                                             {statsData?.top_referrers?.map((ref: any, idx: number) => (
                                                 <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                                                    <td className="px-6 py-4 font-medium text-slate-900">{ref.first_name} {ref.last_name}</td>
+                                                    <td className="px-6 py-4">
+                                                        <button 
+                                                            onClick={() => {
+                                                                setSelectedReferrer(ref);
+                                                                setShowRefereesModal(true);
+                                                            }}
+                                                            className="font-medium text-purple-600 hover:text-purple-800 hover:underline text-left"
+                                                        >
+                                                            {ref.first_name} {ref.last_name}
+                                                        </button>
+                                                    </td>
                                                     <td className="px-6 py-4 text-slate-500">{ref.email}</td>
                                                     <td className="px-6 py-4">
                                                         <span className="bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full font-bold">{ref.count}</span>
@@ -171,6 +190,53 @@ const Referrals: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            <Modal
+                isOpen={showRefereesModal}
+                onClose={() => setShowRefereesModal(false)}
+                title={`People invited by ${selectedReferrer?.first_name} ${selectedReferrer?.last_name}`}
+                size="lg"
+            >
+                <div className="overflow-x-auto text-sm">
+                    {refereesLoading ? (
+                        <div className="py-12 text-center text-slate-400">Loading referees...</div>
+                    ) : (
+                        <table className="w-full text-left">
+                            <thead className="bg-slate-50 text-slate-500 font-medium">
+                                <tr>
+                                    <th className="px-4 py-3">User</th>
+                                    <th className="px-4 py-3">Email</th>
+                                    <th className="px-4 py-3">Phone</th>
+                                    <th className="px-4 py-3">Status</th>
+                                    <th className="px-4 py-3">Joined</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {refereesData?.map((ref: any, idx: number) => (
+                                    <tr key={idx} className="hover:bg-slate-50">
+                                        <td className="px-4 py-3 font-medium text-slate-900">{ref.first_name} {ref.last_name}</td>
+                                        <td className="px-4 py-3 text-slate-500">{ref.email}</td>
+                                        <td className="px-4 py-3 text-slate-500">{ref.phone_number}</td>
+                                        <td className="px-4 py-3">
+                                            <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                                                ref.status === 'active' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                                            }`}>
+                                                {ref.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-3 text-slate-500">
+                                            {new Date(ref.created_at).toLocaleDateString()}
+                                        </td>
+                                    </tr>
+                                ))}
+                                {(!refereesData || refereesData.length === 0) && (
+                                    <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-400">No one invited yet.</td></tr>
+                                )}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+            </Modal>
             {showToast && (
                 <div className="fixed bottom-4 right-4 z-50">
                     <Toast

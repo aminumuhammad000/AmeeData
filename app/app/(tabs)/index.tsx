@@ -225,8 +225,8 @@ export default function HomeScreen() {
     try {
       setTransactionsLoading(true);
       const response = await transactionService.getTransactions(1, 5);
-      if (response.success && response.data && Array.isArray(response.data.transactions)) {
-        const mapped = response.data.transactions.map(mapApiTransactionToLocal);
+      if (response.success && response.data && Array.isArray(response.data)) {
+        const mapped = response.data.map(mapApiTransactionToLocal);
         setRecentTransactions(mapped);
       } else {
         setRecentTransactions([]);

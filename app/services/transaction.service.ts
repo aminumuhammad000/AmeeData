@@ -23,13 +23,14 @@ export interface Transaction {
 
 export interface TransactionResponse {
   success: boolean;
-  data: {
-    transactions: Transaction[];
-    total: number;
+  message: string;
+  data: Transaction[];
+  pagination: {
     page: number;
     limit: number;
+    total: number;
+    pages: number;
   };
-  message: string;
 }
 
 export interface AirtimePurchaseData {

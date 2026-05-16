@@ -114,6 +114,7 @@ export const updateSystemSettings = (data: any) => api.put('/settings', data);
 
 // Referral Management
 export const getReferralStats = () => generalApi.get('/referrals/admin/stats');
+export const getReferees = (userId: string) => generalApi.get(`/referrals/admin/referees/${userId}`);
 export const getReferralSettings = () => generalApi.get('/referrals/settings');
 export const updateReferralSettings = (data: any) => generalApi.put('/referrals/admin/settings', data);
 

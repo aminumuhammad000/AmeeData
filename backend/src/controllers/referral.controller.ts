@@ -138,4 +138,22 @@ export class ReferralController {
             return ApiResponse.error(res, error.message, 500);
         }
     }
+
+    /**
+     * Get referees for a specific user (Admin only)
+     */
+    static async getReferees(req: AuthRequest, res: Response) {
+        try {
+            const { userId } = req.params;
+            if (!userId) return ApiResponse.error(res, 'User ID is required', 400);
+
+            const referees = await User.find({ referred_by: userId })
+                .select('first_name last_name email created_at status phone_number')
+                .sort({ created_at: -1 });
+
+            return ApiResponse.success(res, referees, 'Referees retrieved successfully');
+        } catch (error: any) {
+            return ApiResponse.error(res, error.message, 500);
+        }
+    }
 }

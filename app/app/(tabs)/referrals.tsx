@@ -70,7 +70,7 @@ export default function ReferralsScreen() {
     const onShare = async () => {
         try {
             const result = await Share.share({
-                message: `Join me on AmeeData and earn ₦${settings?.referrer_bonus_amount || '...'} bonus! Use my referral code: ${stats?.referral_code}. Download Now: https://app.ameedata.com.ng`,
+                message: `Join me on AmeeData and earn ₦${settings?.referrer_bonus_amount || '...'} bonus! Use my referral code: ${stats?.referral_code}. Download Now: https://play.google.com/store/apps/details?id=com.ameedata.app`,
             });
         } catch (error: any) {
             showError(error.message);
