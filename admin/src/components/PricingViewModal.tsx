@@ -30,12 +30,23 @@ const PricingViewModal: React.FC<PricingViewModalProps> = ({ plan, onClose }) =>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-semibold text-gray-600">Price (₦)</label>
+              <label className="text-sm font-semibold text-gray-600">Base Price (₦)</label>
               <p className="text-gray-900 text-lg font-semibold">₦{plan.price?.toLocaleString()}</p>
             </div>
             <div>
               <label className="text-sm font-semibold text-gray-600">Discount</label>
               <p className="text-gray-900">{plan.discount || 0}%</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-semibold text-gray-600">Profit (₦)</label>
+              <p className="text-green-700 font-semibold">₦{(plan.profit || 0).toLocaleString()}</p>
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-gray-600">Selling Price (₦)</label>
+              <p className="text-purple-700 text-lg font-bold">₦{((plan.price || 0) + (plan.profit || 0)).toLocaleString()}</p>
             </div>
           </div>
 

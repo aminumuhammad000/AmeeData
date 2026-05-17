@@ -8,14 +8,16 @@ export const userValidation = {
             'string.empty': 'Phone number is required',
             'any.required': 'Phone number is required',
         }),
-        password: Joi.string().min(8).required(),
+        password: Joi.string().min(6).required(),
         first_name: Joi.string().required(),
         last_name: Joi.string().required(),
         referral_code: Joi.string().optional(),
         pin: Joi.string().pattern(/^\d{4}$/).optional()
     }),
     login: Joi.object({
-        email: Joi.string().email().required(),
+        email: Joi.string().required().messages({
+            'string.empty': 'Email or phone number is required'
+        }),
         password: Joi.string().required()
     })
 };

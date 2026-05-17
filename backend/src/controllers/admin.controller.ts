@@ -5,6 +5,7 @@ import { Request, Response } from 'express';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { config } from '../config/bootstrap.js';
 import { AdminRole, AdminUser, AuditLog, Plan, Transaction, User, Wallet } from '../models/index.js';
+import VirtualAccount from '../models/VirtualAccount.js';
 import { AdminService } from '../services/admin.service.js';
 import { AuthRequest } from '../types/index.js';
 import { ApiResponse } from '../utils/response.js';
@@ -65,6 +66,9 @@ export class AdminController {
       startOfMonth.setDate(1);
       startOfMonth.setHours(0, 0, 0, 0);
 
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+
       // Calculate total data sales (sum of successful data transactions this month)
       const dataSalesResult = await Transaction.aggregate([
         {
@@ -101,13 +105,56 @@ export class AdminController {
       ]);
       const totalAirtimeSales = airtimeSalesResult.length > 0 ? airtimeSalesResult[0].totalAmount : 0;
 
+      // Daily transaction count (successful transactions today)
+      const dailyTransactions = await Transaction.countDocuments({
+        status: 'successful',
+        created_at: { $gte: startOfDay }
+      });
+
+      // Helper aggregate: sum profit from AirtimePlan for successful transactions in a date range
+      const profitPipeline = (dateFilter: Date) => [
+        {
+          $match: {
+            type: { $in: ['data_purchase', 'airtime_topup'] },
+            status: 'successful',
+            created_at: { $gte: dateFilter }
+          }
+        },
+        {
+          $lookup: {
+            from: 'airtimeplans',
+            localField: 'plan_id',
+            foreignField: '_id',
+            as: 'plan'
+          }
+        },
+        { $unwind: { path: '$plan', preserveNullAndEmptyArrays: true } },
+        {
+          $group: {
+            _id: null,
+            totalProfit: { $sum: { $ifNull: ['$plan.profit', 0] } }
+          }
+        }
+      ];
+
+      const [dailyProfitResult, monthlyProfitResult] = await Promise.all([
+        Transaction.aggregate(profitPipeline(startOfDay) as any),
+        Transaction.aggregate(profitPipeline(startOfMonth) as any),
+      ]);
+
+      const dailyProfit = dailyProfitResult.length > 0 ? dailyProfitResult[0].totalProfit : 0;
+      const monthlyProfit = monthlyProfitResult.length > 0 ? monthlyProfitResult[0].totalProfit : 0;
+
       const stats = {
         totalUsers,
         activeUsers,
         totalTransactions,
         successfulTransactions,
         totalDataSales,
-        totalAirtimeSales
+        totalAirtimeSales,
+        dailyTransactions,
+        dailyProfit,
+        monthlyProfit,
       };
 
       return ApiResponse.success(res, stats, 'Dashboard stats retrieved successfully');
@@ -671,6 +718,68 @@ export class AdminController {
     } catch (error: any) {
       console.error('Error deleting admin:', error);
       return ApiResponse.error(res, error.message || 'Error deleting admin user', 500);
+    }
+  }
+
+  /**
+   * Get users who have generated virtual account numbers
+   * @route GET /api/admin/virtual-accounts
+   */
+  static async getVirtualAccounts(req: AuthRequest, res: Response) {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const skip = (page - 1) * limit;
+
+      const accounts = await VirtualAccount.find()
+        .populate('user', 'first_name last_name email phone_number status created_at')
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .lean();
+
+      const total = await VirtualAccount.countDocuments();
+
+      return ApiResponse.paginated(res, accounts, {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }, 'Virtual accounts retrieved successfully');
+    } catch (error: any) {
+      return ApiResponse.error(res, error.message, 500);
+    }
+  }
+
+  /**
+   * Export all users as CSV
+   * @route GET /api/admin/users/export
+   */
+  static async exportUsersCSV(req: AuthRequest, res: Response) {
+    try {
+      const users = await User.find().select('-password_hash').lean();
+
+      const headers = ['ID', 'First Name', 'Last Name', 'Email', 'Phone', 'Status', 'KYC Status', 'Referral Code', 'Joined'];
+      const rows = users.map((u: any) => [
+        u._id.toString(),
+        u.first_name || '',
+        u.last_name || '',
+        u.email || '',
+        u.phone_number || '',
+        u.status || '',
+        u.kyc_status || '',
+        u.referral_code || '',
+        u.created_at ? new Date(u.created_at).toISOString().split('T')[0] : ''
+      ]);
+
+      const escape = (v: string) => `"${String(v).replace(/"/g, '""')}"`;
+      const csv = [headers, ...rows].map(row => row.map(escape).join(',')).join('\n');
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="users_${new Date().toISOString().split('T')[0]}.csv"`);
+      return res.send(csv);
+    } catch (error: any) {
+      return ApiResponse.error(res, error.message, 500);
     }
   }
 }

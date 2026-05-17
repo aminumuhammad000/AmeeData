@@ -142,10 +142,10 @@ export class VTStackController {
 
                 // VTStack sends 'virtualAccount' field (not 'accountNumber' at top level)
                 const accountNumber = data.virtualAccount || data.accountNumber || data.customer?.accountNumber;
-                const amount        = data.amount;
-                const reference     = data.reference;
-                const currency      = data.currency || 'NGN';
-                const senderName    = data.customer?.name || data.customer || 'Customer';
+                const amount = data.amount;
+                const reference = data.reference;
+                const currency = data.currency || 'NGN';
+                const senderName = data.customer?.name || data.customer || 'Customer';
 
                 console.log(`📥 Deposit: account=${accountNumber}, amount=${amount}, ref=${reference}`);
 
@@ -176,8 +176,10 @@ export class VTStackController {
                     return res.status(200).json({ status: 'error', message: 'Wallet not found' });
                 }
 
-                // VTStack sends amount in kobo (e.g. 9900 kobo = ₦99)
-                const amountInNaira = parseFloat(amount) / 100;
+                // VTStack sends the settled amount in kobo after deducting a 1% fee
+                const settledAmountInNaira = parseFloat(amount) / 100;
+                // Add back the 1% fee (Original Amount = Settled Amount / 0.99) so the user gets exactly what they transferred
+                const amountInNaira = data.fee ? (parseFloat(amount) + parseFloat(data.fee)) / 100 : Math.round(settledAmountInNaira / 0.99);
 
                 try {
                     // Record Transaction FIRST to ensure idempotency via unique reference_number index
@@ -197,7 +199,7 @@ export class VTStackController {
 
                     // Credit wallet ONLY AFTER transaction record is successfully created
                     await WalletService.creditWallet(virtualAccount.user as unknown as Types.ObjectId, amountInNaira, true);
-                    
+
                     console.log(`✅ Wallet funded: user=${virtualAccount.user}, amount=₦${amountInNaira}, ref=${reference}`);
                 } catch (error: any) {
                     if (error.code === 11000) {

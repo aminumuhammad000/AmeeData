@@ -5,6 +5,7 @@ import { Request, Response } from 'express';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { config } from '../config/bootstrap.js';
 import { User } from '../models/index.js';
+import { SupportContent } from '../models/support_content.model.js';
 import { EmailService } from '../services/email.service.js';
 import { OTPService } from '../services/otp.service.js';
 import { WalletService } from '../services/wallet.service.js';
@@ -55,6 +56,35 @@ export class AuthController {
 
       const token = jwt.sign({ id: user._id }, config.jwtSecret as string, { expiresIn: config.jwtExpiry } as SignOptions);
 
+      // Fetch support content to get WhatsApp link and customer support phone number
+      const supportContent = await SupportContent.findOne();
+      const whatsappGroupLink = 'https://chat.whatsapp.com/CyKm2mxQir0J7KyCxyQ5M2';
+      const supportPhone = supportContent?.phoneNumber || '+2340000000000';
+      const playStoreLink = 'https://play.google.com/store/apps/details?id=com.ameedata.app';
+
+      // Send Welcome Message
+      const welcomeSubject = 'Welcome to AmeeData!';
+      const welcomeHtml = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+              <h2 style="color: #333; text-align: center;">Welcome to AmeeData, ${first_name}!</h2>
+              <p style="color: #666; font-size: 16px;">We are thrilled to have you on board. Start enjoying seamless data, airtime, and utility payments today.</p>
+              <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin: 24px 0;">
+                  <p style="color: #333; font-weight: bold; margin-bottom: 10px;">Get Started with ease:</p>
+                  <p style="margin: 8px 0; font-size: 15px;">📱 <strong>Download our Mobile App:</strong> <a href="${playStoreLink}" style="color: #6C2BD9; text-decoration: none;">Get it on Google Play</a></p>
+                  <p style="margin: 8px 0; font-size: 15px;">💬 <strong>Join our WhatsApp Community:</strong> <a href="${whatsappGroupLink}" style="color: #6C2BD9; text-decoration: none;">Join here</a></p>
+                  <p style="margin: 8px 0; font-size: 15px;">📞 <strong>Customer Support:</strong> ${supportPhone}</p>
+              </div>
+              <p style="color: #666; font-size: 14px; line-height: 1.5;">If you have any questions or need assistance, feel free to reach out to our support team.</p>
+              <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+              <p style="color: #999; font-size: 12px; text-align: center;">&copy; ${new Date().getFullYear()} AmeeData. All rights reserved.</p>
+          </div>
+      `;
+
+      // Send asynchronously without awaiting to not block registration
+      EmailService.sendEmail(email, welcomeSubject, welcomeHtml).catch(err => {
+          console.error('Failed to send welcome email:', err);
+      });
+
       return ApiResponse.success(res, { user, token }, 'Registration successful', 201);
     } catch (error: any) {
       return ApiResponse.error(res, error.message, 500);
@@ -70,7 +100,14 @@ export class AuthController {
 
       const { email, password } = req.body;
 
-      const user = await User.findOne({ email });
+      // email could be an email or phone number
+      const identifier = email?.trim().toLowerCase();
+      const user = await User.findOne({
+        $or: [
+          { email: identifier },
+          { phone_number: email?.trim() }
+        ]
+      });
       if (!user) {
         return ApiResponse.error(res, 'Invalid credentials', 401);
       }

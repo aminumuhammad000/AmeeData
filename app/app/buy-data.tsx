@@ -30,6 +30,7 @@ interface DataPlanItem {
     id: string;
     data: string;
     price: number;
+    discount?: number;
     category?: string;
 }
 
@@ -108,6 +109,7 @@ export default function BuyDataScreen() {
               id: String(p.planid || p.plan_id || p.id || p.plan || `plan-${i}`),
               data: name,
               price: Number(p.price || p.amount || 0),
+              discount: p.discount || undefined,
               category
             };
           });
@@ -290,9 +292,16 @@ export default function BuyDataScreen() {
                     <Text style={[styles.planData, { color: selectedPlan?.id === plan.id ? '#FFF' : textColor }]}>
                       {plan.data}
                     </Text>
-                    <Text style={[styles.planPrice, { color: selectedPlan?.id === plan.id ? THEME.accent : THEME.primary }]}>
-                      ₦{plan.price.toLocaleString()}
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                      <Text style={[styles.planPrice, { color: selectedPlan?.id === plan.id ? THEME.accent : THEME.primary }]}>
+                        ₦{plan.price.toLocaleString()}
+                      </Text>
+                      {plan.discount ? (
+                        <Text style={{ fontSize: 10, fontWeight: '700', color: selectedPlan?.id === plan.id ? '#FFF' : THEME.success, backgroundColor: selectedPlan?.id === plan.id ? 'rgba(255,255,255,0.2)' : '#E6FEF9', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 4 }}>
+                          {plan.discount}% OFF
+                        </Text>
+                      ) : null}
+                    </View>
                   </TouchableOpacity>
                 ))}
               </View>

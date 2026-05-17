@@ -62,6 +62,7 @@ export class BillPaymentController {
           plan_type: 'DATA',
           validity: p.meta?.validity || '',
           price: Number(finalPrice.toFixed(2)),
+          discount: discount > 0 ? discount : undefined, // only include if non-zero
           data_value: p.meta?.data_value || p.code || '',
           providerName: p.providerName,
         };

@@ -35,9 +35,9 @@ export default function AboutScreen() {
   const borderColor = isDark ? '#374151' : '#E5E7EB';
 
   const appInfo = {
-    version: '1.0.0',
-    buildNumber: '100',
-    releaseDate: 'November 2025',
+    version: '3.0.0',
+    buildNumber: '3',
+    releaseDate: 'May 2026',
     developer: 'AmeeTech'
   };
 

@@ -24,8 +24,8 @@ function AuthLayout() {
 
     if (!isLoading) {
       if (!isAuthenticated && !inAuthGroup) {
-        // Redirect to the login page if not authenticated
-        router.replace('/login');
+        // Redirect to the signup page if not authenticated to let first time users see it
+        router.replace('/signup');
       } else if (isAuthenticated && inAuthGroup) {
         // Redirect to the home page if authenticated and trying to access auth pages
         router.replace('/(tabs)');

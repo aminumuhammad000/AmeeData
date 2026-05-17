@@ -21,6 +21,7 @@ router.delete('/admins/:id', authMiddleware, AdminController.deleteAdminUser);
 router.get('/roles', authMiddleware, AdminController.getRoles);
 
 // User management
+router.get('/users/export', authMiddleware, AdminController.exportUsersCSV);
 router.get('/users', authMiddleware, AdminController.getAllUsers);
 router.get('/users/:id', authMiddleware, AdminController.getUserById);
 router.put('/users/:id/status', authMiddleware, AdminController.updateUserStatus);
@@ -28,6 +29,9 @@ router.put('/users/:id', authMiddleware, AdminController.updateUser);
 router.delete('/users/:id', authMiddleware, AdminController.deleteUser);
 router.post('/users/:id/api-key', authMiddleware, AdminController.generateApiKey);
 router.delete('/users/:id/api-key', authMiddleware, AdminController.revokeApiKey);
+
+// Virtual Accounts
+router.get('/virtual-accounts', authMiddleware, AdminController.getVirtualAccounts);
 
 // Pricing Management for Developers
 router.get('/plans', authMiddleware, AdminController.getPlans);

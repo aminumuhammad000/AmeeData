@@ -89,6 +89,44 @@ const Dashboard: React.FC = () => {
       textColor: 'text-pink-600',
       isCurrency: true,
     },
+    {
+      label: "Today's Transactions",
+      value: statsData?.data?.data?.dailyTransactions || 0,
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+      ),
+      bgGradient: 'from-cyan-500 to-cyan-600',
+      lightBg: 'bg-cyan-50',
+      textColor: 'text-cyan-600',
+    },
+    {
+      label: "Today's Profit",
+      value: statsData?.data?.data?.dailyProfit || 0,
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+        </svg>
+      ),
+      bgGradient: 'from-teal-500 to-teal-600',
+      lightBg: 'bg-teal-50',
+      textColor: 'text-teal-600',
+      isCurrency: true,
+    },
+    {
+      label: 'Monthly Profit',
+      value: statsData?.data?.data?.monthlyProfit || 0,
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+      bgGradient: 'from-green-600 to-emerald-500',
+      lightBg: 'bg-green-50',
+      textColor: 'text-green-700',
+      isCurrency: true,
+    },
   ];
 
   return (
@@ -111,9 +149,9 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 lg:gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-8">
             {statsLoading ? (
-              [...Array(6)].map((_, i) => (
+              [...Array(9)].map((_, i) => (
                 <div key={i} className="bg-white rounded-2xl shadow-sm p-6 animate-pulse border border-slate-100">
                   <div className="flex justify-between items-start mb-4">
                     <div className="h-10 w-10 bg-slate-100 rounded-xl"></div>

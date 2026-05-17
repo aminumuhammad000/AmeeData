@@ -15,9 +15,10 @@ import {
   View
 } from "react-native";
 import { useTheme } from "../components/ThemeContext";
-import { authService } from "../services/auth.service";
+import { useAuth } from "../context/AuthContext";
 
 const SignupScreen = () => {
+  const { register } = useAuth();
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
   const [phone_number, setPhoneNumber] = useState("");
@@ -127,7 +128,7 @@ const SignupScreen = () => {
       const firstName = nameParts[0];
       const lastName = nameParts.slice(1).join(" ") || " ";
 
-      const response = await authService.register({
+      const response = await register({
         email,
         phone_number,
         password,
@@ -139,7 +140,7 @@ const SignupScreen = () => {
 
       if (response.success) {
         Alert.alert("🎉 Account Created", `Welcome ${firstName}! Your account is ready.`, [
-          { text: "Continue", onPress: () => router.replace("/(tabs)") }
+          { text: "Continue", onPress: () => setTimeout(() => router.replace("/(tabs)"), 100) }
         ]);
       }
     } catch (error) {
@@ -237,7 +238,14 @@ const SignupScreen = () => {
           {step === 1 && (
             <View>
               {renderInput("Full Name", full_name, setFullName, "full_name", "Enter your first and last name", { props: { autoCapitalize: "words" } })}
-              {renderInput("Email Address", email, setEmail, "email", "Enter your email address", { props: { keyboardType: "email-address", autoCapitalize: "none", autoCorrect: false } })}
+              {renderInput("Email Address", email, setEmail, "email", "Enter your email address", { 
+                props: { keyboardType: "email-address", autoCapitalize: "none", autoCorrect: false },
+                onChangeTextHook: (text) => {
+                  if (text.length > 0 && !/^\S+@\S+\.\S+$/.test(text)) {
+                    setErrors(prev => ({ ...prev, email: "Invalid email address format" }));
+                  }
+                }
+              })}
               {renderInput("Phone Number", phone_number, setPhoneNumber, "phone_number", "Enter your phone number", {
                 prefix: "+234",
                 helperText: "Must be 11 digits (e.g., 08012345678)",

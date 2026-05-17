@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
-import { deleteUser, getUsers, updateUser, updateUserStatus, sendEmail } from '../api/adminApi';
+import { deleteUser, exportUsersCSV, getUsers, updateUser, updateUserStatus, sendEmail } from '../api/adminApi';
 import Layout from '../components/Layout';
 import UserDeleteModal from '../components/UserDeleteModal';
 import UserEditModal from '../components/UserEditModal';
@@ -56,6 +56,27 @@ const Users: React.FC = () => {
   const [deleteUserObj, setDeleteUserObj] = useState<any | null>(null);
 
   const queryClient = useQueryClient();
+
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportCSV = async () => {
+    setIsExporting(true);
+    try {
+      const res = await exportUsersCSV();
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `users_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      alert('Failed to export users CSV');
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const statusMutation = useMutation({
     mutationFn: (status: string) => updateUserStatus(statusUser._id, status).then((res: any) => res.data),
@@ -121,7 +142,7 @@ const Users: React.FC = () => {
               <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Users Management</h1>
               <p className="text-sm sm:text-base text-slate-500 mt-1">Manage and monitor all user accounts</p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {selectedEmails.length > 0 && (
                 <button
                   onClick={() => setShowEmailModal(true)}
@@ -131,6 +152,14 @@ const Users: React.FC = () => {
                   Send Email ({selectedEmails.length})
                 </button>
               )}
+              <button
+                onClick={handleExportCSV}
+                disabled={isExporting}
+                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                {isExporting ? 'Exporting...' : 'Export CSV'}
+              </button>
               <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200">
                 <span className="text-sm text-slate-500">Total Users:</span>
                 <span className="text-lg font-bold text-purple-600">{pagination.total || 0}</span>

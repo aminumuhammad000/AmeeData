@@ -108,6 +108,23 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const register = async (userData) => {
+    setIsLoading(true);
+    try {
+      const response = await authService.register(userData);
+      if (response.success && response.data?.user) {
+        setUser(response.data.user);
+        setIsAuthenticated(true);
+        return { success: true };
+      }
+      return response;
+    } catch (error) {
+      return { success: false, message: error.message || 'Registration failed' };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -117,6 +134,7 @@ export const AuthProvider = ({ children }) => {
         setIsLocked,
         isLoading,
         login,
+        register,
         logout,
       }}
     >

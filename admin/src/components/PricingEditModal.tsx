@@ -27,6 +27,7 @@ const PricingEditModal: React.FC<PricingEditModalProps> = ({ plan, onClose, onSa
     price: plan?.price || '',
     type: plan?.type || 'AIRTIME',
     discount: plan?.discount || 0,
+    profit: plan?.profit || 0,
     active: plan?.active !== false,
   });
 
@@ -159,6 +160,24 @@ const PricingEditModal: React.FC<PricingEditModalProps> = ({ plan, onClose, onSa
               />
               {errors.discount && <p className="text-red-500 text-sm mt-1">{errors.discount}</p>}
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Profit (₦)</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">₦</span>
+              <input
+                type="number"
+                name="profit"
+                value={formData.profit}
+                onChange={handleChange}
+                placeholder="0"
+                min="0"
+                step="0.01"
+                className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-green-50"
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Amount added on top of base price as your profit</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

@@ -25,6 +25,7 @@ const LoginScreen = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [formError, setFormError] = useState("");
   const [alert, setAlert] = useState({
     visible: false,
     message: "",
@@ -60,6 +61,8 @@ const LoginScreen = () => {
         password: loginPassword,
       });
 
+      setFormError(""); // clear previous errors
+
       if (response.success) {
 
 
@@ -67,10 +70,9 @@ const LoginScreen = () => {
         // No need to replace router here, AuthContext update should trigger useEffect but to be safe
         setTimeout(() => router.replace("/(tabs)"), 500);
       } else {
-        showAlert(
-          response.message || "Invalid email or password. Please try again.",
-          "error"
-        );
+        const errorMsg = response.message || "Invalid email or password. Please try again.";
+        setFormError(errorMsg);
+        showAlert(errorMsg, "error");
       }
     } catch (error) {
       console.error("❌ Login error:", error);
@@ -87,6 +89,7 @@ const LoginScreen = () => {
         errorMessage = error.message;
       }
 
+      setFormError(errorMessage);
       showAlert(errorMessage, "error");
     } finally {
       setIsLoggingIn(false);
@@ -94,9 +97,8 @@ const LoginScreen = () => {
   };
 
   const handleLogin = async () => {
-    // Validation
     if (!email || !password) {
-      showAlert("Please enter both email and password", "error");
+      showAlert("Please enter both email/phone and password", "error");
       return;
     }
 
@@ -154,11 +156,11 @@ const LoginScreen = () => {
 
           <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
-              <Text style={[styles.inputLabel, { color: textColor }]}>Email</Text>
+              <Text style={[styles.inputLabel, { color: textColor }]}>Email or Phone Number</Text>
               <View style={[styles.inputWrapper, { backgroundColor: cardBg, borderColor }]}>
                 <TextInput
                   style={[styles.input, { color: textColor }]}
-                  placeholder="Enter your email address"
+                  placeholder="Enter your email or phone number"
                   placeholderTextColor={textBodyColor}
                   value={email}
                   onChangeText={setEmail}
@@ -200,6 +202,12 @@ const LoginScreen = () => {
                 <Text style={[styles.forgotPassword, { color: isDark ? theme.accent : theme.primary }]}>Forgot Password?</Text>
               </TouchableOpacity>
             </View>
+
+            {formError ? (
+              <Text style={{ color: '#EF4444', marginBottom: 16, textAlign: 'center', fontSize: 14 }}>
+                {formError}
+              </Text>
+            ) : null}
 
             <View style={styles.buttonContainer}>
               <TouchableOpacity

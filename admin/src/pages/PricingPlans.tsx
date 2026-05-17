@@ -201,7 +201,9 @@ const PricingPlans: React.FC = () => {
                         <th className="px-6 py-4">Plan Name</th>
                         <th className="px-6 py-4">Provider</th>
                         <th className="px-6 py-4">Type</th>
-                        <th className="px-6 py-4">Price</th>
+                        <th className="px-6 py-4">Base Price</th>
+                        <th className="px-6 py-4">Profit</th>
+                        <th className="px-6 py-4">Selling Price</th>
                         <th className="px-6 py-4">Status</th>
                         <th className="px-6 py-4 text-right">Actions</th>
                       </tr>
@@ -224,6 +226,12 @@ const PricingPlans: React.FC = () => {
                               <span className="font-bold text-slate-900">₦{plan.price?.toLocaleString()}</span>
                               {plan.discount > 0 && <span className="text-xs text-green-600 font-medium">{plan.discount}% Off</span>}
                             </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="font-semibold text-green-700">₦{(plan.profit || 0).toLocaleString()}</span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="font-bold text-purple-700">₦{((plan.price || 0) + (plan.profit || 0)).toLocaleString()}</span>
                           </td>
                           <td className="px-6 py-4">
                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${plan.active ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'
@@ -261,8 +269,9 @@ const PricingPlans: React.FC = () => {
                           <p className="text-xs text-slate-500 mt-1">{plan.providerName}</p>
                         </div>
                         <div className="text-right">
-                          <span className="block font-bold text-slate-900">₦{plan.price?.toLocaleString()}</span>
-                          {plan.discount > 0 && <span className="text-[10px] text-green-600 font-medium">{plan.discount}% Off</span>}
+                          <span className="block font-bold text-purple-700">₦{((plan.price || 0) + (plan.profit || 0)).toLocaleString()}</span>
+                          <span className="block text-xs text-slate-500">base: ₦{plan.price?.toLocaleString()}</span>
+                          {plan.profit > 0 && <span className="text-[10px] text-green-600 font-medium">+₦{plan.profit?.toLocaleString()} profit</span>}
                         </div>
                       </div>
 

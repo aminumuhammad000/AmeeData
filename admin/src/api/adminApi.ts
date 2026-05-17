@@ -23,6 +23,11 @@ export const updateUserStatus = (id: string, status: string) =>
 export const deleteUser = (id: string) => api.delete(`/users/${id}`);
 export const generateApiKey = (id: string) => api.post(`/users/${id}/api-key`);
 export const revokeApiKey = (id: string) => api.delete(`/users/${id}/api-key`);
+export const exportUsersCSV = () => api.get('/users/export', { responseType: 'blob' });
+
+// Virtual Accounts
+export const getVirtualAccounts = (params?: { page?: number; limit?: number }) =>
+  api.get('/virtual-accounts', { params });
 
 // Admin Management
 export const createAdmin = (data: any) => api.post('/admins', data);

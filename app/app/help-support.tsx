@@ -91,6 +91,14 @@ export default function HelpSupportScreen() {
           Linking.openURL(`https://wa.me/${cleanNumber}`);
         }
       }
+    },
+    {
+      title: 'WhatsApp Support Group',
+      description: 'Join our community group for tips & support',
+      icon: 'people',
+      action: () => {
+        Linking.openURL('https://chat.whatsapp.com/CyKm2mxQir0J7KyCxyQ5M2');
+      }
     }
   ];
 
