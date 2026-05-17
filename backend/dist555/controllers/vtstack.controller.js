@@ -149,10 +149,8 @@ export class VTStackController {
                     console.error(`❌ Wallet not found for user: ${virtualAccount.user}`);
                     return res.status(200).json({ status: 'error', message: 'Wallet not found' });
                 }
-                // VTStack sends the settled amount in kobo after deducting a 1% fee
-                const settledAmountInNaira = parseFloat(amount) / 100;
-                // Add back the 1% fee (Original Amount = Settled Amount / 0.99) so the user gets exactly what they transferred
-                const amountInNaira = data.fee ? (parseFloat(amount) + parseFloat(data.fee)) / 100 : Math.round(settledAmountInNaira / 0.99);
+                // Use the amount provided by VTStack in kobo directly
+                const amountInNaira = parseFloat(amount) / 100;
                 try {
                     // Record Transaction FIRST to ensure idempotency via unique reference_number index
                     const transaction = await Transaction.create({
