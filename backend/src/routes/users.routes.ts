@@ -11,6 +11,7 @@ router.delete('/profile', authMiddleware, UserController.deleteProfile);
 router.post('/kyc', authMiddleware, UserController.uploadKYC);
 
 // Transaction PIN
+router.post('/sync-contacts', authMiddleware, UserController.syncContacts);
 router.post('/transaction-pin', authMiddleware, (req, res) => UserController.setTransactionPin(req, res));
 router.put('/transaction-pin', authMiddleware, (req, res) => UserController.updateTransactionPin(req, res));
 

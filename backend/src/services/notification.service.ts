@@ -1,7 +1,9 @@
 // services/notification.service.ts
-import { Notification } from '../models/index.js';
+import { Notification, User } from '../models/index.js';
 import { Types } from 'mongoose';
-import { User } from '../models/index.js';
+import { Expo } from 'expo-server-sdk';
+
+const expo = new Expo();
 
 export class NotificationService {
   static async createNotification(data: {
@@ -30,26 +32,62 @@ export class NotificationService {
     message: string;
     action_link?: string;
   }) {
-    // Get all active users
+    // 1. Create a master broadcast record for Admin Dashboard management
+    await Notification.create({
+      type: 'broadcast',
+      title: data.title,
+      message: data.message,
+      action_link: data.action_link
+    });
+
+    // 2. Get all active users
     const users = await User.find({ status: 'active' });
     
-    // Create notification for each user
+    // 3. Create notification for each user
     const notifications = users.map(user => ({
       user_id: user._id,
-      type: data.type,
+      type: data.type || 'system',
       title: data.title,
       message: data.message,
       action_link: data.action_link,
       read_status: false
     }));
 
-    // Bulk insert notifications
-    const result = await Notification.insertMany(notifications);
+    // 4. Bulk insert notifications
+    if (notifications.length > 0) {
+      await Notification.insertMany(notifications);
+    }
+    
+    // 5. Send push notifications
+    const messages: any[] = [];
+    for (const user of users) {
+      if (user.push_token && Expo.isExpoPushToken(user.push_token)) {
+        messages.push({
+          to: user.push_token,
+          sound: 'default',
+          title: data.title,
+          body: data.message,
+          data: { action_link: data.action_link, type: data.type }
+        });
+      }
+    }
+
+    if (messages.length > 0) {
+      const chunks = expo.chunkPushNotifications(messages);
+      for (const chunk of chunks) {
+        try {
+          await expo.sendPushNotificationsAsync(chunk);
+        } catch (error) {
+          console.error('Error sending push notifications chunk:', error);
+        }
+      }
+    }
     
     return {
       success: true,
-      count: result.length,
-      message: `Notification sent to ${result.length} users`
+      count: users.length,
+      pushCount: messages.length,
+      message: `Notification sent to ${users.length} users (${messages.length} push notifications)`
     };
   }
 

@@ -118,4 +118,72 @@ export class WalletController {
             return ApiResponse.error(res, error.message, 500);
         }
     }
+    static async transferCareBalance(req, res) {
+        try {
+            const { recipient_phone, amount, message } = req.body;
+            if (amount <= 0) {
+                return ApiResponse.error(res, 'Invalid amount', 400);
+            }
+            // Find recipient
+            const { User } = await import('../models/index.js');
+            const cleanPhone = recipient_phone.replace(/\D/g, '');
+            const recipient = await User.findOne({
+                $or: [
+                    { phone_number: recipient_phone },
+                    { phone_number: cleanPhone }
+                ]
+            });
+            if (!recipient) {
+                return ApiResponse.error(res, 'Recipient not found', 404);
+            }
+            if (recipient._id.toString() === req.user?.id) {
+                return ApiResponse.error(res, 'Cannot send care to yourself', 400);
+            }
+            const senderWallet = await Wallet.findOne({ user_id: req.user?.id });
+            if (!senderWallet) {
+                return ApiResponse.error(res, 'Sender wallet not found', 404);
+            }
+            if (senderWallet.balance < amount) {
+                return ApiResponse.error(res, 'Insufficient main balance', 400);
+            }
+            // Debit sender main balance
+            await WalletService.debitWallet(senderWallet.user_id, amount);
+            // Credit recipient main balance (unified wallet)
+            await WalletService.creditWallet(recipient._id, amount);
+            // Create transaction record for sender
+            const senderTx = await Transaction.create({
+                user_id: req.user?.id,
+                wallet_id: senderWallet._id,
+                type: 'transfer',
+                amount,
+                fee: 0,
+                total_charged: amount,
+                status: 'successful',
+                reference_number: `CARE-S-${Date.now()}`,
+                description: message || `Care sent to ${recipient_phone}`,
+                payment_method: 'wallet'
+            });
+            // Create transaction record for recipient
+            const recipientWallet = await Wallet.findOne({ user_id: recipient._id });
+            if (recipientWallet) {
+                const sender = await User.findById(req.user?.id);
+                await Transaction.create({
+                    user_id: recipient._id,
+                    wallet_id: recipientWallet._id,
+                    type: 'transfer_received',
+                    amount,
+                    fee: 0,
+                    total_charged: amount,
+                    status: 'successful',
+                    reference_number: `CARE-R-${Date.now()}`,
+                    description: message || `Care received from ${sender?.phone_number || 'AmeeData User'}`,
+                    payment_method: 'wallet'
+                });
+            }
+            return ApiResponse.success(res, null, 'Care transferred successfully');
+        }
+        catch (error) {
+            return ApiResponse.error(res, error.message, 500);
+        }
+    }
 }

@@ -8,5 +8,6 @@ const router = Router();
 router.get('/', authMiddleware, WalletController.getWallet);
 router.get('/transactions', authMiddleware, WalletController.getWalletTransactions);
 router.post('/transfer', authMiddleware, WalletController.transferFunds);
+router.post('/care-transfer', authMiddleware, WalletController.transferCareBalance);
 
 export default router;

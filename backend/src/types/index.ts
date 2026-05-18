@@ -52,6 +52,7 @@ export interface IWallet extends Document {
   // camelCase alias
   userId?: Types.ObjectId;
   balance: number;
+  care_balance: number;
   currency: string;
   last_transaction_at?: Date;
   created_at: Date;
