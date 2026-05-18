@@ -27,4 +27,8 @@ const transactionSchema = new Schema({
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now }
 });
+// Speed Indexing
+transactionSchema.index({ user_id: 1, created_at: -1 });
+transactionSchema.index({ status: 1 });
+transactionSchema.index({ reference_number: 1 }, { unique: true });
 export const Transaction = mongoose.model('Transaction', transactionSchema);

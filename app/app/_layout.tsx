@@ -20,12 +20,12 @@ function AuthLayout() {
   const router = useRouter();
 
   useEffect(() => {
-    const inAuthGroup = ['login', 'signup', 'forgot-password', 'verify-otp'].includes(segments[0] as string);
+    const inAuthGroup = ['login', 'signup', 'forgot-password', 'verify-otp', 'welcome'].includes(segments[0] as string);
 
     if (!isLoading) {
       if (!isAuthenticated && !inAuthGroup) {
-        // Redirect to the signup page if not authenticated to let first time users see it
-        router.replace('/signup');
+        // Redirect to the welcome page if not authenticated
+        router.replace('/welcome');
       } else if (isAuthenticated && inAuthGroup) {
         // Redirect to the home page if authenticated and trying to access auth pages
         router.replace('/(tabs)');
@@ -51,6 +51,7 @@ function AuthLayout() {
         contentStyle: { backgroundColor: '#111418' },
       }}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="welcome" />
         <Stack.Screen name="login" />
         <Stack.Screen name="signup" />
         <Stack.Screen name="forgot-password" />
@@ -58,7 +59,7 @@ function AuthLayout() {
         <Stack.Screen name="notifications" />
         <Stack.Screen name="buy-airtime" />
         <Stack.Screen name="buy-data" />
-        <Stack.Screen name="add-money" />
+
         <Stack.Screen name="edit-profile" />
         <Stack.Screen name="security" />
         <Stack.Screen name="help-support" />

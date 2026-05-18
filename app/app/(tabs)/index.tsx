@@ -183,7 +183,7 @@ export default function HomeScreen() {
     try {
       const response = await notificationService.getNotifications();
       if (response.data.success && response.data.data) {
-        const unread = response.data.data.filter((n: any) => !n.read).length;
+        const unread = response.data.data.filter((n: any) => !n.read_status).length;
         setUnreadNotifications(unread);
       }
     } catch (error) {
@@ -429,7 +429,7 @@ export default function HomeScreen() {
               </Text>
               <TouchableOpacity
                 style={[styles.addMoneyBtn, { backgroundColor: '#FFFFFF' }]}
-                onPress={() => router.push('/add-money')}
+                onPress={() => router.push('/(tabs)/wallet')}
               >
                 <Ionicons name="add" size={20} color={theme.primary} />
                 <Text style={[styles.addMoneyText, { color: theme.primary }]}>Add Money</Text>
@@ -451,13 +451,13 @@ export default function HomeScreen() {
               </View>
               <Text style={[styles.actionTextSmall, { color: textColor }]}>Data</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionItem} onPress={() => router.push('/wallet')}>
+            <TouchableOpacity style={styles.actionItem} onPress={() => router.push('/(tabs)/wallet')}>
               <View style={[styles.actionIcon, { backgroundColor: cardBg }]}>
                 <Ionicons name="wallet" size={24} color={theme.primary} />
               </View>
               <Text style={[styles.actionTextSmall, { color: textColor }]}>Wallet</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionItem} onPress={() => router.push('/referrals')}>
+            <TouchableOpacity style={styles.actionItem} onPress={() => router.push('/(tabs)/referrals')}>
               <View style={[styles.actionIcon, { backgroundColor: cardBg }]}>
                 <Ionicons name="gift" size={24} color={theme.primary} />
               </View>

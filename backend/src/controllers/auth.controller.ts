@@ -45,7 +45,7 @@ export class AuthController {
         referral_code: user_referral_code,
         referred_by,
         country: 'Nigeria',
-        profile_picture: `https://api.dicebear.com/7.x/initials/svg?seed=${first_name}+${last_name}`,
+        profile_picture: `https://i.pravatar.cc/300?u=${email}`,
         kyc_status: 'pending',
         status: 'active',
         transaction_pin: pin ? await bcrypt.hash(String(pin), 10) : undefined

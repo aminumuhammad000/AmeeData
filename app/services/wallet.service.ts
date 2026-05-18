@@ -4,6 +4,7 @@ export interface WalletData {
   _id: string;
   user_id: string;
   balance: number;
+  care_balance: number;
   currency: string;
   last_transaction_at?: string;
   created_at: string;
@@ -71,6 +72,22 @@ export const walletService = {
       return response.data;
     } catch (error: any) {
       throw error.response?.data || { success: false, message: 'Transfer failed' };
+    }
+  },
+
+  /**
+   * Transfer care balance
+   */
+  transferCareBalance: async (recipient_phone: string, amount: number, message?: string): Promise<any> => {
+    try {
+      const response = await api.post('/wallet/care-transfer', {
+        recipient_phone,
+        amount,
+        message,
+      });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, message: 'Care Transfer failed' };
     }
   },
 

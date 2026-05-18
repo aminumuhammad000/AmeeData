@@ -73,7 +73,7 @@ export default function NotificationsScreen() {
   const markAllRead = async () => {
     try {
       await notificationsService.markAllAsRead();
-      setNotifications(notifications.map(n => ({ ...n, is_read: true })));
+      setNotifications(notifications.map(n => ({ ...n, read_status: true })));
       showSuccess('All notifications marked as read');
     } catch (error: any) {
       showError(error.message);
@@ -139,9 +139,23 @@ export default function NotificationsScreen() {
                   key={notification._id}
                   style={[
                     styles.notificationItem,
-                    { backgroundColor: !notification.is_read ? (isDark ? '#1F2937' : '#F0F9FF') : cardBg }
+                    { backgroundColor: !notification.read_status ? (isDark ? '#1F2937' : '#F0F9FF') : cardBg }
                   ]}
                   activeOpacity={0.7}
+                  onPress={async () => {
+                    if (!notification.read_status) {
+                      try {
+                        // Mark as read locally first for instant feedback
+                        setNotifications(prev => prev.map(n => 
+                          n._id === notification._id ? { ...n, read_status: true } : n
+                        ));
+                        // Call backend
+                        await notificationsService.markAsRead(notification._id);
+                      } catch (error) {
+                        console.error('Error marking as read:', error);
+                      }
+                    }
+                  }}
                 >
                   <View style={[styles.notificationIcon, { backgroundColor: `${icon.color}20` }]}>
                     <Ionicons name={icon.name as any} size={24} color={icon.color} />
@@ -151,7 +165,7 @@ export default function NotificationsScreen() {
                       <Text style={[styles.notificationTitle, { color: textColor }]}>
                         {notification.title}
                       </Text>
-                      {!notification.is_read && (
+                      {!notification.read_status && (
                         <View style={[styles.unreadDot, { backgroundColor: theme.accent }]} />
                       )}
                     </View>

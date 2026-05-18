@@ -8,7 +8,7 @@ export interface Notification {
   message: string;
   type: 'transaction' | 'promotion' | 'system' | 'alert';
   priority: 'low' | 'medium' | 'high';
-  is_read: boolean;
+  read_status: boolean;
   action_url?: string;
   metadata?: Record<string, any>;
   created_at: string;

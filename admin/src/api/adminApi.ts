@@ -26,7 +26,7 @@ export const revokeApiKey = (id: string) => api.delete(`/users/${id}/api-key`);
 export const exportUsersCSV = () => api.get('/users/export', { responseType: 'blob' });
 
 // Virtual Accounts
-export const getVirtualAccounts = (params?: { page?: number; limit?: number }) =>
+export const getVirtualAccounts = (params?: { page?: number; limit?: number; search?: string }) =>
   api.get('/virtual-accounts', { params });
 
 // Admin Management

@@ -13,6 +13,15 @@ export interface UserUpdateData {
 }
 
 export const userService = {
+  syncContacts: async (phoneNumbers: string[]): Promise<any> => {
+    try {
+      const response = await api.post('/users/sync-contacts', { phoneNumbers });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, message: 'Failed to sync contacts' };
+    }
+  },
+
   /**
    * Get user profile
    */

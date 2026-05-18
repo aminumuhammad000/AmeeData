@@ -14,6 +14,7 @@ import supportRoutes from "./routes/support.routes.js";
 import supportContentRoutes from "./routes/support_content.routes.js";
 import transactionsRoutes from "./routes/transactions.routes.js";
 import usersRoutes from "./routes/users.routes.js";
+import careRoutes from "./routes/care.routes.js";
 import virtualAccountRoutes from "./routes/virtualAccount.routes.js";
 import walletRoutes from "./routes/wallet.routes.js";
 
@@ -21,9 +22,16 @@ import walletRoutes from "./routes/wallet.routes.js";
 import { logger } from "./config/bootstrap.js";
 import { detailedRequestLogger, errorLogger, requestLogger } from "./middleware/logger.middleware.js";
 
+import helmet from "helmet";
+import compression from "compression";
+
 dotenv.config();
 
 const app = express();
+
+// Security and Speed Middlewares
+app.use(helmet());
+app.use(compression());
 
 // CORS Configuration - Allow ALL origins
 app.use(cors()); // Allow all origins (default)
@@ -50,6 +58,7 @@ logger.info('🚀 AmeeData Backend Starting...', {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", usersRoutes);
+app.use("/api/care", careRoutes);
 app.use("/api/transactions", transactionsRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/notifications", notificationsRoutes);

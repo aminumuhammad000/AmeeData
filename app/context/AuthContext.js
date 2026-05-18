@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
 
       // Provide more user-friendly error messages
-      let errorMessage = error.message || 'Login failed. Please try again.';
+      let errorMessage = error.message || error.details?.message || (typeof error === 'string' ? error : 'Login failed. Please try again.');
 
       // Handle network errors specifically
       if (error?.message && (error.message.includes('Network Error') || error.message.includes('timeout'))) {

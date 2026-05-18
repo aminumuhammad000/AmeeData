@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import React from 'react';
+import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HapticTab } from '@/components/haptic-tab';
@@ -35,33 +36,69 @@ export default function TabLayout() {
           right: 0,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '500',
+          fontSize: 10,
+          fontWeight: '700', // Bolded all labels for better visibility
+          marginTop: 8,
         },
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, size }) => <Ionicons name="home" size={24} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <View style={{ alignItems: 'center' }}>
+              <Ionicons name={focused ? "home" : "home-outline"} size={20} color={color} />
+              {focused && <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: color, marginTop: 4 }} />}
+            </View>
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="icare"
+        options={{
+          title: 'I Care',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={{
+              width: 48,
+              height: 48,
+              backgroundColor: focused ? theme.primary : '#E9D5FF', // Light purple when inactive
+              opacity: focused ? 1 : 0.8, // Slightly faded when inactive
+              borderRadius: 24,
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginBottom: 24,
+              shadowColor: theme.primary,
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: focused ? 0.4 : 0.1, // Stronger shadow when active
+              shadowRadius: 8,
+              elevation: focused ? 8 : 2,
+              borderWidth: 2,
+              borderColor: isDark ? '#1F2937' : '#FFFFFF',
+            }}>
+              <Ionicons name="heart" size={24} color={focused ? "#FFF" : theme.primary} />
+            </View>
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={{ alignItems: 'center' }}>
+              <Ionicons name={focused ? "person" : "person-outline"} size={20} color={color} />
+              {focused && <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: color, marginTop: 4 }} />}
+            </View>
+          ),
         }}
       />
 
       <Tabs.Screen
         name="transactions"
         options={{
-          title: 'History',
-          tabBarIcon: ({ color, size }) => <Ionicons name="receipt-outline" size={24} color={color} />,
-        }}
-      />
-
-
-
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" size={24} color={color} />,
+          href: null,
         }}
       />
 

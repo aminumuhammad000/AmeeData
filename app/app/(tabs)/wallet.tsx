@@ -169,13 +169,6 @@ export default function WalletTab() {
                             <Text style={styles.infoLabel}>Bonus Balance</Text>
                             <Text style={styles.infoValue}>₦{wallet?.bonus_balance?.toLocaleString() || '0.00'}</Text>
                         </View>
-                        <TouchableOpacity 
-                            style={styles.addBtn}
-                            onPress={() => router.push('/add-money')}
-                        >
-                            <Ionicons name="add" size={20} color={THEME_COLORS.primary} />
-                            <Text style={styles.addBtnText}>Add Money</Text>
-                        </TouchableOpacity>
                     </View>
                 </View>
 

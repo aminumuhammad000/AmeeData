@@ -19,8 +19,8 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
   onClose,
   duration = 4000,
 }) => {
-  const fadeAnim = new Animated.Value(0);
-  const translateY = new Animated.Value(-100);
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const translateY = React.useRef(new Animated.Value(-100)).current;
 
   useEffect(() => {
     if (visible) {

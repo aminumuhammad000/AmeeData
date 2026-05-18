@@ -142,6 +142,8 @@ const SignupScreen = () => {
         Alert.alert("🎉 Account Created", `Welcome ${firstName}! Your account is ready.`, [
           { text: "Continue", onPress: () => setTimeout(() => router.replace("/(tabs)"), 100) }
         ]);
+      } else {
+        Alert.alert("❌ Signup Failed", response.message || "Registration failed. Please try again.");
       }
     } catch (error) {
       Alert.alert(

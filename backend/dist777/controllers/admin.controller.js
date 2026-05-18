@@ -635,14 +635,24 @@ export class AdminController {
         try {
             const page = parseInt(req.query.page) || 1;
             const limit = parseInt(req.query.limit) || 20;
+            const search = req.query.search;
             const skip = (page - 1) * limit;
-            const accounts = await VirtualAccount.find()
+            const query = {};
+            if (search) {
+                const searchRegex = new RegExp(search, 'i');
+                query.$or = [
+                    { accountNumber: searchRegex },
+                    { accountName: searchRegex },
+                    { bankName: searchRegex }
+                ];
+            }
+            const accounts = await VirtualAccount.find(query)
                 .populate('user', 'first_name last_name email phone_number status created_at')
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: -1 })
                 .lean();
-            const total = await VirtualAccount.countDocuments();
+            const total = await VirtualAccount.countDocuments(query);
             return ApiResponse.paginated(res, accounts, {
                 page,
                 limit,

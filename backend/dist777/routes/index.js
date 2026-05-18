@@ -16,11 +16,13 @@ import supportRoutes from './support.routes.js';
 import transactionsRoutes from './transactions.routes.js';
 import usersRoutes from './users.routes.js';
 import walletRoutes from './wallet.routes.js';
+import careRoutes from './care.routes.js';
 export default (app) => {
     // ... your existing routes
     app.use('/api/v1/auth', authRoutes);
     app.use('/api/v1/users', usersRoutes);
     app.use('/api/v1/wallet', walletRoutes);
+    app.use('/api/v1/care', careRoutes);
     app.use('/api/v1/transactions', transactionsRoutes);
     app.use('/api/v1/notifications', notificationsRoutes);
     app.use('/api/v1/promotions', promotionsRoutes);

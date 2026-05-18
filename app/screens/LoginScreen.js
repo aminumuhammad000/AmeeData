@@ -4,6 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -72,6 +73,7 @@ const LoginScreen = () => {
       } else {
         const errorMsg = response.message || "Invalid email or password. Please try again.";
         setFormError(errorMsg);
+        Alert.alert("Login Failed", errorMsg);
         showAlert(errorMsg, "error");
       }
     } catch (error) {
