@@ -16,9 +16,10 @@ import Providers from './pages/Providers';
 import Referrals from './pages/Referrals';
 import Settings from './pages/Settings';
 import Transactions from './pages/Transactions';
-import Users from './pages/Users';
 import WalletCredit from './pages/WalletCredit';
 import Leaderboard from './pages/Leaderboard';
+import ICareManagement from './pages/ICareManagement';
+import Users from './pages/Users';
 
 
 
@@ -44,6 +45,7 @@ function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/api-management" element={<ApiManagement />} />
           <Route path="/admin-management" element={<AdminManagement />} />
+          <Route path="/icare" element={<ICareManagement />} />
 
         </Route>
         <Route path="/" element={<Navigate to="/login" replace />} />

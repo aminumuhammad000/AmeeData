@@ -11,7 +11,7 @@ const userSchema = new Schema({
     state: { type: String },
     country: { type: String, default: 'Nigeria' },
     profile_picture: { type: String },
-    kyc_status: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
+    kyc_status: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'verified' },
     kyc_document_id_front_url: { type: String },
     kyc_document_id_back_url: { type: String },
     referral_code: { type: String, unique: true, required: true },
@@ -32,6 +32,7 @@ const userSchema = new Schema({
         status: { type: String },
     },
     push_token: { type: String },
+    allow_care_requests: { type: Boolean, default: true },
     status: { type: String, enum: ['active', 'inactive', 'suspended'], default: 'active' },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now }

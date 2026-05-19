@@ -10,7 +10,8 @@ import {
   ActivityIndicator,
   Alert,
   Modal,
-  RefreshControl
+  RefreshControl,
+  Switch
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -27,6 +28,8 @@ export default function ManageCareCircleScreen() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [allowCare, setAllowCare] = useState(true);
+  const [isUpdatingCare, setIsUpdatingCare] = useState(false);
   
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [editingMember, setEditingMember] = useState<CareCircleMember | null>(null);
@@ -51,7 +54,19 @@ export default function ManageCareCircleScreen() {
 
   useEffect(() => {
     fetchCircle();
+    fetchProfile();
   }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const res = await userService.getProfile();
+      if (res.success) {
+        setAllowCare(res.data.allow_care_requests !== false);
+      }
+    } catch (e) {
+      console.log('Error fetching profile', e);
+    }
+  };
 
   const fetchCircle = async () => {
     try {
@@ -130,6 +145,20 @@ export default function ManageCareCircleScreen() {
     }
   };
 
+  const toggleCareRequests = async (value: boolean) => {
+    try {
+      setIsUpdatingCare(true);
+      const res = await userService.updateProfile({ allow_care_requests: value });
+      if (res.success) {
+        setAllowCare(value);
+      }
+    } catch (e: any) {
+      Alert.alert('Error', e.message || 'Failed to update preference');
+    } finally {
+      setIsUpdatingCare(false);
+    }
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: bgColor }]}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
@@ -159,6 +188,22 @@ export default function ManageCareCircleScreen() {
                onChangeText={setSearchQuery}
              />
           </View>
+        </View>
+
+        <View style={styles.preferenceContainer}>
+           <View style={[styles.preferenceCard, { backgroundColor: cardBg }]}>
+              <View style={styles.prefInfo}>
+                 <Text style={[styles.prefTitle, { color: textColor }]}>Accept Care Requests</Text>
+                 <Text style={[styles.prefSub, { color: textBodyColor }]}>Allow others to send you care requests</Text>
+              </View>
+              <Switch 
+                value={allowCare}
+                onValueChange={toggleCareRequests}
+                disabled={isUpdatingCare}
+                trackColor={{ false: '#767577', true: theme.primary + '80' }}
+                thumbColor={allowCare ? theme.primary : '#f4f3f4'}
+              />
+           </View>
         </View>
 
         <View style={styles.statsOverview}>
@@ -477,5 +522,30 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 16,
     fontWeight: '700',
-  }
+  },
+  preferenceContainer: {
+    paddingHorizontal: 16,
+    marginBottom: 24,
+  },
+  preferenceCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(108, 43, 217, 0.1)',
+  },
+  prefInfo: {
+    flex: 1,
+    marginRight: 12,
+  },
+  prefTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  prefSub: {
+    fontSize: 12,
+  },
 });

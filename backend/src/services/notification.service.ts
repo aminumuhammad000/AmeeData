@@ -16,6 +16,43 @@ export class NotificationService {
     return await Notification.create(data);
   }
 
+  static async sendDirectNotification(user_id: Types.ObjectId, data: {
+    type: string;
+    title: string;
+    message: string;
+    action_link?: string;
+  }) {
+    // 1. Create In-App Notification
+    await this.createNotification({
+      user_id,
+      type: data.type,
+      title: data.title,
+      message: data.message,
+      action_link: data.action_link
+    });
+
+    // 2. Send Push Notification
+    const user = await User.findById(user_id);
+    if (user && user.push_token && Expo.isExpoPushToken(user.push_token)) {
+      const messages = [{
+        to: user.push_token,
+        sound: 'default',
+        title: data.title,
+        body: data.message,
+        data: { action_link: data.action_link, type: data.type }
+      }];
+
+      const chunks = expo.chunkPushNotifications(messages);
+      for (const chunk of chunks) {
+        try {
+          await expo.sendPushNotificationsAsync(chunk);
+        } catch (error) {
+          console.error('Error sending single push notification:', error);
+        }
+      }
+    }
+  }
+
   static async sendTransactionNotification(user_id: Types.ObjectId, transaction: any) {
     await this.createNotification({
       user_id,

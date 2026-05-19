@@ -10,6 +10,7 @@ export interface UserUpdateData {
   state?: string;
   country?: string;
   profile_picture?: string;
+  allow_care_requests?: boolean;
 }
 
 export const userService = {

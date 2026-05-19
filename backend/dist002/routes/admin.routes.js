@@ -3,6 +3,7 @@ import { AdminController } from '../controllers/admin.controller.js';
 import AdminFundingController from '../controllers/admin_funding.controller.js';
 import AdminPricingController from '../controllers/admin_pricing.controller.js';
 import AdminProviderController from '../controllers/admin_provider.controller.js';
+import { AdminCareController } from '../controllers/admin_care.controller.js';
 import { authMiddleware } from '../middleware/auth.middleware.js';
 const router = Router();
 // Admin routes
@@ -123,6 +124,10 @@ router.put('/airtime-to-cash/settings/:id', authMiddleware, async (req, res) => 
     const { AdminAirtimeToCashController } = await import('../controllers/admin_airtime_to_cash.controller.js');
     return AdminAirtimeToCashController.updateSetting(req, res);
 });
+// I Care Management
+router.get('/care/stats', authMiddleware, AdminCareController.getStats);
+router.get('/care/requests', authMiddleware, AdminCareController.getRequests);
+router.get('/care/circle', authMiddleware, AdminCareController.getCircleMemberships);
 // Analytics
 router.get('/analytics/leaderboard', authMiddleware, async (req, res) => {
     const { AnalyticsController } = await import('../controllers/analytics.controller.js');

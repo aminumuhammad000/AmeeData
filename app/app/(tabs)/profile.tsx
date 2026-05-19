@@ -159,6 +159,7 @@ export default function ProfileScreen() {
       title: 'Account Settings',
       items: [
         { icon: 'person-outline', label: 'Personal Information', route: '/edit-profile' },
+        { icon: 'heart-outline', label: 'Manage I Care', route: '/care/manage' },
         { icon: 'share-social-outline', label: 'Referrals', route: '/referrals' },
       ],
     },

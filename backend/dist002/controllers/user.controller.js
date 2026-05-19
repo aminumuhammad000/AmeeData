@@ -18,7 +18,7 @@ export class UserController {
     }
     static async updateProfile(req, res) {
         try {
-            const allowedUpdates = ['first_name', 'last_name', 'address', 'city', 'state', 'date_of_birth', 'profile_picture'];
+            const allowedUpdates = ['first_name', 'last_name', 'address', 'city', 'state', 'date_of_birth', 'profile_picture', 'allow_care_requests'];
             const updates = Object.keys(req.body)
                 .filter(key => allowedUpdates.includes(key))
                 .reduce((obj, key) => {

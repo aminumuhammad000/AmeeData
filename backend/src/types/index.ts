@@ -44,6 +44,7 @@ export interface IUser extends Document {
   api_key?: string;
   api_key_enabled?: boolean;
   push_token?: string;
+  allow_care_requests?: boolean;
 }
 
 export interface IWallet extends Document {

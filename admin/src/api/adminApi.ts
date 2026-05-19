@@ -133,3 +133,10 @@ export const updateA2CSetting = (id: string, data: any) => api.put(`/airtime-to-
 
 // Analytics
 export const getLeaderboard = (params?: { period: string }) => api.get('/analytics/leaderboard', { params });
+
+// I Care Management
+export const getCareStats = () => api.get('/care/stats');
+export const getCareRequests = (params?: { page?: number; limit?: number; status?: string }) =>
+  api.get('/care/requests', { params });
+export const getCareCircleMemberships = (params?: { page?: number; limit?: number }) =>
+  api.get('/care/circle', { params });

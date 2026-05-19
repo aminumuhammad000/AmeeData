@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 // import * as Network from "expo-network";
 import {
   AdminService,
@@ -17,9 +18,10 @@ import {
   Wallet
 } from './types';
 
-// Local development - use computer's IP for physical devices
-// export const API_BASE_URL = 'http://192.168.42.64:5000/api'; // Local development
-export const API_BASE_URL = 'https://api.ameedata.com.ng/api'; // Production Server
+// Production Server
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://api.ameedata.com.ng/api'; 
+// Local development: export const API_BASE_URL = 'http://127.0.0.1:5000/api';
+// export const API_BASE_URL = 'https://api.ameedata.com.ng/api'; // Production Server
 
 
 // Log the API URL being used
@@ -105,8 +107,8 @@ api.interceptors.response.use(
     let errorMessage = data?.message || 'An error occurred';
 
     // Handle specific status codes
-    if (status === 401) {
-      // Clear auth data on 401
+    if (status === 401 || (status === 404 && (error.config?.url?.includes('/users/profile') || error.config?.url?.includes('/wallet')))) {
+      // Clear auth data on 401 or if user/wallet is not found
       try {
         // Safe check for window.location to prevent crashes in React Native
         const currentRoute = typeof window !== 'undefined' && window.location ? window.location.pathname || '' : '';
@@ -124,13 +126,16 @@ api.interceptors.response.use(
           delete api.defaults.headers.common['Authorization'];
         }
 
-        // Update error message for user, but NOT for auth requests/pages
-        if (!isAuthPage && !isAuthRequest) {
-          errorMessage = 'Your session has expired. Please log in again.';
+        // Update error message for user
+        if (status === 401) {
+          if (!isAuthPage && !isAuthRequest) {
+            errorMessage = 'Your session has expired. Please log in again.';
+          }
+        } else {
+          errorMessage = 'Account not found. Please log in again.';
         }
 
         // Note: Navigation should be handled by the app's auth state management
-        // The app will automatically redirect to login when it detects no token
       } catch (storageError) {
         console.error('Error during logout:', storageError);
       }

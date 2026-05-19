@@ -3,6 +3,8 @@ import { CareCircleMember, User, Transaction, Wallet } from '../models/index.js'
 import { CareRequest } from '../models/care_request.model.js';
 import { ApiResponse } from '../utils/response.js';
 import { AuthRequest } from '../types/index.js';
+import { NotificationService } from '../services/notification.service.js';
+import { EmailService } from '../services/email.service.js';
 
 export class CareController {
   /**
@@ -164,6 +166,13 @@ export class CareController {
         return ApiResponse.error(res, 'Cannot request care from yourself', 400);
       }
 
+      const provider = await User.findById(provider_id);
+      if (!provider) return ApiResponse.error(res, 'Target member not found', 404);
+
+      if (provider.allow_care_requests === false) {
+        return ApiResponse.error(res, 'This member is currently not accepting care requests', 400);
+      }
+
       const request = await CareRequest.create({
         requester_id: req.user?.id,
         provider_id,
@@ -173,7 +182,42 @@ export class CareController {
         status: 'pending'
       });
 
-      // TODO: Send notification to provider
+      // Send notifications to the provider
+      const requester = await User.findById(req.user?.id);
+      const requesterName = requester ? `${requester.first_name} ${requester.last_name}` : 'A member';
+      
+      const notificationTitle = 'New Care Request ❤️';
+      const notificationMessage = `${requesterName} has requested ₦${amount} for "${purpose}".`;
+      
+      // 1. In-App and Push Notification
+      NotificationService.sendDirectNotification(provider._id, {
+        type: 'care_request',
+        title: notificationTitle,
+        message: notificationMessage,
+        action_link: '/care/requests'
+      }).catch(err => console.error('Error sending care request push notification:', err));
+
+      // 2. Email Notification
+      if (provider.email) {
+        const emailHtml = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+            <h2 style="color: #6C2BD9; text-align: center;">New Care Request received</h2>
+            <p style="color: #333; font-size: 16px;">Hello <b>${provider.first_name}</b>,</p>
+            <p style="color: #666; font-size: 16px;">You have received a new Care Request from <b>${requesterName}</b>.</p>
+            <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin: 24px 0;">
+              <p style="margin: 8px 0; color: #333;"><b>Amount:</b> ₦${amount}</p>
+              <p style="margin: 8px 0; color: #333;"><b>Purpose:</b> ${purpose}</p>
+              ${message ? `<p style="margin: 8px 0; color: #333;"><b>Message:</b> ${message}</p>` : ''}
+            </div>
+            <p style="color: #666; font-size: 14px;">Open the AmeeData app to accept or decline this request.</p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+            <p style="color: #999; font-size: 12px; text-align: center;">&copy; ${new Date().getFullYear()} AmeeData. All rights reserved.</p>
+          </div>
+        `;
+        EmailService.sendEmail(provider.email, notificationTitle, emailHtml).catch(err => 
+          console.error('Error sending care request email:', err)
+        );
+      }
       
       return ApiResponse.success(res, request, 'Care request sent successfully');
     } catch (error: any) {

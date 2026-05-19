@@ -46,7 +46,7 @@ export class AuthController {
         referred_by,
         country: 'Nigeria',
         profile_picture: `https://i.pravatar.cc/300?u=${email}`,
-        kyc_status: 'pending',
+        kyc_status: 'verified',
         status: 'active',
         transaction_pin: pin ? await bcrypt.hash(String(pin), 10) : undefined
       });

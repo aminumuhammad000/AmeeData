@@ -1,5 +1,5 @@
-// models/index.ts
 export * from './care_circle.model.js';
+export * from './care_request.model.js';
 export * from './support_content.model.js';
 export * from './user.model.js';
 export { default as VirtualAccount } from './VirtualAccount.js';
@@ -24,4 +24,3 @@ export * from './role_permission.model.js';
 export * from './support_ticket.model.js';
 export * from './system_setting.model.js';
 export * from './transaction.model.js';
-

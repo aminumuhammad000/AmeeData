@@ -45,6 +45,7 @@ export default function ICareScreen() {
   const [ameeContacts, setAmeeContacts] = useState<any[]>([]);
   const [recentCare, setRecentCare] = useState<any[]>([]);
   const [loadingRecent, setLoadingRecent] = useState(false);
+  const [syncedPhones, setSyncedPhones] = useState<string[]>([]);
   
   const [activeTab, setActiveTab] = useState<'send' | 'circle' | 'requests'>('send');
   const [careCircle, setCareCircle] = useState<CareCircleMember[]>([]);
@@ -73,7 +74,7 @@ export default function ICareScreen() {
       
       const timer = setTimeout(() => {
         setIsInitialLoad(false);
-      }, 1500);
+      }, 500); // Reduced delay
 
       return () => {
         clearTimeout(timer);
@@ -96,15 +97,17 @@ export default function ICareScreen() {
 
   const loadCachedContacts = async () => {
     try {
-      const [cachedLocal, cachedAmee, cachedCircle] = await Promise.all([
+      const [cachedLocal, cachedAmee, cachedCircle, cachedSynced] = await Promise.all([
         AsyncStorage.getItem('cached_local_contacts'),
         AsyncStorage.getItem('cached_amee_contacts'),
-        AsyncStorage.getItem('cached_care_circle')
+        AsyncStorage.getItem('cached_care_circle'),
+        AsyncStorage.getItem('cached_synced_phones')
       ]);
 
       if (cachedLocal) setLocalContacts(JSON.parse(cachedLocal));
       if (cachedAmee) setAmeeContacts(JSON.parse(cachedAmee));
       if (cachedCircle) setCareCircle(JSON.parse(cachedCircle));
+      if (cachedSynced) setSyncedPhones(JSON.parse(cachedSynced));
     } catch (e) {
       console.log('Error loading cached contacts', e);
     }
@@ -141,11 +144,16 @@ export default function ICareScreen() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([loadWalletData(), loadRecentCare(), syncDeviceContacts(), fetchCareCircle()]);
+    await Promise.all([
+      loadWalletData(), 
+      loadRecentCare(), 
+      syncDeviceContacts(true), // Force full sync on manual refresh
+      fetchCareCircle()
+    ]);
     setRefreshing(false);
   };
 
-  const syncDeviceContacts = async () => {
+  const syncDeviceContacts = async (forceFullSync = false) => {
     try {
       setLoadingContacts(true);
       const { status } = await Contacts.requestPermissionsAsync();
@@ -156,7 +164,7 @@ export default function ICareScreen() {
             Contacts.Fields.PhoneNumbers, 
             Contacts.Fields.Image,
             Contacts.Fields.ID,
-            // @ts-ignore - some platforms support these
+            // @ts-ignore
             'timesContacted',
             'lastTimeContacted'
           ],
@@ -177,21 +185,40 @@ export default function ICareScreen() {
           
           setLocalContacts(deviceContacts);
           
-          const phones = deviceContacts.map(c => c.phone) as string[];
-          if (phones.length > 0) {
+          const allPhones = deviceContacts.map(c => c.phone) as string[];
+          
+          // Optimization: Only sync phones that haven't been synced before
+          let phonesToSync = allPhones;
+          if (!forceFullSync && syncedPhones.length > 0) {
+            phonesToSync = allPhones.filter(p => !syncedPhones.includes(p));
+          }
+
+          if (phonesToSync.length > 0) {
             try {
-              const res = await userService.syncContacts(phones);
+              console.log(`🔄 Syncing ${phonesToSync.length} new contacts...`);
+              const res = await userService.syncContacts(phonesToSync);
               if (res.success && Array.isArray(res.data)) {
-                setAmeeContacts(res.data);
-                // Save to cache
+                // Merge new results with existing amee contacts
+                const newAmeeContacts = forceFullSync 
+                  ? res.data 
+                  : [...ameeContacts, ...res.data.filter(newC => !ameeContacts.some(oldC => oldC._id === newC._id))];
+                
+                setAmeeContacts(newAmeeContacts);
+                setSyncedPhones(allPhones);
+
+                // Save updated caches
                 await Promise.all([
                   AsyncStorage.setItem('cached_local_contacts', JSON.stringify(deviceContacts)),
-                  AsyncStorage.setItem('cached_amee_contacts', JSON.stringify(res.data))
+                  AsyncStorage.setItem('cached_amee_contacts', JSON.stringify(newAmeeContacts)),
+                  AsyncStorage.setItem('cached_synced_phones', JSON.stringify(allPhones))
                 ]);
               }
             } catch (e) {
               console.log('Error syncing contacts with backend', e);
             }
+          } else {
+             // Just update local contacts cache if no new sync needed
+             await AsyncStorage.setItem('cached_local_contacts', JSON.stringify(deviceContacts));
           }
         }
       } else {
@@ -241,6 +268,22 @@ export default function ICareScreen() {
          label: extras?.label || ''
        }
      });
+  };
+
+  const handleAddToCircle = async (contact: any) => {
+    try {
+      const res = await careService.addMember({
+        phone_number: contact.phone,
+        member_id: contact._id,
+        nickname: contact.name
+      });
+      if (res.success) {
+        Alert.alert('Success', `${contact.name} added to your Care Circle!`);
+        fetchCareCircle();
+      }
+    } catch (e: any) {
+      Alert.alert('Error', e.message || 'Failed to add member');
+    }
   };
 
   const handleRequestCare = (phone: string, name: string, extras?: any) => {
@@ -309,12 +352,12 @@ export default function ICareScreen() {
       if (a.isRecent && !b.isRecent) return -1;
       if (!a.isRecent && b.isRecent) return 1;
 
+      if (a.isAmee && !b.isAmee) return -1;
+      if (!a.isAmee && b.isAmee) return 1;
+
       if (b.timesContacted !== a.timesContacted) {
          return b.timesContacted - a.timesContacted;
       }
-      
-      if (a.isAmee && !b.isAmee) return -1;
-      if (!a.isAmee && b.isAmee) return 1;
       
       return a.name.localeCompare(b.name);
     });
@@ -498,10 +541,8 @@ export default function ICareScreen() {
               </Text>
            </View>
            
-           {(isInitialLoad || (loadingContacts && processedContacts.length === 0)) ? (
+           {((isInitialLoad || loadingContacts) && processedContacts.length === 0) ? (
               <View>
-                <ContactSkeleton />
-                <ContactSkeleton />
                 <ContactSkeleton />
                 <ContactSkeleton />
                 <ContactSkeleton />
@@ -530,15 +571,15 @@ export default function ICareScreen() {
                     </View>
                     
                       {contact.isAmee ? (
-                        <TouchableOpacity 
-                           style={[styles.actionBtn, { backgroundColor: theme.primary }]}
-                           onPress={() => activeTab === 'requests' 
-                             ? handleRequestCare(contact.phone, contact.name, { image: contact.image, nickname: contact.nickname, label: contact.label, member_id: contact._id }) 
-                             : handleTransfer(contact.phone, contact.name, { image: contact.image, nickname: contact.nickname, label: contact.label })
-                           }
-                        >
-                           <Text style={styles.actionBtnText}>{activeTab === 'requests' ? 'Request' : 'Send Care'}</Text>
-                        </TouchableOpacity>
+                          <TouchableOpacity 
+                             style={[styles.actionBtn, { backgroundColor: theme.primary }]}
+                             onPress={() => activeTab === 'requests' 
+                               ? handleRequestCare(contact.phone, contact.name, { image: contact.image, nickname: contact.nickname, label: contact.label, member_id: contact._id }) 
+                               : handleTransfer(contact.phone, contact.name, { image: contact.image, nickname: contact.nickname, label: contact.label })
+                             }
+                          >
+                             <Text style={styles.actionBtnText}>{activeTab === 'requests' ? 'Request' : 'Send Care'}</Text>
+                          </TouchableOpacity>
                     ) : (
                       <TouchableOpacity 
                          style={[styles.actionBtn, { backgroundColor: 'transparent', borderWidth: 1, borderColor: theme.primary }]}
@@ -834,6 +875,14 @@ const styles = StyleSheet.create({
     gap: 4,
     minWidth: 75,
     justifyContent: 'center',
+  },
+  miniCircleBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   actionBtnText: {
     color: '#FFF',
