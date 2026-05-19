@@ -16,7 +16,7 @@ export class WalletService {
     return wallet?.balance || 0;
   }
 
-  static async creditWallet(user_id: Types.ObjectId | string, amount: number, applyBonus: boolean = false): Promise<boolean> {
+  static async creditWallet(user_id: Types.ObjectId | string, amount: number, applyBonus: boolean = false, session?: any): Promise<boolean> {
     const bonus = applyBonus ? amount * 0.01 : 0;
     const finalAmount = amount + bonus;
     
@@ -31,14 +31,14 @@ export class WalletService {
         $inc: { balance: finalAmount },
         $set: { last_transaction_at: new Date(), updated_at: new Date() }
       },
-      { new: true, upsert: false }
+      { new: true, upsert: false, session }
     );
     
     if (!result) throw new Error('Wallet not found');
     return true;
   }
 
-  static async debitWallet(user_id: Types.ObjectId | string, amount: number): Promise<boolean> {
+  static async debitWallet(user_id: Types.ObjectId | string, amount: number, session?: any): Promise<boolean> {
     // We use a filter on balance to ensure we don't go below 0 (atomic check)
     const result = await Wallet.findOneAndUpdate(
       { 
@@ -49,7 +49,7 @@ export class WalletService {
         $inc: { balance: -amount },
         $set: { last_transaction_at: new Date(), updated_at: new Date() }
       },
-      { new: true }
+      { new: true, session }
     );
 
     if (!result) {

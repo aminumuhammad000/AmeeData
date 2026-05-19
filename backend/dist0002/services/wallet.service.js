@@ -12,7 +12,7 @@ export class WalletService {
         const wallet = await Wallet.findOne({ user_id });
         return wallet?.balance || 0;
     }
-    static async creditWallet(user_id, amount, applyBonus = false) {
+    static async creditWallet(user_id, amount, applyBonus = false, session) {
         const bonus = applyBonus ? amount * 0.01 : 0;
         const finalAmount = amount + bonus;
         // Log bonus for debugging if applied
@@ -22,12 +22,12 @@ export class WalletService {
         const result = await Wallet.findOneAndUpdate({ user_id }, {
             $inc: { balance: finalAmount },
             $set: { last_transaction_at: new Date(), updated_at: new Date() }
-        }, { new: true, upsert: false });
+        }, { new: true, upsert: false, session });
         if (!result)
             throw new Error('Wallet not found');
         return true;
     }
-    static async debitWallet(user_id, amount) {
+    static async debitWallet(user_id, amount, session) {
         // We use a filter on balance to ensure we don't go below 0 (atomic check)
         const result = await Wallet.findOneAndUpdate({
             user_id,
@@ -35,7 +35,7 @@ export class WalletService {
         }, {
             $inc: { balance: -amount },
             $set: { last_transaction_at: new Date(), updated_at: new Date() }
-        }, { new: true });
+        }, { new: true, session });
         if (!result) {
             const wallet = await Wallet.findOne({ user_id });
             if (!wallet)

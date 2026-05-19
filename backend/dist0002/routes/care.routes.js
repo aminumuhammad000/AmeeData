@@ -10,5 +10,6 @@ router.delete('/circle/:id', CareController.removeMember);
 router.get('/stats/:member_id', CareController.getStats);
 // Care Requests
 router.post('/request', CareController.requestCare);
+router.post('/request/respond', CareController.respondToRequest);
 router.get('/requests', CareController.getRequests);
 export default router;

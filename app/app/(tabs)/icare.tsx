@@ -510,8 +510,7 @@ export default function ICareScreen() {
              <View style={styles.sectionHeader}>
                 <Text style={[styles.sectionTitle, { color: textColor }]}>Recent Care</Text>
                 <TouchableOpacity onPress={() => router.push('/transactions')}><Text style={[styles.manageText, { color: theme.primary }]}>See All</Text></TouchableOpacity>
-             </View>
-             {recentCare.map((tx: any, idx) => (
+             </View>{recentCare.map((tx: any, idx) => (
                 <View key={idx} style={[styles.contactListItem, { backgroundColor: cardBg }]}>
                    <View style={styles.avatarSmall}>
                       <Ionicons name="heart" size={16} color="#FFF" />
@@ -539,9 +538,7 @@ export default function ICareScreen() {
               <Text style={[styles.sectionTitle, { color: textColor }]}>
                 {activeTab === 'requests' ? 'Request Care From' : (searchQuery ? 'Search Results' : 'All Contacts')}
               </Text>
-           </View>
-           
-           {((isInitialLoad || loadingContacts) && processedContacts.length === 0) ? (
+           </View>{((isInitialLoad || loadingContacts) && processedContacts.length === 0) ? (
               <View>
                 <ContactSkeleton />
                 <ContactSkeleton />
@@ -569,17 +566,16 @@ export default function ICareScreen() {
                       </View>
                       <Text style={[styles.contactSub, { color: textBodyColor }]}>{contact.phone}</Text>
                     </View>
-                    
-                      {contact.isAmee ? (
-                          <TouchableOpacity 
-                             style={[styles.actionBtn, { backgroundColor: theme.primary }]}
-                             onPress={() => activeTab === 'requests' 
-                               ? handleRequestCare(contact.phone, contact.name, { image: contact.image, nickname: contact.nickname, label: contact.label, member_id: contact._id }) 
-                               : handleTransfer(contact.phone, contact.name, { image: contact.image, nickname: contact.nickname, label: contact.label })
-                             }
-                          >
-                             <Text style={styles.actionBtnText}>{activeTab === 'requests' ? 'Request' : 'Send Care'}</Text>
-                          </TouchableOpacity>
+                    {contact.isAmee ? (
+                      <TouchableOpacity 
+                         style={[styles.actionBtn, { backgroundColor: theme.primary }]}
+                         onPress={() => activeTab === 'requests' 
+                           ? handleRequestCare(contact.phone, contact.name, { image: contact.image, nickname: contact.nickname, label: contact.label, member_id: contact._id }) 
+                           : handleTransfer(contact.phone, contact.name, { image: contact.image, nickname: contact.nickname, label: contact.label })
+                         }
+                      >
+                         <Text style={styles.actionBtnText}>{activeTab === 'requests' ? 'Request' : 'Send Care'}</Text>
+                      </TouchableOpacity>
                     ) : (
                       <TouchableOpacity 
                          style={[styles.actionBtn, { backgroundColor: 'transparent', borderWidth: 1, borderColor: theme.primary }]}

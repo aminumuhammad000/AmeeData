@@ -1,4 +1,4 @@
-import { CareCircleMember, User, Transaction } from '../models/index.js';
+import { CareCircleMember, User, Transaction, Wallet } from '../models/index.js';
 import { CareRequest } from '../models/care_request.model.js';
 import { ApiResponse } from '../utils/response.js';
 import { NotificationService } from '../services/notification.service.js';
@@ -199,6 +199,114 @@ export class CareController {
     /**
      * Get care requests (both sent and received)
      */
+    /**
+     * Respond to a care request (Accept or Decline)
+     */
+    static async respondToRequest(req, res) {
+        try {
+            const { request_id, status } = req.body; // 'accepted' or 'declined'
+            const provider_id = req.user?.id;
+            if (!['accepted', 'declined'].includes(status)) {
+                return ApiResponse.error(res, 'Invalid status', 400);
+            }
+            const request = await CareRequest.findById(request_id);
+            if (!request)
+                return ApiResponse.error(res, 'Request not found', 404);
+            if (request.provider_id.toString() !== provider_id) {
+                return ApiResponse.error(res, 'Unauthorized to respond to this request', 403);
+            }
+            if (request.status !== 'pending') {
+                return ApiResponse.error(res, `Request is already ${request.status}`, 400);
+            }
+            if (status === 'declined') {
+                request.status = 'declined';
+                await request.save();
+                return ApiResponse.success(res, request, 'Care request declined');
+            }
+            // If accepted, we process the transfer atomistically
+            const senderWallet = await Wallet.findOne({ user_id: provider_id });
+            if (!senderWallet)
+                return ApiResponse.error(res, 'Your wallet was not found', 404);
+            if (senderWallet.balance < request.amount) {
+                return ApiResponse.error(res, 'Insufficient main balance to fulfill this request', 400);
+            }
+            const requesterId = request.requester_id;
+            const amount = request.amount;
+            let session;
+            try {
+                const mongoose = (await import('mongoose')).default;
+                session = await mongoose.startSession();
+                session.startTransaction();
+            }
+            catch (e) {
+                session = null;
+            }
+            try {
+                const { WalletService } = await import('../services/wallet.service.js');
+                // 1. Debit Provider (Sender)
+                await WalletService.debitWallet(provider_id, amount, session);
+                // 2. Credit Requester (Recipient)
+                await WalletService.creditWallet(requesterId, amount, false, session);
+                // 3. Update Request Status
+                request.status = 'accepted';
+                await request.save({ session });
+                // 4. Create Transactions
+                const reference = `CARE-Q-${Date.now()}`;
+                // Provider Transaction
+                await Transaction.create([{
+                        user_id: provider_id,
+                        wallet_id: senderWallet._id,
+                        type: 'transfer',
+                        amount,
+                        fee: 0,
+                        total_charged: amount,
+                        status: 'successful',
+                        reference_number: reference,
+                        description: `Care fulfilled for ${request.purpose}`,
+                        payment_method: 'wallet'
+                    }], { session });
+                // Requester Transaction
+                const recipientWallet = await Wallet.findOne({ user_id: requesterId }).session(session);
+                if (recipientWallet) {
+                    const provider = await User.findById(provider_id).session(session);
+                    await Transaction.create([{
+                            user_id: requesterId,
+                            wallet_id: recipientWallet._id,
+                            type: 'transfer_received',
+                            amount,
+                            fee: 0,
+                            total_charged: amount,
+                            status: 'successful',
+                            reference_number: reference,
+                            description: `Care received from ${provider?.first_name} for ${request.purpose}`,
+                            payment_method: 'wallet'
+                        }], { session });
+                }
+                if (session) {
+                    await session.commitTransaction();
+                    session.endSession();
+                }
+                // Send Notification to requester
+                NotificationService.sendDirectNotification(requesterId, {
+                    type: 'care_fulfilled',
+                    title: 'Care Request Accepted ❤️',
+                    message: `Your care request for ₦${amount} has been accepted!`,
+                    action_link: '/transactions'
+                }).catch(err => console.error('Error sending fulfillment notification:', err));
+                return ApiResponse.success(res, request, 'Care request fulfilled successfully');
+            }
+            catch (error) {
+                if (session) {
+                    await session.abortTransaction();
+                    session.endSession();
+                }
+                return ApiResponse.error(res, error.message || 'Fulfillment failed', 500);
+            }
+        }
+        catch (error) {
+            return ApiResponse.error(res, error.message, 500);
+        }
+    }
     static async getRequests(req, res) {
         try {
             const { type } = req.query; // 'sent' or 'received'

@@ -1,6 +1,7 @@
 // controllers/wallet.controller.ts
 import { Response } from 'express';
-import { Wallet, Transaction } from '../models/index.js';
+import mongoose from 'mongoose';
+import { Wallet, Transaction, User } from '../models/index.js';
 import { WalletService } from '../services/wallet.service.js';
 import { ApiResponse } from '../utils/response.js';
 import { AuthRequest } from '../types/index.js';
@@ -148,7 +149,6 @@ export class WalletController {
       }
 
       // Find recipient
-      const { User } = await import('../models/index.js');
       const cleanPhone = recipient_phone.replace(/\D/g, '');
       const recipient = await User.findOne({ 
         $or: [
@@ -174,47 +174,69 @@ export class WalletController {
         return ApiResponse.error(res, 'Insufficient main balance', 400);
       }
 
-      // Debit sender main balance
-      await WalletService.debitWallet(senderWallet.user_id, amount);
+      let session;
+      try {
+        session = await mongoose.startSession();
+        session.startTransaction();
+      } catch (e) {
+        console.warn('⚠️ Mongoose sessions not supported (standalone MongoDB). Falling back to sequential operations.');
+        session = null;
+      }
 
-      // Credit recipient main balance (unified wallet)
-      await WalletService.creditWallet(recipient._id, amount);
+      try {
+        // Debit sender main balance
+        await WalletService.debitWallet(senderWallet.user_id, amount, session);
 
-      // Create transaction record for sender
-      const senderTx = await Transaction.create({
-        user_id: req.user?.id,
-        wallet_id: senderWallet._id,
-        type: 'transfer',
-        amount,
-        fee: 0,
-        total_charged: amount,
-        status: 'successful',
-        reference_number: `CARE-S-${Date.now()}`,
-        description: message || `Care sent to ${recipient_phone}`,
-        payment_method: 'wallet'
-      });
+        // Credit recipient main balance (unified wallet)
+        await WalletService.creditWallet(recipient._id, amount, false, session);
 
-      // Create transaction record for recipient
-      const recipientWallet = await Wallet.findOne({ user_id: recipient._id });
-      if (recipientWallet) {
-        const sender = await User.findById(req.user?.id);
-        await Transaction.create({
-          user_id: recipient._id,
-          wallet_id: recipientWallet._id,
-          type: 'transfer_received',
+        // Create transaction record for sender
+        await Transaction.create([{
+          user_id: req.user?.id,
+          wallet_id: senderWallet._id,
+          type: 'transfer',
           amount,
           fee: 0,
           total_charged: amount,
           status: 'successful',
-          reference_number: `CARE-R-${Date.now()}`,
-          description: message || `Care received from ${sender?.phone_number || 'AmeeData User'}`,
+          reference_number: `CARE-S-${Date.now()}`,
+          description: message || `Care sent to ${recipient_phone}`,
           payment_method: 'wallet'
-        });
-      }
+        }], { session });
 
-      return ApiResponse.success(res, null, 'Care transferred successfully');
-    } catch (error: any) {
-      return ApiResponse.error(res, error.message, 500);
+        // Create transaction record for recipient
+        const recipientWallet = await Wallet.findOne({ user_id: recipient._id }).session(session as any);
+        if (recipientWallet) {
+          const sender = await User.findById(req.user?.id).session(session as any);
+          await Transaction.create([{
+            user_id: recipient._id,
+            wallet_id: recipientWallet._id,
+            type: 'transfer_received',
+            amount,
+            fee: 0,
+            total_charged: amount,
+            status: 'successful',
+            reference_number: `CARE-R-${Date.now()}`,
+            description: message || `Care received from ${sender?.phone_number || 'AmeeData User'}`,
+            payment_method: 'wallet'
+          }], { session });
+        }
+
+        if (session) {
+          await session.commitTransaction();
+          session.endSession();
+        }
+
+        return ApiResponse.success(res, null, 'Care transferred successfully');
+      } catch (error: any) {
+        if (session) {
+          await session.abortTransaction();
+          session.endSession();
+        }
+        return ApiResponse.error(res, error.message || 'Transfer failed', 500);
+      }
+    } catch (outerError: any) {
+      return ApiResponse.error(res, outerError.message, 500);
     }
   }
 }
