@@ -6,6 +6,7 @@ import { NotificationService } from '../services/notification.service.js';
 import { ApiResponse } from '../utils/response.js';
 import { AuthRequest } from '../types/index.js';
 import { transactionValidation } from '../utils/validators.js';
+import { uploadToCloudinary } from '../utils/cloudinary.js';
 
 export class TransactionController {
   static async createTransaction(req: AuthRequest, res: Response) {
@@ -159,6 +160,33 @@ export class TransactionController {
       }
 
       return ApiResponse.success(res, transaction, 'Transaction status updated successfully');
+    } catch (error: any) {
+      return ApiResponse.error(res, error.message, 500);
+    }
+  }
+
+  static async uploadReceipt(req: AuthRequest, res: Response) {
+    try {
+      const { base64Image } = req.body;
+      if (!base64Image) {
+        return ApiResponse.error(res, 'Base64 image is required', 400);
+      }
+
+      const transaction = await Transaction.findOne({
+        _id: req.params.id,
+        user_id: req.user?.id
+      });
+
+      if (!transaction) {
+        return ApiResponse.error(res, 'Transaction not found', 404);
+      }
+
+      const receiptUrl = await uploadToCloudinary(`data:image/png;base64,${base64Image}`, 'receipts');
+      
+      transaction.receipt_url = receiptUrl;
+      await transaction.save();
+
+      return ApiResponse.success(res, { receipt_url: receiptUrl }, 'Receipt uploaded successfully');
     } catch (error: any) {
       return ApiResponse.error(res, error.message, 500);
     }

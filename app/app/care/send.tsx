@@ -19,9 +19,11 @@ import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ViewShot from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 import { useTheme } from '@/components/ThemeContext';
 import { walletService, WalletData } from '@/services/wallet.service';
 import { careService } from '@/services/care.service';
+import { transactionService } from '@/services/transaction.service';
 
 const { width } = Dimensions.get('window');
 
@@ -125,6 +127,20 @@ export default function SendCareScreen() {
       const res = await walletService.transferCareBalance(phone as string, numAmount, fullMessage);
       if (res.success) {
         setSuccess(true);
+        if (res.data?.transactionId) {
+          // Wait 1 second for the view to render completely, then capture and upload
+          setTimeout(async () => {
+            try {
+              if (viewShotRef.current) {
+                const uri = await viewShotRef.current.capture();
+                const base64Str = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
+                await transactionService.uploadReceipt(res.data.transactionId, base64Str);
+              }
+            } catch (err) {
+              console.log('Failed to capture/upload receipt memory', err);
+            }
+          }, 1000);
+        }
       } else {
         Alert.alert('Transfer Failed', res.message || 'Please try again');
       }

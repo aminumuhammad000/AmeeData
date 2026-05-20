@@ -95,4 +95,16 @@ export const transactionService = {
       throw error.response?.data || { success: false, message: 'Data purchase failed' };
     }
   },
+
+  /**
+   * Upload receipt image
+   */
+  uploadReceipt: async (transactionId: string, base64Image: string): Promise<any> => {
+    try {
+      const response = await api.post(`/transactions/${transactionId}/receipt`, { base64Image });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, message: 'Failed to upload receipt' };
+    }
+  }
 };

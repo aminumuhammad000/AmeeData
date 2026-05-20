@@ -8,10 +8,14 @@ import {
     ScrollView,
     Modal,
     Dimensions,
+    Image,
+    Alert,
 } from 'react-native';
 import { transactionService, Transaction as ApiTransaction } from '@/services/transaction.service';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/components/ThemeContext';
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -214,13 +218,51 @@ export default function TransactionDetailsModal({
                                 )}
                             </View>
 
+                            {tx.receipt_url && (
+                                <View style={[styles.card, { backgroundColor: cardBg, borderColor, padding: 0, overflow: 'hidden' }]}>
+                                    <View style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: borderColor }}>
+                                        <Text style={[styles.label, { color: textColor, fontWeight: '700' }]}>Care Memory</Text>
+                                    </View>
+                                    <View style={{ alignItems: 'center', backgroundColor: '#000', width: '100%', aspectRatio: 9/16 }}>
+                                        <Image 
+                                           source={{ uri: tx.receipt_url }} 
+                                           style={{ width: '100%', height: '100%' }}
+                                           resizeMode="contain"
+                                        />
+                                    </View>
+                                </View>
+                            )}
+
                             {/* Action Buttons */}
+                            {tx.receipt_url && (
+                                <TouchableOpacity
+                                    style={[styles.actionBtn, { backgroundColor: theme.primary, borderColor: theme.primary, marginBottom: 12 }]}
+                                    onPress={async () => {
+                                        try {
+                                            if (await Sharing.isAvailableAsync()) {
+                                                // download first to local file system
+                                                const fileUri = (FileSystem as any).documentDirectory + 'care-memory.jpg';
+                                                await (FileSystem as any).downloadAsync(tx.receipt_url!, fileUri);
+                                                await Sharing.shareAsync(fileUri);
+                                            } else {
+                                                Alert.alert('Sharing not available', 'Sharing is not supported on this device.');
+                                            }
+                                        } catch (e) {
+                                            Alert.alert('Error', 'Failed to share the memory');
+                                        }
+                                    }}
+                                >
+                                    <Ionicons name="share-social-outline" size={20} color="#FFF" />
+                                    <Text style={[styles.actionBtnText, { color: '#FFF' }]}>Share Memory</Text>
+                                </TouchableOpacity>
+                            )}
+
                             <TouchableOpacity
                                 style={[styles.actionBtn, { backgroundColor: cardBg, borderColor }]}
                                 onPress={onClose}
                             >
-                                <Ionicons name="download-outline" size={20} color={theme.primary} />
-                                <Text style={[styles.actionBtnText, { color: theme.primary }]}>Download Receipt</Text>
+                                <Ionicons name="close-outline" size={20} color={theme.primary} />
+                                <Text style={[styles.actionBtnText, { color: theme.primary }]}>Close Details</Text>
                             </TouchableOpacity>
                         </ScrollView>
                     )}
