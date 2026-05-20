@@ -194,15 +194,17 @@ export default function SendCareScreen() {
                 </Text>
 
                 {/* Avatars */}
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 20, paddingHorizontal: 10 }}>
-                   <View style={{ padding: 4, borderRadius: 50, backgroundColor: '#FFF', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 20, paddingHorizontal: 10 }}>
+                   <View style={{ padding: 4, borderRadius: 50, backgroundColor: '#FFF', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, elevation: 5, zIndex: 1 }}>
                      <Image 
                        source={{ uri: currentUser?.profile_picture || `https://ui-avatars.com/api/?name=${currentUser?.first_name || 'Send'}+${currentUser?.last_name || 'er'}&background=FF9F43&color=fff` }} 
                        style={{ width: 60, height: 60, borderRadius: 30, borderWidth: 3, borderColor: '#F97316' }} 
                      />
                    </View>
-                   <Ionicons name="heart" size={28} color="#F43F5E" />
-                   <View style={{ padding: 4, borderRadius: 50, backgroundColor: '#FFF', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }}>
+                   <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF', justifyContent: 'center', alignItems: 'center', zIndex: 2, marginHorizontal: -12, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5, elevation: 6 }}>
+                     <Ionicons name="heart" size={24} color="#F43F5E" />
+                   </View>
+                   <View style={{ padding: 4, borderRadius: 50, backgroundColor: '#FFF', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, elevation: 5, zIndex: 1 }}>
                      <Image 
                        source={{ uri: (image as string) || `https://ui-avatars.com/api/?name=${(name as string)?.replace(' ', '+')}&background=6C2BD9&color=fff` }} 
                        style={{ width: 70, height: 70, borderRadius: 35, borderWidth: 3, borderColor: '#6C2BD9' }} 
