@@ -179,11 +179,11 @@ export default function SendCareScreen() {
 
              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
                 {/* Decorative Elements */}
-                <Text style={{ position: 'absolute', top: -10, left: 10, fontSize: 32 }}>💖</Text>
-                <Text style={{ position: 'absolute', right: 20, top: 20, fontSize: 24, opacity: 0.7 }}>✨</Text>
-                <Text style={{ position: 'absolute', left: -10, bottom: 80, fontSize: 40 }}>🌸</Text>
-                <Text style={{ position: 'absolute', right: -20, bottom: 50, fontSize: 48 }}>🌺</Text>
-                <Text style={{ position: 'absolute', left: '10%', bottom: '20%', fontSize: 20 }}>❤️</Text>
+                <Text style={{ position: 'absolute', top: -10, left: 10, fontSize: 20 }}>💖</Text>
+                <Text style={{ position: 'absolute', right: 20, top: 20, fontSize: 16, opacity: 0.7 }}>✨</Text>
+                <Text style={{ position: 'absolute', left: -10, bottom: 80, fontSize: 24 }}>🌸</Text>
+                <Text style={{ position: 'absolute', right: -10, bottom: 50, fontSize: 28 }}>🌺</Text>
+                <Text style={{ position: 'absolute', left: '10%', bottom: '20%', fontSize: 14 }}>❤️</Text>
 
                 {/* Big Thank You Text */}
                 <Text style={{ fontFamily: 'serif', fontSize: 22, fontStyle: 'italic', fontWeight: 'bold', color: '#F43F5E', marginTop: 12, marginBottom: 16, textShadowColor: 'rgba(0,0,0,0.05)', textShadowOffset: {width: 1, height: 1}, textShadowRadius: 2, textAlign: 'center' }}>
@@ -234,21 +234,19 @@ export default function SendCareScreen() {
                 </View>
              </View>
 
-             <View style={{ marginHorizontal: -16, marginBottom: -16, backgroundColor: 'rgba(255,255,255,0.9)', borderBottomLeftRadius: 24, borderBottomRightRadius: 24, padding: 16 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
-                      <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center' }}>
-                        <Ionicons name="heart" size={14} color="#FFF" />
+             <View style={{ marginHorizontal: -16, marginBottom: -16, backgroundColor: 'rgba(255,255,255,0.9)', borderBottomLeftRadius: 24, borderBottomRightRadius: 24, paddingHorizontal: 12, paddingVertical: 10 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 }}>
+                      <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center' }}>
+                        <Ionicons name="heart" size={10} color="#FFF" />
                       </View>
-                      <View style={{ flex: 1 }}>
-                        <Text style={{ fontSize: 13, fontWeight: '800', color: '#10B981' }}>Care Confirmed</Text>
-                      </View>
+                      <Text style={{ fontSize: 10, fontWeight: '800', color: '#10B981' }}>Care Confirmed</Text>
                    </View>
-                   <Text style={{ fontSize: 11, fontWeight: '800', color: '#334155' }}>REF: {Date.now().toString().slice(-8)}</Text>
+                   <Text style={{ fontSize: 9, fontWeight: '800', color: '#334155' }}>REF: {Date.now().toString().slice(-8)}</Text>
                 </View>
                 
                 {/* Website Text at the bottom */}
-                <Text style={{ textAlign: 'center', fontSize: 11, fontWeight: '800', color: '#8B5CF6' }}>
+                <Text style={{ textAlign: 'center', fontSize: 9, fontWeight: '800', color: '#8B5CF6' }}>
                     https://ameedata.com.ng
                 </Text>
              </View>
