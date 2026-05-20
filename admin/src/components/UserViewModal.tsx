@@ -31,10 +31,23 @@ const UserViewModal: React.FC<UserViewModalProps> = ({ user, onClose }) => {
         <div className="relative px-6 pb-6">
           <div className="flex flex-col sm:flex-row items-center -mt-12 mb-6">
             <div className="w-24 h-24 bg-white rounded-full p-1 shadow-md">
-              <div className="w-full h-full bg-slate-200 rounded-full flex items-center justify-center text-slate-500 font-bold text-2xl border-4 border-white">
-                {getInitials(user.first_name, user.last_name)}
+              <div className="w-full h-full bg-slate-200 rounded-full overflow-hidden flex items-center justify-center text-slate-500 font-bold text-2xl border-4 border-white">
+                {user.profile_picture ? (
+                  <img 
+                    src={user.profile_picture} 
+                    alt={`${user.first_name} ${user.last_name}`} 
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).onerror = null;
+                      (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&background=f1f5f9&color=64748b`;
+                    }}
+                  />
+                ) : (
+                  getInitials(user.first_name, user.last_name)
+                )}
               </div>
             </div>
+
             <div className="mt-4 sm:mt-12 sm:ml-4 text-center sm:text-left">
               <h2 className="text-2xl font-bold text-slate-900">{user.first_name} {user.last_name}</h2>
               <p className="text-slate-500 text-sm flex items-center justify-center sm:justify-start gap-1">

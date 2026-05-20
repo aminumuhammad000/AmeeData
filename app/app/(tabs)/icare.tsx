@@ -108,6 +108,12 @@ export default function ICareScreen() {
       if (cachedAmee) setAmeeContacts(JSON.parse(cachedAmee));
       if (cachedCircle) setCareCircle(JSON.parse(cachedCircle));
       if (cachedSynced) setSyncedPhones(JSON.parse(cachedSynced));
+      
+      const lastSync = await AsyncStorage.getItem('last_contact_sync_time');
+      if (lastSync) {
+        // We can use this for cooldown logic
+      }
+
     } catch (e) {
       console.log('Error loading cached contacts', e);
     }
@@ -127,13 +133,13 @@ export default function ICareScreen() {
   const loadRecentCare = async () => {
     try {
       setLoadingRecent(true);
-      const res = await transactionService.getTransactions(1, 10);
+      const res = await transactionService.getTransactions(1, 20);
       if (res.success && Array.isArray(res.data)) {
         const careTx = res.data.filter((tx: any) => 
           tx.reference_number?.startsWith('CARE-') || 
           tx.description?.toLowerCase().includes('care')
         );
-        setRecentCare(careTx.slice(0, 3));
+        setRecentCare(careTx.slice(0, 5));
       }
     } catch (e) {
       console.log('Error loading recent care tx', e);
@@ -141,6 +147,7 @@ export default function ICareScreen() {
       setLoadingRecent(false);
     }
   };
+
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -153,10 +160,32 @@ export default function ICareScreen() {
     setRefreshing(false);
   };
 
+  const normalizePhone = (phone: string) => {
+    let clean = phone.replace(/\D/g, '');
+    if (clean.startsWith('0') && clean.length === 11) {
+      clean = '234' + clean.slice(1);
+    }
+    if (!clean.startsWith('234') && clean.length === 10) {
+      clean = '234' + clean;
+    }
+    return clean;
+  };
+
   const syncDeviceContacts = async (forceFullSync = false) => {
     try {
+      const COOLDOWN_MS = 6 * 60 * 60 * 1000; // 6 hours
+      const lastSyncTime = await AsyncStorage.getItem('last_contact_sync_time');
+      const now = Date.now();
+
+      if (!forceFullSync && lastSyncTime && (now - parseInt(lastSyncTime) < COOLDOWN_MS)) {
+        console.log('⏭️ Sync skipped: Cooldown active');
+        setLoadingContacts(false);
+        return;
+      }
+
       setLoadingContacts(true);
       const { status } = await Contacts.requestPermissionsAsync();
+
       
       if (status === 'granted') {
         const { data } = await Contacts.getContactsAsync({
@@ -172,11 +201,12 @@ export default function ICareScreen() {
         
         if (data.length > 0) {
           const deviceContacts = data.map(c => {
-            const phone = c.phoneNumbers && c.phoneNumbers.length > 0 ? c.phoneNumbers[0].number : '';
+            const rawPhone = c.phoneNumbers && c.phoneNumbers.length > 0 ? c.phoneNumbers[0].number : '';
             return {
               id: c.id,
               name: c.name || 'Unknown',
-              phone: phone,
+              phone: rawPhone,
+              normalized: normalizePhone(rawPhone || ''),
               image: c.imageAvailable && c.image?.uri ? c.image.uri : null,
               timesContacted: (c as any).timesContacted || 0,
               lastTimeContacted: (c as any).lastTimeContacted || 0
@@ -185,39 +215,53 @@ export default function ICareScreen() {
           
           setLocalContacts(deviceContacts);
           
-          const allPhones = deviceContacts.map(c => c.phone) as string[];
+          const allNormalized = deviceContacts.map(c => c.normalized).filter(Boolean);
           
           // Optimization: Only sync phones that haven't been synced before
-          let phonesToSync = allPhones;
+          let phonesToSync = allNormalized;
           if (!forceFullSync && syncedPhones.length > 0) {
-            phonesToSync = allPhones.filter(p => !syncedPhones.includes(p));
+            phonesToSync = allNormalized.filter(p => !syncedPhones.includes(p));
           }
 
           if (phonesToSync.length > 0) {
-            try {
-              console.log(`🔄 Syncing ${phonesToSync.length} new contacts...`);
-              const res = await userService.syncContacts(phonesToSync);
-              if (res.success && Array.isArray(res.data)) {
-                // Merge new results with existing amee contacts
-                const newAmeeContacts = forceFullSync 
-                  ? res.data 
-                  : [...ameeContacts, ...res.data.filter(newC => !ameeContacts.some(oldC => oldC._id === newC._id))];
-                
-                setAmeeContacts(newAmeeContacts);
-                setSyncedPhones(allPhones);
+            console.log(`🔄 Syncing ${phonesToSync.length} new contacts in batches...`);
+            
+            // BATCHING: Chunk phones into groups of 50
+            const batchSize = 50;
+            const batches = [];
+            for (let i = 0; i < phonesToSync.length; i += batchSize) {
+              batches.push(phonesToSync.slice(i, i + batchSize));
+            }
 
-                // Save updated caches
-                await Promise.all([
-                  AsyncStorage.setItem('cached_local_contacts', JSON.stringify(deviceContacts)),
-                  AsyncStorage.setItem('cached_amee_contacts', JSON.stringify(newAmeeContacts)),
-                  AsyncStorage.setItem('cached_synced_phones', JSON.stringify(allPhones))
-                ]);
+            let newMatches: any[] = [];
+            for (const batch of batches) {
+              try {
+                const res = await userService.syncContacts(batch);
+                if (res.success && Array.isArray(res.data)) {
+                  newMatches = [...newMatches, ...res.data];
+                }
+              } catch (e) {
+                console.log('Batch sync failed', e);
               }
-            } catch (e) {
-              console.log('Error syncing contacts with backend', e);
+            }
+
+            if (newMatches.length > 0 || forceFullSync) {
+              const updatedAmeeContacts = forceFullSync 
+                ? newMatches 
+                : [...ameeContacts, ...newMatches.filter(newC => !ameeContacts.some(oldC => oldC._id === newC._id))];
+              
+              setAmeeContacts(updatedAmeeContacts);
+              setSyncedPhones(allNormalized);
+
+              // Save updated caches for instant load next time
+              await Promise.all([
+                AsyncStorage.setItem('cached_local_contacts', JSON.stringify(deviceContacts)),
+                AsyncStorage.setItem('cached_amee_contacts', JSON.stringify(updatedAmeeContacts)),
+                AsyncStorage.setItem('cached_synced_phones', JSON.stringify(allNormalized)),
+                AsyncStorage.setItem('last_contact_sync_time', now.toString())
+              ]);
             }
           } else {
-             // Just update local contacts cache if no new sync needed
              await AsyncStorage.setItem('cached_local_contacts', JSON.stringify(deviceContacts));
           }
         }
@@ -231,6 +275,7 @@ export default function ICareScreen() {
       setLoadingContacts(false);
     }
   };
+
 
   const formatCurrency = (amount: number) => {
     return `₦${amount.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -317,8 +362,7 @@ export default function ICareScreen() {
       c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.phone.includes(searchQuery)
     ).map(contact => {
-      const cleanPhone = contact.phone.replace(/\D/g, '');
-      const last10 = cleanPhone.slice(-10);
+      const last10 = contact.normalized?.slice(-10);
       
       const ameeUser = ameeContacts.find(a => 
         a.phone_number?.replace(/\D/g, '').endsWith(last10)
@@ -336,13 +380,17 @@ export default function ICareScreen() {
         ...contact, 
         isAmee, 
         _id: ameeUser?._id,
+        ameeProfile: ameeUser,
         isRecent, 
+        isNew: ameeUser?.created_at ? (new Date().getTime() - new Date(ameeUser.created_at).getTime() < 7 * 24 * 60 * 60 * 1000) : false,
         isCircle: !!circleMember,
         isPinned: circleMember?.is_pinned || false,
         nickname: circleMember?.nickname,
         label: circleMember?.relationship_label
       };
     });
+
+
 
     // Sort: 1. Pinned Circle, 2. Recent recipients, 3. OS Frequent, 4. Amee users, 5. Alphabetical
     return list.sort((a, b) => {
@@ -362,6 +410,11 @@ export default function ICareScreen() {
       return a.name.localeCompare(b.name);
     });
   }, [localContacts, ameeContacts, searchQuery, recentCare, careCircle]);
+
+  const newOnAmee = useMemo(() => {
+    return processedContacts.filter(c => c.isAmee && c.isNew && !c.isCircle).slice(0, 5);
+  }, [processedContacts]);
+
 
   const formatName = (name: string) => {
     const words = name.trim().split(/\s+/);
@@ -504,6 +557,37 @@ export default function ICareScreen() {
           </View>
         )}
 
+        {/* Recently Joined */}
+        {!searchQuery && newOnAmee.length > 0 && activeTab === 'send' && (
+          <View style={styles.sectionContainer}>
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: textColor }]}>New on AmeeData 🎉</Text>
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.favoritesScroll}>
+               {newOnAmee.map((member, idx) => (
+                 <TouchableOpacity 
+                   key={idx} 
+                   style={styles.favoriteItem} 
+                   onPress={() => handleTransfer(member.phone, member.nickname || member.name, { image: member.image, nickname: member.nickname, label: member.label })}
+                 >
+                    <View style={styles.avatarContainer}>
+                       <Image 
+                         source={{ uri: member.ameeProfile?.profile_picture || member.image || `https://ui-avatars.com/api/?name=${member.name}&background=random` }} 
+                         style={styles.avatarFav} 
+                       />
+                       <View style={[styles.activeDot, { backgroundColor: '#10B981' }]} />
+                    </View>
+                    <Text style={[styles.favName, { color: textColor }]} numberOfLines={1}>{member.nickname || member.name.split(' ')[0]}</Text>
+                    <View style={[styles.favPill, { backgroundColor: 'rgba(16, 185, 129, 0.1)' }]}>
+                       <Text style={[styles.favPillText, { color: '#10B981', fontSize: 8 }]}>NEW</Text>
+                    </View>
+                 </TouchableOpacity>
+               ))}
+            </ScrollView>
+          </View>
+        )}
+
+
         {/* Recent Care - only show on send tab */}
         {!searchQuery && recentCare.length > 0 && activeTab === 'send' && (
           <View style={styles.sectionContainer}>
@@ -536,8 +620,9 @@ export default function ICareScreen() {
         <View style={styles.sectionContainer}>
            <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: textColor }]}>
-                {activeTab === 'requests' ? 'Request Care From' : (searchQuery ? 'Search Results' : 'All Contacts')}
+                {activeTab === 'requests' ? 'Request Care From' : (searchQuery ? 'Search Results' : 'Find Friends on AmeeData')}
               </Text>
+
            </View>{((isInitialLoad || loadingContacts) && processedContacts.length === 0) ? (
               <View>
                 <ContactSkeleton />
@@ -549,9 +634,10 @@ export default function ICareScreen() {
            ) : processedContacts.map((contact, idx) => (
                 <View key={idx} style={[styles.contactListItem, { backgroundColor: cardBg }]}>
                     <Image 
-                      source={{ uri: contact.image || `https://ui-avatars.com/api/?name=${contact.name.replace(' ', '+')}&background=random` }} 
-                      style={styles.avatarList} 
+                      source={{ uri: contact.isAmee ? (contact.ameeProfile?.profile_picture || contact.image) : contact.image || `https://ui-avatars.com/api/?name=${contact.name.replace(' ', '+')}&background=random` }} 
+                      style={[styles.avatarList, contact.isAmee && { borderWidth: 2, borderColor: theme.primary }]} 
                     />
+
                     <View style={styles.contactInfo}>
                       <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                         <Text style={[styles.contactName, { color: textColor }]} numberOfLines={1}>

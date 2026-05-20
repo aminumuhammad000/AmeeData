@@ -20,6 +20,8 @@ import WalletCredit from './pages/WalletCredit';
 import Leaderboard from './pages/Leaderboard';
 import ICareManagement from './pages/ICareManagement';
 import Users from './pages/Users';
+import VirtualAccounts from './pages/VirtualAccounts';
+
 
 
 
@@ -32,6 +34,8 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/users" element={<Users />} />
+          <Route path="/virtual-accounts" element={<VirtualAccounts />} />
+
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/pricing" element={<PricingPlans />} />
           <Route path="/referrals" element={<Referrals />} />

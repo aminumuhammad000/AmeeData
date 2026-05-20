@@ -1,7 +1,8 @@
 // controllers/user.controller.ts
 import bcrypt from 'bcryptjs';
 import { Response } from 'express';
-import { User } from '../models/index.js';
+import { User, CareCircleMember } from '../models/index.js';
+
 import { AuthRequest } from '../types/index.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import { ApiResponse } from '../utils/response.js';
@@ -239,27 +240,14 @@ export class UserController {
         return ApiResponse.error(res, 'phoneNumbers must be an array', 400);
       }
 
-      // Format query to match possible phone number variations (e.g., removing +, spaces)
-      const cleanNumbers = phoneNumbers.map(p => p.replace(/\D/g, ''));
-      
-      const users = await User.find({
-        $or: [
-          { phone_number: { $in: phoneNumbers } },
-          { phone_number: { $in: cleanNumbers } }
-        ]
-      }).select('_id phone_number first_name last_name profile_picture');
+      const { ContactSyncService } = await import('../services/contact_sync.service.js');
+      const registeredContacts = await ContactSyncService.sync(req.user?.id as string, phoneNumbers);
 
-      const registeredContacts = users.map(u => ({
-        id: u._id,
-        phone_number: u.phone_number,
-        first_name: u.first_name,
-        last_name: u.last_name,
-        profile_picture: u.profile_picture
-      }));
-
-      return ApiResponse.success(res, registeredContacts, 'Contacts synced successfully');
+      return ApiResponse.success(res, registeredContacts, 'Contacts synced and added to Care Circle successfully');
     } catch (error: any) {
       return ApiResponse.error(res, error.message, 500);
     }
   }
+
+
 }

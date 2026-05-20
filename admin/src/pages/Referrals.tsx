@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+
 import { getReferees, getReferralSettings, getReferralStats, updateReferralSettings } from '../api/adminApi';
 import Layout from '../components/Layout';
 import Modal from '../components/Modal';
@@ -208,7 +210,9 @@ const Referrals: React.FC = () => {
                                     <th className="px-4 py-3">Email</th>
                                     <th className="px-4 py-3">Phone</th>
                                     <th className="px-4 py-3">Status</th>
+                                    <th className="px-4 py-3">Transactions</th>
                                     <th className="px-4 py-3">Joined</th>
+
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
@@ -224,14 +228,32 @@ const Referrals: React.FC = () => {
                                                 {ref.status}
                                             </span>
                                         </td>
+                                        <td className="px-4 py-3">
+                                            <div className="flex items-center gap-2">
+                                                <span className={`font-bold ${ref.transaction_count > 0 ? 'text-green-600' : 'text-slate-400'}`}>
+                                                    {ref.transaction_count || 0}
+                                                </span>
+                                                {ref.transaction_count > 0 && (
+                                                    <Link 
+                                                        to={`/transactions?search=${encodeURIComponent(ref.email)}`}
+                                                        className="text-purple-600 hover:text-purple-800 text-[11px] font-medium underline"
+                                                        onClick={() => setShowRefereesModal(false)}
+                                                    >
+                                                        View
+                                                    </Link>
+                                                )}
+                                            </div>
+                                        </td>
                                         <td className="px-4 py-3 text-slate-500">
                                             {new Date(ref.created_at).toLocaleDateString()}
                                         </td>
+
                                     </tr>
                                 ))}
                                 {(!refereesData || refereesData.length === 0) && (
-                                    <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-400">No one invited yet.</td></tr>
+                                    <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400">No one invited yet.</td></tr>
                                 )}
+
                             </tbody>
                         </table>
                     )}

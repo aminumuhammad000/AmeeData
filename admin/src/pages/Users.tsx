@@ -1,12 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
-import { deleteUser, exportUsersCSV, getUsers, updateUser, updateUserStatus, sendEmail } from '../api/adminApi';
+import { deleteUser, exportUsersCSV, getUsers, updateUser, updateUserStatus, sendEmail, bulkCreditWallets } from '../api/adminApi';
 import Layout from '../components/Layout';
 import UserDeleteModal from '../components/UserDeleteModal';
 import UserEditModal from '../components/UserEditModal';
 import UserStatusModal from '../components/UserStatusModal';
 import UserViewModal from '../components/UserViewModal';
 import UserEmailModal from '../components/UserEmailModal';
+import BulkCreditModal from '../components/BulkCreditModal';
+
 
 const Users: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -14,18 +16,22 @@ const Users: React.FC = () => {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [kycFilter, setKycFilter] = useState('');
   const [accountStatusFilter, setAccountStatusFilter] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
   const limit = 10;
 
+
   const { data, status, isLoading } = useQuery({
-    queryKey: ['users', page, debouncedSearch, kycFilter, accountStatusFilter],
+    queryKey: ['users', page, debouncedSearch, kycFilter, accountStatusFilter, sortBy],
     queryFn: () => getUsers({
       page,
       limit,
       search: debouncedSearch || undefined,
       status: accountStatusFilter || undefined,
-      kyc_status: kycFilter || undefined
+      kyc_status: kycFilter || undefined,
+      sort: sortBy || undefined
     }).then((res: any) => res.data),
   });
+
 
   const users = data?.data || [];
   const pagination = data?.pagination || { page: 1, pages: 1, total: 0 };
@@ -43,12 +49,16 @@ const Users: React.FC = () => {
     };
   }, [searchTerm]);
 
-  const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showBulkCreditModal, setShowBulkCreditModal] = useState(false);
+
 
   useEffect(() => {
-    setSelectedEmails([]);
-  }, [page, debouncedSearch, kycFilter, accountStatusFilter]);
+    setSelectedUsers([]);
+  }, [page, debouncedSearch, kycFilter, accountStatusFilter, sortBy]);
+
+
 
   const [viewUser, setViewUser] = useState<any | null>(null);
   const [editUser, setEditUser] = useState<any | null>(null);
@@ -106,13 +116,28 @@ const Users: React.FC = () => {
     mutationFn: (data: { subject: string; message: string; recipients: string[] }) => sendEmail(data).then((res: any) => res.data),
     onSuccess: () => {
       setShowEmailModal(false);
-      setSelectedEmails([]);
+      setSelectedUsers([]);
       alert("Email sent successfully!");
     },
     onError: (error: any) => {
       alert("Failed to send email: " + error.message);
     }
   });
+
+  const bulkCreditMutation = useMutation({
+    mutationFn: (data: { userIds: string[]; amount: number; description: string }) => 
+      bulkCreditWallets(data.userIds, data.amount, data.description).then((res: any) => res.data),
+    onSuccess: (data) => {
+      setShowBulkCreditModal(false);
+      setSelectedUsers([]);
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      alert(`Successfully credited ${data.data?.results?.length || 0} users.`);
+    },
+    onError: (error: any) => {
+      alert("Failed to process bulk credit: " + (error.response?.data?.message || error.message));
+    }
+  });
+
 
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -143,15 +168,25 @@ const Users: React.FC = () => {
               <p className="text-sm sm:text-base text-slate-500 mt-1">Manage and monitor all user accounts</p>
             </div>
             <div className="flex items-center gap-3">
-              {selectedEmails.length > 0 && (
-                <button
-                  onClick={() => setShowEmailModal(true)}
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm flex items-center gap-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                  Send Email ({selectedEmails.length})
-                </button>
+              {selectedUsers.length > 0 && (
+                <>
+                  <button
+                    onClick={() => setShowEmailModal(true)}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                    Email ({selectedUsers.length})
+                  </button>
+                  <button
+                    onClick={() => setShowBulkCreditModal(true)}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    Credit ({selectedUsers.length})
+                  </button>
+                </>
               )}
+
               <button
                 onClick={handleExportCSV}
                 disabled={isExporting}
@@ -205,7 +240,18 @@ const Users: React.FC = () => {
                   <option value="suspended">Suspended</option>
                   <option value="inactive">Inactive</option>
                 </select>
+
+                <select
+                  value={sortBy}
+                  onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
+                  className="px-4 py-2.5 border border-slate-300 rounded-lg bg-white text-sm font-medium text-slate-700 min-w-[140px] focus:outline-none focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="balance_desc">Highest Balance</option>
+                  <option value="balance_asc">Lowest Balance</option>
+                </select>
               </div>
+
             </div>
           </div>
 
@@ -232,7 +278,7 @@ const Users: React.FC = () => {
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 mb-1">No users found</h3>
                 <p className="text-slate-500">Try adjusting your filters or search terms.</p>
-                <button onClick={() => { setSearchTerm(''); setKycFilter(''); setAccountStatusFilter(''); }} className="mt-4 px-4 py-2 text-purple-600 hover:text-purple-700 font-medium text-sm">Clear all filters</button>
+                <button onClick={() => { setSearchTerm(''); setKycFilter(''); setAccountStatusFilter(''); setSortBy('newest'); }} className="mt-4 px-4 py-2 text-purple-600 hover:text-purple-700 font-medium text-sm">Clear all filters</button>
               </div>
             ) : (
               <>
@@ -241,20 +287,21 @@ const Users: React.FC = () => {
                   <table className="w-full text-left">
                     <thead className="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500 font-semibold">
                       <tr>
-                        <th className="px-6 py-4 w-12 text-center">
+                         <th className="px-6 py-4 w-12 text-center">
                           <input
                             type="checkbox"
                             className="rounded border-slate-300 text-purple-600 focus:ring-purple-500"
-                            checked={users.length > 0 && selectedEmails.length === users.length}
+                            checked={users.length > 0 && selectedUsers.length === users.length}
                             onChange={(e) => {
                               if (e.target.checked) {
-                                setSelectedEmails(users.map((u: any) => u.email).filter(Boolean));
+                                setSelectedUsers(users);
                               } else {
-                                setSelectedEmails([]);
+                                setSelectedUsers([]);
                               }
                             }}
                           />
                         </th>
+
                         <th className="px-6 py-4">User</th>
                         <th className="px-6 py-4">Contact</th>
                         <th className="px-6 py-4">Account Status</th>
@@ -265,26 +312,40 @@ const Users: React.FC = () => {
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {users.map((user: any) => (
-                        <tr key={user._id} className={`hover:bg-slate-50/80 transition-colors group ${selectedEmails.includes(user.email) ? 'bg-purple-50/50' : ''}`}>
+                        <tr key={user._id} className={`hover:bg-slate-50/80 transition-colors group ${selectedUsers.some(u => u._id === user._id) ? 'bg-purple-50/50' : ''}`}>
                           <td className="px-6 py-4 text-center">
                             <input
                               type="checkbox"
                               className="rounded border-slate-300 text-purple-600 focus:ring-purple-500"
-                              checked={selectedEmails.includes(user.email)}
+                              checked={selectedUsers.some(u => u._id === user._id)}
                               onChange={(e) => {
                                 if (e.target.checked) {
-                                  if (user.email) setSelectedEmails(prev => [...prev, user.email]);
+                                  setSelectedUsers(prev => [...prev, user]);
                                 } else {
-                                  setSelectedEmails(prev => prev.filter(email => email !== user.email));
+                                  setSelectedUsers(prev => prev.filter(u => u._id !== user._id));
                                 }
                               }}
                             />
                           </td>
+
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm ring-2 ring-white">
-                                {`${user.first_name?.[0] || 'U'}${user.last_name?.[0] || 'U'}`.toUpperCase()}
+                              <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-purple-500 to-indigo-600 text-white font-bold text-sm shadow-sm ring-2 ring-white">
+                                {user.profile_picture ? (
+                                  <img 
+                                    src={user.profile_picture} 
+                                    alt={`${user.first_name} ${user.last_name}`} 
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).onerror = null;
+                                      (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&background=6366f1&color=fff`;
+                                    }}
+                                  />
+                                ) : (
+                                  <span>{`${user.first_name?.[0] || 'U'}${user.last_name?.[0] || 'U'}`.toUpperCase()}</span>
+                                )}
                               </div>
+
                               <div>
                                 <p className="font-semibold text-slate-900 text-sm">{user.first_name} {user.last_name}</p>
                                 <p className="text-xs text-slate-500 font-mono">ID: {user._id.slice(-6)}...</p>
@@ -336,23 +397,37 @@ const Users: React.FC = () => {
                 {/* Mobile Card View */}
                 <div className="md:hidden p-4 space-y-4">
                   {users.map((user: any) => (
-                    <div key={user._id} className={`bg-white rounded-xl border p-4 shadow-sm flex flex-col gap-4 ${selectedEmails.includes(user.email) ? 'border-purple-300 bg-purple-50/30' : 'border-slate-200'}`}>
+                    <div key={user._id} className={`bg-white rounded-xl border p-4 shadow-sm flex flex-col gap-4 ${selectedUsers.some(u => u._id === user._id) ? 'border-purple-300 bg-purple-50/30' : 'border-slate-200'}`}>
                       <div className="flex items-center gap-3">
                         <input
                           type="checkbox"
                           className="rounded border-slate-300 text-purple-600 focus:ring-purple-500 w-5 h-5"
-                          checked={selectedEmails.includes(user.email)}
+                          checked={selectedUsers.some(u => u._id === user._id)}
                           onChange={(e) => {
                             if (e.target.checked) {
-                              if (user.email) setSelectedEmails(prev => [...prev, user.email]);
+                              setSelectedUsers(prev => [...prev, user]);
                             } else {
-                              setSelectedEmails(prev => prev.filter(email => email !== user.email));
+                              setSelectedUsers(prev => prev.filter(u => u._id !== user._id));
                             }
                           }}
                         />
-                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm">
-                          {`${user.first_name?.[0] || 'U'}${user.last_name?.[0] || 'U'}`.toUpperCase()}
+
+                        <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-purple-500 to-indigo-600 text-white font-bold text-sm shadow-sm ring-2 ring-white">
+                          {user.profile_picture ? (
+                            <img 
+                              src={user.profile_picture} 
+                              alt={`${user.first_name} ${user.last_name}`} 
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).onerror = null;
+                                (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&background=6366f1&color=fff`;
+                              }}
+                            />
+                          ) : (
+                            <span>{`${user.first_name?.[0] || 'U'}${user.last_name?.[0] || 'U'}`.toUpperCase()}</span>
+                          )}
                         </div>
+
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
                             <p className="font-semibold text-slate-900 text-sm truncate">{user.first_name} {user.last_name}</p>
@@ -418,8 +493,18 @@ const Users: React.FC = () => {
         {editUser && <UserEditModal user={editUser} onClose={() => setEditUser(null)} onSave={editMutation.mutate} isSaving={editMutation.status === 'pending'} />}
         {statusUser && <UserStatusModal user={statusUser} onClose={() => setStatusUser(null)} onSave={statusMutation.mutate} isSaving={statusMutation.status === 'pending'} />}
         {deleteUserObj && <UserDeleteModal user={deleteUserObj} onClose={() => setDeleteUserObj(null)} onDelete={deleteMutation.mutate} isDeleting={deleteMutation.status === 'pending'} />}
-        {showEmailModal && <UserEmailModal emails={selectedEmails} onClose={() => setShowEmailModal(false)} onSend={emailMutation.mutate} isSending={emailMutation.status === 'pending'} />}
+        {showEmailModal && <UserEmailModal emails={selectedUsers.map(u => u.email)} onClose={() => setShowEmailModal(false)} onSend={emailMutation.mutate} isSending={emailMutation.status === 'pending'} />}
+        {showBulkCreditModal && (
+          <BulkCreditModal 
+            userIds={selectedUsers.map(u => u._id)} 
+            userEmails={selectedUsers.map(u => u.email)} 
+            onClose={() => setShowBulkCreditModal(false)} 
+            onConfirm={(amount, description) => bulkCreditMutation.mutate({ userIds: selectedUsers.map(u => u._id), amount, description })} 
+            isProcessing={bulkCreditMutation.status === 'pending'} 
+          />
+        )}
       </div>
+
     </Layout>
   );
 };

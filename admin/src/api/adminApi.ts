@@ -14,8 +14,9 @@ export const getAllAdmins = (params?: { page?: number; limit?: number }) =>
   api.get('/admins', { params });
 
 // Users
-export const getUsers = (params?: { page?: number; limit?: number; search?: string; status?: string; kyc_status?: string }) =>
+export const getUsers = (params?: { page?: number; limit?: number; search?: string; status?: string; kyc_status?: string; sort?: string }) =>
   api.get('/users', { params });
+
 export const getUser = (id: string) => api.get(`/users/${id}`);
 export const updateUser = (id: string, data: any) => api.put(`/users/${id}`, data);
 export const updateUserStatus = (id: string, status: string) =>
@@ -34,6 +35,9 @@ export const createAdmin = (data: any) => api.post('/admins', data);
 export const getRoles = () => api.get('/roles');
 export const creditUserWallet = (userId: string, amount: number, description: string) =>
   api.post('/wallet/credit', { userId, amount, description });
+export const bulkCreditWallets = (userIds: string[], amount: number, description: string) =>
+  api.post('/wallet/bulk-credit', { userIds, amount, description });
+
 export const deleteAdmin = (id: string) => api.delete(`/admins/${id}`);
 
 // Audit Logs

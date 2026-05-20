@@ -1,15 +1,21 @@
 import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+
 import { getTransactions } from '../api/adminApi';
 import Layout from '../components/Layout';
 import TransactionViewModal from '../components/TransactionViewModal';
 
 const Transactions: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get('search') || '';
+
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [typeFilter, setTypeFilter] = useState<string>('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
+  const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
+
   const [viewTransaction, setViewTransaction] = useState<any | null>(null);
   const limit = 20;
 
@@ -25,6 +31,17 @@ const Transactions: React.FC = () => {
       if (searchTimer.current) clearTimeout(searchTimer.current as any);
     };
   }, [searchTerm]);
+
+  // Handle search parameter updates
+  useEffect(() => {
+    const search = searchParams.get('search');
+    if (search !== null) {
+      setSearchTerm(search);
+      setDebouncedSearch(search);
+      setPage(1);
+    }
+  }, [searchParams]);
+
 
   const params: any = { page, limit };
   if (statusFilter) params.status = statusFilter;

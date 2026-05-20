@@ -194,31 +194,58 @@ export class AdminController {
             const limit = parseInt(req.query.limit) || 10;
             const skip = (page - 1) * limit;
             const search = req.query.search;
-            const query = {};
+            const status = req.query.status;
+            const kyc_status = req.query.kyc_status;
+            const sort = req.query.sort; // 'balance_desc', 'balance_asc', 'newest'
+            const matchStage = {};
             if (search) {
                 const searchRegex = new RegExp(search, 'i');
-                query.$or = [
+                matchStage.$or = [
                     { first_name: searchRegex },
                     { last_name: searchRegex },
                     { email: searchRegex },
                     { phone_number: searchRegex }
                 ];
             }
-            const users = await User.find(query)
-                .select('-password_hash')
-                .skip(skip)
-                .limit(limit)
-                .sort({ created_at: -1 })
-                .lean();
-            const usersWithBalance = await Promise.all(users.map(async (user) => {
-                const wallet = await Wallet.findOne({ user_id: user._id });
-                return {
-                    ...user,
-                    balance: wallet ? wallet.balance : 0
-                };
-            }));
-            const total = await User.countDocuments(query);
-            return ApiResponse.paginated(res, usersWithBalance, {
+            if (status)
+                matchStage.status = status;
+            if (kyc_status)
+                matchStage.kyc_status = kyc_status;
+            // Pipeline for data
+            const dataPipeline = [
+                { $match: matchStage },
+                {
+                    $lookup: {
+                        from: 'wallets',
+                        localField: '_id',
+                        foreignField: 'user_id',
+                        as: 'wallet'
+                    }
+                },
+                { $unwind: { path: '$wallet', preserveNullAndEmptyArrays: true } },
+                {
+                    $addFields: {
+                        balance: { $ifNull: ['$wallet.balance', 0] }
+                    }
+                }
+            ];
+            // Sort
+            if (sort === 'balance_desc') {
+                dataPipeline.push({ $sort: { balance: -1, created_at: -1 } });
+            }
+            else if (sort === 'balance_asc') {
+                dataPipeline.push({ $sort: { balance: 1, created_at: -1 } });
+            }
+            else {
+                dataPipeline.push({ $sort: { created_at: -1 } });
+            }
+            // Pagination
+            dataPipeline.push({ $skip: skip });
+            dataPipeline.push({ $limit: limit });
+            dataPipeline.push({ $project: { password_hash: 0, wallet: 0 } });
+            const users = await User.aggregate(dataPipeline);
+            const total = await User.countDocuments(matchStage);
+            return ApiResponse.paginated(res, users, {
                 page,
                 limit,
                 total,
@@ -329,6 +356,60 @@ export class AdminController {
                 ip_address: req.ip
             });
             return ApiResponse.success(res, { wallet: walletAfter }, 'Wallet credited successfully');
+        }
+        catch (error) {
+            return ApiResponse.error(res, error.message, 500);
+        }
+    }
+    /**
+     * Bulk credit user wallets
+     */
+    static async bulkCreditWallets(req, res) {
+        try {
+            const { userIds, amount, description } = req.body;
+            // Check if current admin is super-admin
+            if (req.user?.adminType !== 'super-admin') {
+                return ApiResponse.error(res, 'Only super-admins can credit wallets', 403);
+            }
+            if (!userIds || !Array.isArray(userIds) || userIds.length === 0 || !amount) {
+                return ApiResponse.error(res, 'User IDs and amount are required', 400);
+            }
+            // Import WalletService
+            const { WalletService } = await import('../services/wallet.service.js');
+            const results = [];
+            const errors = [];
+            for (const userId of userIds) {
+                try {
+                    const user = await User.findById(userId);
+                    if (!user) {
+                        errors.push({ userId, error: 'User not found' });
+                        continue;
+                    }
+                    const walletBefore = await WalletService.getWalletByUserId(userId);
+                    if (!walletBefore) {
+                        errors.push({ userId, error: 'Wallet not found' });
+                        continue;
+                    }
+                    const oldBalance = walletBefore.balance;
+                    await WalletService.credit(userId, parseFloat(amount), description || 'Admin bulk manual credit');
+                    const walletAfter = await WalletService.getWalletByUserId(userId);
+                    // Log action
+                    await AdminService.logAction({
+                        admin_id: req.user?.id,
+                        action: 'wallet_credited_bulk',
+                        entity_type: 'Wallet',
+                        entity_id: walletBefore._id,
+                        old_value: { balance: oldBalance },
+                        new_value: { balance: walletAfter?.balance },
+                        ip_address: req.ip
+                    });
+                    results.push({ userId, status: 'success', newBalance: walletAfter?.balance });
+                }
+                catch (err) {
+                    errors.push({ userId, error: err.message });
+                }
+            }
+            return ApiResponse.success(res, { results, errors }, `Processed bulk credit for ${userIds.length} users`);
         }
         catch (error) {
             return ApiResponse.error(res, error.message, 500);

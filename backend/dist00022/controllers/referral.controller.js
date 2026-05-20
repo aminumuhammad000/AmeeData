@@ -140,8 +140,17 @@ export class ReferralController {
                 return ApiResponse.error(res, 'User ID is required', 400);
             const referees = await User.find({ referred_by: userId })
                 .select('first_name last_name email created_at status phone_number')
-                .sort({ created_at: -1 });
-            return ApiResponse.success(res, referees, 'Referees retrieved successfully');
+                .sort({ created_at: -1 })
+                .lean();
+            // Check transactions for each referee to see if they've made any
+            const refereesWithTxInfo = await Promise.all(referees.map(async (ref) => {
+                const transactionCount = await Transaction.countDocuments({ user_id: ref._id });
+                return {
+                    ...ref,
+                    transaction_count: transactionCount
+                };
+            }));
+            return ApiResponse.success(res, refereesWithTxInfo, 'Referees retrieved successfully');
         }
         catch (error) {
             return ApiResponse.error(res, error.message, 500);

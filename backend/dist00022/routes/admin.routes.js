@@ -33,6 +33,7 @@ router.get('/plans', authMiddleware, AdminController.getPlans);
 router.put('/plans/:id/developer-price', authMiddleware, AdminController.updatePlanDeveloperPrice);
 // Wallet management
 router.post('/wallet/credit', authMiddleware, AdminController.creditUserWallet);
+router.post('/wallet/bulk-credit', authMiddleware, AdminController.bulkCreditWallets);
 // Audit logs
 router.get('/audit-logs', authMiddleware, AdminController.getAuditLogs);
 router.delete('/audit-logs/:id', authMiddleware, AdminController.deleteAuditLog);
