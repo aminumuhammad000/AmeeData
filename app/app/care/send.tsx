@@ -222,8 +222,8 @@ export default function SendCareScreen() {
                    {label || 'AmeeData User'}
                 </Text>
 
-                <Text style={{ textAlign: 'center', fontSize: 12, lineHeight: 18, fontWeight: '600', color: '#475569', paddingHorizontal: 20, marginBottom: 20 }}>
-                   We're grateful for your trust and for being part of a community that cares, shares, and uplifts. ♡
+                <Text style={{ textAlign: 'center', fontSize: 14, lineHeight: 20, fontWeight: '700', color: '#334155', paddingHorizontal: 20, marginBottom: 20 }}>
+                   {message ? `"${message}"` : "Your Care makes a difference."}
                 </Text>
 
                 {/* Amount Highlight */}
