@@ -26,7 +26,7 @@ export const userValidation = {
 
 export const transactionValidation = {
   create: Joi.object({
-    type: Joi.string().valid('airtime_topup', 'data_purchase', 'bill_payment', 'wallet_topup', 'e-pin_purchase').required(),
+    type: Joi.string().valid('airtime_topup', 'data_purchase', 'bill_payment', 'wallet_topup', 'e-pin_purchase', 'transfer', 'transfer_received').required(),
     amount: Joi.number().positive().required(),
     destination_account: Joi.string().optional(),
     operator_id: Joi.string().optional(),

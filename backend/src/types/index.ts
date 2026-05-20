@@ -66,7 +66,7 @@ export interface ITransaction extends Document {
   // camelCase alias
   user?: any;
   wallet_id: Types.ObjectId;
-  type: 'airtime_topup' | 'data_purchase' | 'bill_payment' | 'wallet_topup' | 'e-pin_purchase' | 'credit' | 'airtime' | 'data' | 'cable' | 'electricity' | 'exampin' | 'e-pin';
+  type: 'airtime_topup' | 'data_purchase' | 'bill_payment' | 'wallet_topup' | 'e-pin_purchase' | 'credit' | 'airtime' | 'data' | 'cable' | 'electricity' | 'exampin' | 'e-pin' | 'transfer' | 'transfer_received';
   amount: number;
   fee: number;
   total_charged: number;

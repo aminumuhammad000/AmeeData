@@ -5,7 +5,7 @@ const transactionSchema = new Schema({
     wallet_id: { type: Schema.Types.ObjectId, ref: 'Wallet', required: true },
     type: {
         type: String,
-        enum: ['airtime_topup', 'data_purchase', 'bill_payment', 'wallet_topup', 'e-pin_purchase'],
+        enum: ['airtime_topup', 'data_purchase', 'bill_payment', 'wallet_topup', 'e-pin_purchase', 'transfer', 'transfer_received'],
         required: true
     },
     amount: { type: Number, required: true },
