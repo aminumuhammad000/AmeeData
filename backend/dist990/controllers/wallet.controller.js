@@ -163,7 +163,7 @@ export class WalletController {
                 // Credit recipient main balance (unified wallet)
                 await WalletService.creditWallet(recipient._id, amount, false, session);
                 // Create transaction record for sender
-                await Transaction.create([{
+                const [senderTx] = await Transaction.create([{
                         user_id: req.user?.id,
                         wallet_id: senderWallet._id,
                         type: 'transfer',
@@ -200,7 +200,7 @@ export class WalletController {
                     await session.commitTransaction();
                     session.endSession();
                 }
-                return ApiResponse.success(res, null, 'Care transferred successfully');
+                return ApiResponse.success(res, { transactionId: senderTx._id }, 'Care transferred successfully');
             }
             catch (error) {
                 if (session) {

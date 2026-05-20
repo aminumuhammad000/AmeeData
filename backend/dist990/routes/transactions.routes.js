@@ -8,4 +8,5 @@ router.get('/', authMiddleware, TransactionController.getTransactions);
 router.get('/all', authMiddleware, TransactionController.getAllTransactions);
 router.get('/:id', authMiddleware, TransactionController.getTransactionById);
 router.put('/:id/status', authMiddleware, TransactionController.updateTransactionStatus);
+router.post('/:id/receipt', authMiddleware, TransactionController.uploadReceipt);
 export default router;
