@@ -698,26 +698,37 @@ export default function ICareScreen() {
                         <Text style={[styles.sectionTitle, { color: textColor }]}>Recent Care</Text>
                         <TouchableOpacity onPress={() => router.push('/transactions')}><Text style={[styles.manageText, { color: theme.primary }]}>See All</Text></TouchableOpacity>
                      </View>
-                     {recentCare.map((tx: any, idx: number) => (
-                        <View key={idx} style={[styles.contactListItem, { backgroundColor: cardBg }]}>
-                           <View style={styles.avatarSmall}>
-                              <Ionicons name="heart" size={16} color="#FFF" />
-                           </View>
-                           <View style={styles.contactInfo}>
-                              <Text style={[styles.contactName, { color: textColor }]}>{tx.description || 'Recent Transfer'}</Text>
-                              <Text style={[styles.contactSub, { color: textBodyColor }]}>
-                                 {tx.type === 'transfer' ? 'Care Sent' : 'Care Received'}
-                              </Text>
-                           </View>
-                           <View style={styles.amountInfo}>
-                              <Text style={[styles.contactDate, { color: textBodyColor }]}>Today</Text>
-                              <Text style={[styles.amountText, { color: tx.type === 'transfer' ? '#EF4444' : '#10B981' }]}>
-                                 {tx.type === 'transfer' ? '-' : '+'}₦{tx.amount}
-                              </Text>
-                           </View>
-                           <Ionicons name="chevron-forward" size={16} color={textBodyColor} style={{ marginLeft: 8 }} />
-                        </View>
-                     ))}
+                     {recentCare.map((tx: any, idx: number) => {
+                        const relatedUser = tx.related_user_id;
+                        const userName = relatedUser 
+                          ? `${relatedUser.first_name || ''} ${relatedUser.last_name || ''}`.trim() 
+                          : (tx.description || 'Unknown');
+                        const userAvatar = relatedUser?.profile_picture 
+                          || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=6C2BD9&color=fff`;
+                        const isSent = tx.type === 'transfer';
+                        const timeAgo = tx.created_at ? new Date(tx.created_at).toLocaleDateString() : 'Today';
+                        
+                        return (
+                         <View key={idx} style={[styles.contactListItem, { backgroundColor: cardBg }]}>
+                            <Image 
+                              source={{ uri: userAvatar }} 
+                              style={[styles.avatarList, { borderWidth: 2, borderColor: isSent ? '#EF4444' : '#10B981' }]} 
+                            />
+                            <View style={styles.contactInfo}>
+                               <Text style={[styles.contactName, { color: textColor }]} numberOfLines={1}>{userName}</Text>
+                               <Text style={[styles.contactSub, { color: textBodyColor }]}>
+                                  {isSent ? '❤️ Care Sent' : '💚 Care Received'}
+                               </Text>
+                            </View>
+                            <View style={styles.amountInfo}>
+                               <Text style={[styles.contactDate, { color: textBodyColor }]}>{timeAgo}</Text>
+                               <Text style={[styles.amountText, { color: isSent ? '#EF4444' : '#10B981' }]}>
+                                  {isSent ? '-' : '+'}₦{tx.amount}
+                               </Text>
+                            </View>
+                         </View>
+                        );
+                      })}
                   </View>
                 )}
 

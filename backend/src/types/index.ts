@@ -77,6 +77,7 @@ export interface ITransaction extends Document {
   destination_account?: string;
   operator_id?: Types.ObjectId;
   plan_id?: Types.ObjectId;
+  related_user_id?: Types.ObjectId;
   receipt_url?: string;
   error_message?: string;
   created_at: Date;

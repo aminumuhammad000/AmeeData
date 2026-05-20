@@ -24,6 +24,7 @@ const transactionSchema = new Schema<ITransaction>({
   destination_account: { type: String },
   operator_id: { type: Schema.Types.ObjectId, ref: 'Operator' },
   plan_id: { type: Schema.Types.ObjectId, ref: 'Plan' },
+  related_user_id: { type: Schema.Types.ObjectId, ref: 'User' },
   receipt_url: { type: String },
   error_message: { type: String },
   created_at: { type: Date, default: Date.now },

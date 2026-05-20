@@ -196,7 +196,8 @@ export class WalletController {
           status: 'successful',
           reference_number: `CARE-S-${Date.now()}`,
           description: message || `Care sent to ${recipient_phone}`,
-          payment_method: 'wallet'
+          payment_method: 'wallet',
+          related_user_id: recipient._id
         }]);
 
         // Create transaction record for recipient
@@ -214,7 +215,8 @@ export class WalletController {
              status: 'successful',
              reference_number: `CARE-R-${Date.now()}`,
              description: message || `Care received from ${sender?.phone_number || 'AmeeData User'}`,
-             payment_method: 'wallet'
+             payment_method: 'wallet',
+             related_user_id: req.user?.id
           }]);
         }
 

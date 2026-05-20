@@ -71,6 +71,7 @@ export class TransactionController {
       const transactions = await Transaction.find({ user_id: req.user?.id })
         .populate('operator_id')
         .populate('plan_id')
+        .populate('related_user_id', 'first_name last_name phone_number profile_picture')
         .skip(skip)
         .limit(limit)
         .sort({ created_at: -1 });
