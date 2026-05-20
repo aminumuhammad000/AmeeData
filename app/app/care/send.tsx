@@ -215,13 +215,9 @@ export default function SendCareScreen() {
                    </View>
                 </View>
                 
-                <Text style={{ fontSize: 24, fontWeight: '900', color: '#1E293B', marginBottom: 2 }}>
+                <Text style={{ fontSize: 24, fontWeight: '900', color: '#1E293B', marginBottom: 12 }}>
                    {nickname || name}
                 </Text>
-                <Text style={{ fontSize: 13, fontWeight: '800', color: '#6C2BD9', marginBottom: 16 }}>
-                   {label || 'AmeeData User'}
-                </Text>
-
                 <Text style={{ textAlign: 'center', fontSize: 14, lineHeight: 20, fontWeight: '700', color: '#334155', paddingHorizontal: 20, marginBottom: 20 }}>
                    {message ? `"${message}"` : "Your Care makes a difference."}
                 </Text>
