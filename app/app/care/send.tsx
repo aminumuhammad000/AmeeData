@@ -150,46 +150,60 @@ export default function SendCareScreen() {
         <Text style={[styles.successTitle, { color: textColor }]}>Care Sent Successfully! ❤️</Text>
         <Text style={[styles.successSub, { color: textBodyColor }]}>Your generous support just reached {nickname || name}</Text>
 
-        {/* BRANDED CARE CARD (Number One Style) */}
-        <View style={[styles.careCard, { backgroundColor: cardBg }]}>
-           <View style={styles.cardHeader}>
-              <View style={[styles.cardBrandBadge, { backgroundColor: theme.primary }]}>
-                 <Text style={styles.cardBrandText}>AMEEDATA</Text>
-              </View>
-              <Text style={[styles.cardDate, { color: textBodyColor }]}>{new Date().toLocaleDateString()}</Text>
-           </View>
-
-           <View style={styles.cardMain}>
-              <Image 
-                source={{ uri: (image as string) || `https://ui-avatars.com/api/?name=${(name as string)?.replace(' ', '+')}&background=6C2BD9&color=fff` }} 
-                style={styles.cardAvatar} 
-              />
-              <Text style={[styles.cardRecipientName, { color: textColor }]}>{nickname || name}</Text>
-              <Text style={[styles.cardLabel, { color: theme.primary }]}>{label || 'AmeeData User'}</Text>
-              
-              <View style={styles.cardAmountBox}>
-                 <Text style={styles.cardAmountPrefix}>₦</Text>
-                 <Text style={styles.cardAmountValue}>{parseFloat(amount).toLocaleString()}</Text>
-              </View>
-
-              {message ? (
-                <View style={styles.cardMessageBox}>
-                   <Ionicons name="chatbubble-outline" size={12} color={theme.primary} style={{ marginRight: 6 }} />
-                   <Text style={[styles.cardMessage, { color: textBodyColor }]}>"{message}"</Text>
+        <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1.0 }}>
+          {/* BRANDED CARE CARD (Number One Style) */}
+          <View style={[styles.careCard, { backgroundColor: cardBg }]}>
+             <View style={styles.cardHeader}>
+                <View style={[styles.cardBrandBadge, { backgroundColor: theme.primary }]}>
+                   <Text style={styles.cardBrandText}>AMEEDATA</Text>
                 </View>
-              ) : (
-                <Text style={[styles.cardTagline, { color: textBodyColor }]}>Spread Love. Stay Connected.</Text>
-              )}
-           </View>
+                <Text style={[styles.cardDate, { color: textBodyColor }]}>{new Date().toLocaleDateString()}</Text>
+             </View>
 
-           <View style={[styles.cardFooter, { borderTopColor: isDark ? '#374151' : '#F1F5F9' }]}>
-              <View style={styles.cardStatus}>
-                 <View style={styles.dot} />
-                 <Text style={{ fontSize: 10, fontWeight: '700', color: '#10B981' }}>Care Confirmed</Text>
-              </View>
-              <Text style={{ fontSize: 9, color: textBodyColor }}>REF: {Date.now().toString().slice(-8)}</Text>
-           </View>
-        </View>
+             <View style={styles.cardMain}>
+                <View style={styles.avatarsRow}>
+                   <Image 
+                     source={{ uri: currentUser?.profile_picture || `https://ui-avatars.com/api/?name=${currentUser?.first_name || 'Send'}+${currentUser?.last_name || 'er'}&background=FF9F43&color=fff` }} 
+                     style={styles.cardAvatarLeft} 
+                   />
+                   
+                   <View style={[styles.avatarConnector, { backgroundColor: cardBg }]}>
+                     <Ionicons name="arrow-forward" size={16} color={theme.primary} />
+                   </View>
+
+                   <Image 
+                     source={{ uri: (image as string) || `https://ui-avatars.com/api/?name=${(name as string)?.replace(' ', '+')}&background=6C2BD9&color=fff` }} 
+                     style={styles.cardAvatarRight} 
+                   />
+                </View>
+                
+                <Text style={[styles.cardRecipientName, { color: textColor }]}>{nickname || name}</Text>
+                <Text style={[styles.cardLabel, { color: theme.primary }]}>{label || 'AmeeData User'}</Text>
+                
+                <View style={styles.cardAmountBox}>
+                   <Text style={styles.cardAmountPrefix}>₦</Text>
+                   <Text style={styles.cardAmountValue}>{parseFloat(amount).toLocaleString()}</Text>
+                </View>
+
+                {message ? (
+                  <View style={styles.cardMessageBox}>
+                     <Ionicons name="chatbubble-outline" size={12} color={theme.primary} style={{ marginRight: 6 }} />
+                     <Text style={[styles.cardMessage, { color: textBodyColor }]}>"{message}"</Text>
+                  </View>
+                ) : (
+                  <Text style={[styles.cardTagline, { color: textBodyColor }]}>Spread Love. Stay Connected.</Text>
+                )}
+             </View>
+
+             <View style={[styles.cardFooter, { borderTopColor: isDark ? '#374151' : '#F1F5F9' }]}>
+                <View style={styles.cardStatus}>
+                   <View style={styles.dot} />
+                   <Text style={{ fontSize: 10, fontWeight: '700', color: '#10B981' }}>Care Confirmed</Text>
+                </View>
+                <Text style={{ fontSize: 9, color: textBodyColor }}>REF: {Date.now().toString().slice(-8)}</Text>
+             </View>
+          </View>
+        </ViewShot>
 
         <View style={styles.successActions}>
            <TouchableOpacity 
@@ -201,7 +215,20 @@ export default function SendCareScreen() {
 
            <TouchableOpacity 
              style={[styles.shareBtn, { borderColor: theme.primary }]}
-             onPress={() => Alert.alert('Share', 'Spread the love! Sharing functionality coming soon.')}
+             onPress={async () => {
+               try {
+                 if (viewShotRef.current) {
+                   const uri = await viewShotRef.current.capture();
+                   if (await Sharing.isAvailableAsync()) {
+                     await Sharing.shareAsync(uri);
+                   } else {
+                     Alert.alert('Sharing not available', 'Sharing is not available on this device');
+                   }
+                 }
+               } catch (e) {
+                 Alert.alert('Error', 'Failed to share receipt');
+               }
+             }}
            >
               <Ionicons name="share-social-outline" size={20} color={theme.primary} style={{ marginRight: 8 }} />
               <Text style={[styles.shareBtnText, { color: theme.primary }]}>Share Care Proof</Text>
@@ -646,11 +673,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
-  cardAvatar: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+  avatarsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 12,
+  },
+  cardAvatarLeft: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 2,
+    borderColor: '#FF9F43',
+    zIndex: 2,
+  },
+  avatarConnector: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: -10,
+    marginRight: -10,
+    zIndex: 3,
+  },
+  cardAvatarRight: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 2,
+    borderColor: '#6C2BD9',
+    zIndex: 1,
   },
   cardRecipientName: {
     fontSize: 18,
