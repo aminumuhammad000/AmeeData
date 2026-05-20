@@ -186,8 +186,8 @@ export default function SendCareScreen() {
                 <Text style={{ position: 'absolute', left: '10%', bottom: '20%', fontSize: 20 }}>❤️</Text>
 
                 {/* Big Thank You Text */}
-                <Text style={{ fontFamily: 'serif', fontSize: 28, fontStyle: 'italic', fontWeight: 'bold', color: '#F43F5E', marginTop: 12, marginBottom: 16, textShadowColor: 'rgba(0,0,0,0.05)', textShadowOffset: {width: 1, height: 1}, textShadowRadius: 2, textAlign: 'center' }}>
-                   Thank You!
+                <Text style={{ fontFamily: 'serif', fontSize: 22, fontStyle: 'italic', fontWeight: 'bold', color: '#F43F5E', marginTop: 12, marginBottom: 16, textShadowColor: 'rgba(0,0,0,0.05)', textShadowOffset: {width: 1, height: 1}, textShadowRadius: 2, textAlign: 'center' }}>
+                   I Care About You!
                 </Text>
 
                 {/* Avatars */}
@@ -212,7 +212,7 @@ export default function SendCareScreen() {
                    </View>
                 </View>
                 
-                <Text style={{ fontSize: 24, fontWeight: '900', color: '#1E293B', marginBottom: 12 }}>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#1E293B', marginBottom: 10 }}>
                    {nickname || name}
                 </Text>
                 <Text style={{ textAlign: 'center', fontSize: 14, lineHeight: 20, fontWeight: '700', color: '#6C2BD9', paddingHorizontal: 20, marginBottom: 20 }}>
@@ -242,7 +242,6 @@ export default function SendCareScreen() {
                       </View>
                       <View style={{ flex: 1 }}>
                         <Text style={{ fontSize: 13, fontWeight: '800', color: '#10B981' }}>Care Confirmed</Text>
-                        <Text style={{ fontSize: 10, color: '#64748B', fontWeight: '500' }}>Your kindness is received and fully appreciated.</Text>
                       </View>
                    </View>
                    <Text style={{ fontSize: 11, fontWeight: '800', color: '#334155' }}>REF: {Date.now().toString().slice(-8)}</Text>
