@@ -121,8 +121,8 @@ export default function SendCareScreen() {
 
     try {
       setLoading(true);
-      const purposeObj = PURPOSES.find(p => p.id === selectedPurpose);
-      const fullMessage = `[${purposeObj?.label}] ${message}`.trim();
+      const purposeObj = purposes.find(p => p._id === selectedPurpose || p.id === selectedPurpose);
+      const fullMessage = `[${purposeObj?.name || purposeObj?.label || 'Care'}] ${message}`.trim();
       
       const res = await walletService.transferCareBalance(phone as string, numAmount, fullMessage);
       if (res.success) {
@@ -152,7 +152,7 @@ export default function SendCareScreen() {
   };
 
   if (success) {
-    const purposeObj = PURPOSES.find(p => p.id === selectedPurpose);
+    const purposeObj = purposes.find(p => p._id === selectedPurpose || p.id === selectedPurpose);
     return (
       <View style={[styles.container, { backgroundColor: bgColor, justifyContent: 'center', alignItems: 'center' }]}>
         <StatusBar style={isDark ? 'light' : 'dark'} />
@@ -167,56 +167,89 @@ export default function SendCareScreen() {
         <Text style={[styles.successSub, { color: textBodyColor }]}>Your generous support just reached {nickname || name}</Text>
 
         <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1.0 }}>
-          {/* BRANDED CARE CARD (Number One Style) */}
-          <View style={[styles.careCard, { backgroundColor: cardBg }]}>
+          {/* BRANDED CARE CARD (Mimicking Mockup) */}
+          <View style={[styles.careCard, { backgroundColor: '#FFF5F8', padding: 16 }]}>
+             {/* Header */}
              <View style={styles.cardHeader}>
-                <View style={[styles.cardBrandBadge, { backgroundColor: theme.primary }]}>
-                   <Text style={styles.cardBrandText}>AMEEDATA</Text>
+                <View style={[styles.cardBrandBadge, { backgroundColor: '#6C2BD9', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6 }]}>
+                   <Text style={{ color: '#FFF', fontSize: 10, fontWeight: '800' }}>AMEEDATA ♥️</Text>
                 </View>
-                <Text style={[styles.cardDate, { color: textBodyColor }]}>{new Date().toLocaleDateString()}</Text>
+                <Text style={{ fontSize: 14, fontWeight: '800', color: '#1E293B' }}>{new Date().toLocaleDateString()}</Text>
              </View>
 
-             <View style={styles.cardMain}>
-                <View style={styles.avatarsRow}>
-                   <Image 
-                     source={{ uri: currentUser?.profile_picture || `https://ui-avatars.com/api/?name=${currentUser?.first_name || 'Send'}+${currentUser?.last_name || 'er'}&background=FF9F43&color=fff` }} 
-                     style={styles.cardAvatarLeft} 
-                   />
-                   
-                   <View style={[styles.avatarConnector, { backgroundColor: cardBg }]}>
-                     <Ionicons name="arrow-forward" size={16} color={theme.primary} />
+             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                {/* Decorative Elements */}
+                <Text style={{ position: 'absolute', top: -10, left: 10, fontSize: 32 }}>💖</Text>
+                <Text style={{ position: 'absolute', right: 20, top: 20, fontSize: 24, opacity: 0.7 }}>✨</Text>
+                <Text style={{ position: 'absolute', left: -10, bottom: 80, fontSize: 40 }}>🌸</Text>
+                <Text style={{ position: 'absolute', right: -20, bottom: 50, fontSize: 48 }}>🌺</Text>
+                <Text style={{ position: 'absolute', left: '10%', bottom: '20%', fontSize: 20 }}>❤️</Text>
+
+                {/* Big Thank You Text */}
+                <Text style={{ fontFamily: 'serif', fontSize: 48, fontStyle: 'italic', fontWeight: 'bold', color: '#F43F5E', marginBottom: 8, textShadowColor: 'rgba(0,0,0,0.05)', textShadowOffset: {width: 1, height: 1}, textShadowRadius: 2 }}>
+                   Thank You!
+                </Text>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#334155', marginBottom: 30 }}>
+                   Your care makes a difference. ♡
+                </Text>
+
+                {/* Avatars */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 24, paddingHorizontal: 10 }}>
+                   <View style={{ padding: 4, borderRadius: 50, backgroundColor: '#FFF', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }}>
+                     <Image 
+                       source={{ uri: currentUser?.profile_picture || `https://ui-avatars.com/api/?name=${currentUser?.first_name || 'Send'}+${currentUser?.last_name || 'er'}&background=FF9F43&color=fff` }} 
+                       style={{ width: 70, height: 70, borderRadius: 35, borderWidth: 3, borderColor: '#F97316' }} 
+                     />
                    </View>
-
-                   <Image 
-                     source={{ uri: (image as string) || `https://ui-avatars.com/api/?name=${(name as string)?.replace(' ', '+')}&background=6C2BD9&color=fff` }} 
-                     style={styles.cardAvatarRight} 
-                   />
+                   <Text style={{ fontSize: 28, fontWeight: '900', color: '#6C2BD9' }}>→</Text>
+                   <View style={{ padding: 4, borderRadius: 50, backgroundColor: '#FFF', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }}>
+                     <Image 
+                       source={{ uri: (image as string) || `https://ui-avatars.com/api/?name=${(name as string)?.replace(' ', '+')}&background=6C2BD9&color=fff` }} 
+                       style={{ width: 80, height: 80, borderRadius: 40, borderWidth: 3, borderColor: '#6C2BD9' }} 
+                     />
+                     <View style={{ position: 'absolute', right: -20, bottom: 0, backgroundColor: '#FFF', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, elevation: 3, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 3 }}>
+                       <Text style={{ fontSize: 9, color: '#6C2BD9', fontWeight: '700' }}>Together, we grow</Text>
+                     </View>
+                   </View>
                 </View>
                 
-                <Text style={[styles.cardRecipientName, { color: textColor }]}>{nickname || name}</Text>
-                <Text style={[styles.cardLabel, { color: theme.primary }]}>{label || 'AmeeData User'}</Text>
-                
-                <View style={styles.cardAmountBox}>
-                   <Text style={styles.cardAmountPrefix}>₦</Text>
-                   <Text style={styles.cardAmountValue}>{parseFloat(amount).toLocaleString()}</Text>
+                <Text style={{ fontSize: 28, fontWeight: '900', color: '#1E293B', marginBottom: 4 }}>
+                   {nickname || name}
+                </Text>
+                <Text style={{ fontSize: 14, fontWeight: '800', color: '#6C2BD9', marginBottom: 24 }}>
+                   {label || 'AmeeData User'}
+                </Text>
+
+                <Text style={{ textAlign: 'center', fontSize: 13, lineHeight: 20, fontWeight: '600', color: '#475569', paddingHorizontal: 20, marginBottom: 30 }}>
+                   We're grateful for your trust and for being part of a community that cares, shares, and uplifts. ♡
+                </Text>
+
+                {/* Amount Highlight */}
+                <View style={{ backgroundColor: '#FFF', paddingHorizontal: 36, paddingVertical: 8, borderRadius: 20, transform: [{ rotate: '-2deg' }], shadowColor: '#10B981', shadowOpacity: 0.15, shadowRadius: 15, elevation: 4, marginBottom: 30 }}>
+                   <Text style={{ fontSize: 56, fontWeight: '900', color: '#10B981', transform: [{ rotate: '2deg' }], letterSpacing: -2 }}>
+                      <Text style={{ fontSize: 36 }}>₦</Text> {parseFloat(amount).toLocaleString()}
+                   </Text>
                 </View>
 
-                {message ? (
-                  <View style={styles.cardMessageBox}>
-                     <Ionicons name="chatbubble-outline" size={12} color={theme.primary} style={{ marginRight: 6 }} />
-                     <Text style={[styles.cardMessage, { color: textBodyColor }]}>"{message}"</Text>
-                  </View>
-                ) : (
-                  <Text style={[styles.cardTagline, { color: textBodyColor }]}>Spread Love. Stay Connected.</Text>
-                )}
+                {/* Spread Love pill */}
+                <View style={{ backgroundColor: '#FFF', paddingHorizontal: 24, paddingVertical: 10, borderRadius: 24, shadowColor: '#6C2BD9', shadowOpacity: 0.1, shadowRadius: 8, elevation: 2 }}>
+                   <Text style={{ fontFamily: 'serif', fontStyle: 'italic', fontSize: 16, fontWeight: '700', color: '#6C2BD9' }}>
+                      Spread Love. Stay Connected.
+                   </Text>
+                </View>
              </View>
 
-             <View style={[styles.cardFooter, { borderTopColor: isDark ? '#374151' : '#F1F5F9' }]}>
-                <View style={styles.cardStatus}>
-                   <View style={styles.dot} />
-                   <Text style={{ fontSize: 10, fontWeight: '700', color: '#10B981' }}>Care Confirmed</Text>
+             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 20, padding: 14, backgroundColor: 'rgba(255,255,255,0.7)', borderRadius: 20 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
+                   <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center' }}>
+                     <Ionicons name="heart" size={18} color="#FFF" />
+                   </View>
+                   <View style={{ flex: 1 }}>
+                     <Text style={{ fontSize: 14, fontWeight: '800', color: '#10B981' }}>Care Confirmed</Text>
+                     <Text style={{ fontSize: 10, color: '#64748B', fontWeight: '500' }}>Your kindness is received and deeply appreciated.</Text>
+                   </View>
                 </View>
-                <Text style={{ fontSize: 9, color: textBodyColor }}>REF: {Date.now().toString().slice(-8)}</Text>
+                <Text style={{ fontSize: 12, fontWeight: '800', color: '#334155' }}>REF: {Date.now().toString().slice(-8)}</Text>
              </View>
           </View>
         </ViewShot>
