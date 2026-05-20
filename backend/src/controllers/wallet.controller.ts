@@ -178,21 +178,12 @@ export class WalletController {
         return ApiResponse.error(res, 'Insufficient main balance', 400);
       }
 
-      let session;
-      try {
-        session = await mongoose.startSession();
-        session.startTransaction();
-      } catch (e) {
-        console.warn('⚠️ Mongoose sessions not supported (standalone MongoDB). Falling back to sequential operations.');
-        session = null;
-      }
-
       try {
         // Debit sender main balance
-        await WalletService.debitWallet(senderWallet.user_id, amount, session);
+        await WalletService.debitWallet(senderWallet.user_id, amount);
 
         // Credit recipient main balance (unified wallet)
-        await WalletService.creditWallet(recipient._id, amount, false, session);
+        await WalletService.creditWallet(recipient._id, amount, false);
 
         // Create transaction record for sender
         const [senderTx] = await Transaction.create([{
@@ -206,42 +197,29 @@ export class WalletController {
           reference_number: `CARE-S-${Date.now()}`,
           description: message || `Care sent to ${recipient_phone}`,
           payment_method: 'wallet'
-        }], { session });
+        }]);
 
         // Create transaction record for recipient
-        const recipientWallet = session 
-          ? await Wallet.findOne({ user_id: recipient._id }).session(session as any)
-          : await Wallet.findOne({ user_id: recipient._id });
+        const recipientWallet = await Wallet.findOne({ user_id: recipient._id });
           
         if (recipientWallet) {
-          const sender = session
-            ? await User.findById(req.user?.id).session(session as any)
-            : await User.findById(req.user?.id);
+          const sender = await User.findById(req.user?.id);
           await Transaction.create([{
-            user_id: recipient._id,
-            wallet_id: recipientWallet._id,
-            type: 'transfer_received',
-            amount,
-            fee: 0,
-            total_charged: amount,
-            status: 'successful',
-            reference_number: `CARE-R-${Date.now()}`,
-            description: message || `Care received from ${sender?.phone_number || 'AmeeData User'}`,
-            payment_method: 'wallet'
-          }], { session });
-        }
-
-        if (session) {
-          await session.commitTransaction();
-          session.endSession();
+             user_id: recipient._id,
+             wallet_id: recipientWallet._id,
+             type: 'transfer_received',
+             amount,
+             fee: 0,
+             total_charged: amount,
+             status: 'successful',
+             reference_number: `CARE-R-${Date.now()}`,
+             description: message || `Care received from ${sender?.phone_number || 'AmeeData User'}`,
+             payment_method: 'wallet'
+          }]);
         }
 
         return ApiResponse.success(res, { transactionId: senderTx._id }, 'Care transferred successfully');
       } catch (error: any) {
-        if (session) {
-          await session.abortTransaction();
-          session.endSession();
-        }
         return ApiResponse.error(res, error.message || 'Transfer failed', 500);
       }
     } catch (outerError: any) {
