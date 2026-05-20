@@ -209,9 +209,14 @@ export class WalletController {
         }], { session });
 
         // Create transaction record for recipient
-        const recipientWallet = await Wallet.findOne({ user_id: recipient._id }).session(session as any);
+        const recipientWallet = session 
+          ? await Wallet.findOne({ user_id: recipient._id }).session(session as any)
+          : await Wallet.findOne({ user_id: recipient._id });
+          
         if (recipientWallet) {
-          const sender = await User.findById(req.user?.id).session(session as any);
+          const sender = session
+            ? await User.findById(req.user?.id).session(session as any)
+            : await User.findById(req.user?.id);
           await Transaction.create([{
             user_id: recipient._id,
             wallet_id: recipientWallet._id,
