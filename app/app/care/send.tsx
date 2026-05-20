@@ -237,23 +237,25 @@ export default function SendCareScreen() {
                 </View>
              </View>
 
-             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, paddingHorizontal: 8, paddingVertical: 10, backgroundColor: 'rgba(255,255,255,0.7)', borderRadius: 16 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 }}>
-                   <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center' }}>
-                     <Ionicons name="heart" size={14} color="#FFF" />
+             <View style={{ marginHorizontal: -16, marginBottom: -16, backgroundColor: 'rgba(255,255,255,0.9)', borderBottomLeftRadius: 24, borderBottomRightRadius: 24, padding: 16 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
+                      <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center' }}>
+                        <Ionicons name="heart" size={14} color="#FFF" />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 13, fontWeight: '800', color: '#10B981' }}>Care Confirmed</Text>
+                        <Text style={{ fontSize: 10, color: '#64748B', fontWeight: '500' }}>Your kindness is received and fully appreciated.</Text>
+                      </View>
                    </View>
-                   <View style={{ flex: 1 }}>
-                     <Text style={{ fontSize: 12, fontWeight: '800', color: '#10B981' }}>Care Confirmed</Text>
-                     <Text style={{ fontSize: 9, color: '#64748B', fontWeight: '500' }}>Your kindness is received and fully appreciated.</Text>
-                   </View>
+                   <Text style={{ fontSize: 11, fontWeight: '800', color: '#334155' }}>REF: {Date.now().toString().slice(-8)}</Text>
                 </View>
-                <Text style={{ fontSize: 10, fontWeight: '800', color: '#334155' }}>REF: {Date.now().toString().slice(-8)}</Text>
+                
+                {/* Website Text at the bottom */}
+                <Text style={{ textAlign: 'center', fontSize: 11, fontWeight: '800', color: '#8B5CF6' }}>
+                    https://ameedata.com.ng
+                </Text>
              </View>
-             
-             {/* Website Text at the bottom */}
-             <Text style={{ textAlign: 'center', fontSize: 10, fontWeight: '700', color: '#94A3B8', marginTop: 10 }}>
-                 https://ameedata.com.ng
-             </Text>
           </View>
         </ViewShot>
 
