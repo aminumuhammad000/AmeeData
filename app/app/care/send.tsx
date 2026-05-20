@@ -201,7 +201,7 @@ export default function SendCareScreen() {
                        style={{ width: 60, height: 60, borderRadius: 30, borderWidth: 3, borderColor: '#F97316' }} 
                      />
                    </View>
-                   <Text style={{ fontSize: 24, fontWeight: '900', color: '#6C2BD9' }}>→</Text>
+                   <Ionicons name="heart" size={28} color="#F43F5E" />
                    <View style={{ padding: 4, borderRadius: 50, backgroundColor: '#FFF', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }}>
                      <Image 
                        source={{ uri: (image as string) || `https://ui-avatars.com/api/?name=${(name as string)?.replace(' ', '+')}&background=6C2BD9&color=fff` }} 
