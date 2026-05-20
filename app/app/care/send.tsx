@@ -218,7 +218,7 @@ export default function SendCareScreen() {
                 <Text style={{ fontSize: 24, fontWeight: '900', color: '#1E293B', marginBottom: 12 }}>
                    {nickname || name}
                 </Text>
-                <Text style={{ textAlign: 'center', fontSize: 14, lineHeight: 20, fontWeight: '700', color: '#334155', paddingHorizontal: 20, marginBottom: 20 }}>
+                <Text style={{ textAlign: 'center', fontSize: 14, lineHeight: 20, fontWeight: '700', color: '#6C2BD9', paddingHorizontal: 20, marginBottom: 20 }}>
                    {message ? `"${message}"` : "Your Care makes a difference."}
                 </Text>
 
