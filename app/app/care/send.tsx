@@ -186,7 +186,7 @@ export default function SendCareScreen() {
                 <Text style={{ position: 'absolute', left: '10%', bottom: '20%', fontSize: 20 }}>❤️</Text>
 
                 {/* Big Thank You Text */}
-                <Text style={{ fontFamily: 'serif', fontSize: 38, fontStyle: 'italic', fontWeight: 'bold', color: '#F43F5E', marginBottom: 4, textShadowColor: 'rgba(0,0,0,0.05)', textShadowOffset: {width: 1, height: 1}, textShadowRadius: 2, textAlign: 'center' }}>
+                <Text style={{ fontFamily: 'serif', fontSize: 38, fontStyle: 'italic', fontWeight: 'bold', color: '#F43F5E', marginTop: 16, marginBottom: 4, textShadowColor: 'rgba(0,0,0,0.05)', textShadowOffset: {width: 1, height: 1}, textShadowRadius: 2, textAlign: 'center' }}>
                    Thank You!
                 </Text>
                 <Text style={{ fontSize: 13, fontWeight: '700', color: '#334155', marginBottom: 20 }}>
