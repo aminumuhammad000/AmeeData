@@ -162,6 +162,10 @@ export class CareController {
         return ApiResponse.error(res, 'Provider, amount and purpose are required', 400);
       }
 
+      if (amount < 5) {
+        return ApiResponse.error(res, 'Minimum care request is ₦5', 400);
+      }
+
       if (provider_id.toString() === req.user?.id) {
         return ApiResponse.error(res, 'Cannot request care from yourself', 400);
       }
@@ -379,4 +383,18 @@ export class CareController {
       return ApiResponse.error(res, error.message, 500);
     }
   }
+
+  /**
+   * Get list of active care purposes
+   */
+  static async getPurposes(req: AuthRequest, res: Response) {
+    try {
+      const { CarePurpose } = await import('../models/index.js');
+      const purposes = await CarePurpose.find({ is_active: true }).sort({ label: 1 });
+      return ApiResponse.success(res, purposes, 'Purposes retrieved');
+    } catch (error: any) {
+      return ApiResponse.error(res, error.message, 500);
+    }
+  }
 }
+

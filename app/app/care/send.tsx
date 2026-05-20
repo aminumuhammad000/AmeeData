@@ -16,6 +16,9 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ViewShot from 'react-native-view-shot';
+import * as Sharing from 'expo-sharing';
 import { useTheme } from '@/components/ThemeContext';
 import { walletService, WalletData } from '@/services/wallet.service';
 import { careService } from '@/services/care.service';
@@ -38,11 +41,36 @@ export default function SendCareScreen() {
   const { phone, name, image, nickname, label } = searchParams;
   
   const [wallet, setWallet] = useState<WalletData | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [amount, setAmount] = useState('');
+  const [purposes, setPurposes] = useState<any[]>(PURPOSES);
   const [selectedPurpose, setSelectedPurpose] = useState('data');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
+
+  const viewShotRef = React.useRef<any>(null);
+
+  useEffect(() => {
+    fetchPurposes();
+  }, []);
+
+  const fetchPurposes = async () => {
+    try {
+      const res = await careService.getPurposes();
+      if (res.success && res.data && res.data.length > 0) {
+        setPurposes(res.data);
+        setSelectedPurpose(res.data[0].label);
+      } else {
+        setSelectedPurpose('Data Support');
+      }
+    } catch (e) {
+      console.log('Failed to fetch purposes, using defaults', e);
+      setSelectedPurpose('Data Support');
+    }
+  };
+
 
   const theme = {
     primary: '#6C2BD9',
@@ -60,7 +88,15 @@ export default function SendCareScreen() {
 
   useEffect(() => {
     loadWallet();
+    loadUser();
   }, []);
+
+  const loadUser = async () => {
+    const userStr = await AsyncStorage.getItem('user');
+    if (userStr) {
+      setCurrentUser(JSON.parse(userStr));
+    }
+  };
 
   const loadWallet = async () => {
     try {
@@ -246,18 +282,18 @@ export default function SendCareScreen() {
         <View style={styles.section}>
            <Text style={[styles.sectionTitle, { color: textColor }]}>Care Purpose</Text>
            <View style={styles.purposeGrid}>
-              {PURPOSES.map(p => (
+              {purposes.map(p => (
                 <TouchableOpacity 
-                  key={p.id} 
+                  key={p._id || p.id} 
                   style={[
                     styles.purposeItem, 
                     { backgroundColor: cardBg },
-                    selectedPurpose === p.id && { backgroundColor: theme.primary, borderColor: theme.primary }
+                    selectedPurpose === (p.label || p.id) && { backgroundColor: theme.primary, borderColor: theme.primary }
                   ]}
-                  onPress={() => setSelectedPurpose(p.id)}
+                  onPress={() => setSelectedPurpose(p.label || p.id)}
                 >
-                   <Ionicons name={p.icon as any} size={22} color={selectedPurpose === p.id ? '#FFF' : theme.primary} />
-                   <Text style={[styles.purposeLabel, { color: selectedPurpose === p.id ? '#FFF' : textBodyColor }]}>{p.label}</Text>
+                   <Ionicons name={p.icon as any} size={22} color={selectedPurpose === (p.label || p.id) ? '#FFF' : theme.primary} />
+                   <Text style={[styles.purposeLabel, { color: selectedPurpose === (p.label || p.id) ? '#FFF' : textBodyColor }]}>{p.label}</Text>
                 </TouchableOpacity>
               ))}
            </View>
@@ -572,6 +608,7 @@ const styles = StyleSheet.create({
   // NEW CARE CARD STYLES
   careCard: {
     width: width - 60,
+    aspectRatio: 9 / 16,
     borderRadius: 24,
     padding: 20,
     marginBottom: 30,
@@ -582,6 +619,7 @@ const styles = StyleSheet.create({
     elevation: 10,
     borderWidth: 1,
     borderColor: 'rgba(108, 43, 217, 0.05)',
+    justifyContent: 'space-between',
   },
   cardHeader: {
     flexDirection: 'row',

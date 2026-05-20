@@ -33,7 +33,7 @@ export class ContactSyncService {
 
     // Combine results
     const allMatches = [...Array.from(cachedMatches.values()), ...dbMatches.map(u => ({
-      id: u._id,
+      _id: u._id,
       phone_number: u.phone_number,
       first_name: u.first_name,
       last_name: u.last_name,
@@ -43,11 +43,11 @@ export class ContactSyncService {
     // 4. Automatically add to Care Circle
     if (userId && allMatches.length > 0) {
       const circleOps = allMatches
-        .filter(u => u.id.toString() !== userId)
+        .filter(u => u._id.toString() !== userId)
         .map(u => ({
           updateOne: {
-            filter: { user_id: userId, member_id: u.id },
-            update: { $setOnInsert: { user_id: userId, member_id: u.id, created_at: new Date() } },
+            filter: { user_id: userId, member_id: u._id },
+            update: { $setOnInsert: { user_id: userId, member_id: u._id, created_at: new Date() } },
             upsert: true
           }
         }));
@@ -87,7 +87,7 @@ export class ContactSyncService {
     const pipeline = redis.pipeline();
     users.forEach(u => {
       const userData = JSON.stringify({
-        id: u._id,
+        _id: u._id,
         phone_number: u.phone_number,
         first_name: u.first_name,
         last_name: u.last_name,

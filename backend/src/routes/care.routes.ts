@@ -16,5 +16,6 @@ router.get('/stats/:member_id', CareController.getStats);
 router.post('/request', CareController.requestCare);
 router.post('/request/respond', CareController.respondToRequest);
 router.get('/requests', CareController.getRequests);
+router.get('/purposes', CareController.getPurposes);
 
 export default router;

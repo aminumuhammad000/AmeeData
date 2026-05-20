@@ -107,7 +107,12 @@ api.interceptors.response.use(
     let errorMessage = data?.message || 'An error occurred';
 
     // Handle specific status codes
-    if (status === 401 || (status === 404 && (error.config?.url?.includes('/users/profile') || error.config?.url?.includes('/wallet')))) {
+    if (status === 401 || (status === 404 && (
+      error.config?.url === '/users/profile' || 
+      error.config?.url === '/users/profile/' ||
+      error.config?.url === '/wallet' ||
+      error.config?.url === '/wallet/'
+    ))) {
       // Clear auth data on 401 or if user/wallet is not found
       try {
         // Safe check for window.location to prevent crashes in React Native

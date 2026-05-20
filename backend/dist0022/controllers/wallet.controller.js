@@ -122,19 +122,21 @@ export class WalletController {
     static async transferCareBalance(req, res) {
         try {
             const { recipient_phone, amount, message } = req.body;
-            if (amount <= 0) {
-                return ApiResponse.error(res, 'Invalid amount', 400);
+            if (amount < 5) {
+                return ApiResponse.error(res, 'Minimum care transfer is ₦5', 400);
             }
             // Find recipient
             const cleanPhone = recipient_phone.replace(/\D/g, '');
+            const last10 = cleanPhone.slice(-10);
             const recipient = await User.findOne({
                 $or: [
                     { phone_number: recipient_phone },
-                    { phone_number: cleanPhone }
+                    { phone_number: cleanPhone },
+                    { phone_number: { $regex: last10 + '$' } }
                 ]
             });
             if (!recipient) {
-                return ApiResponse.error(res, 'Recipient not found', 404);
+                return ApiResponse.error(res, 'Recipient not found', 400);
             }
             if (recipient._id.toString() === req.user?.id) {
                 return ApiResponse.error(res, 'Cannot send care to yourself', 400);

@@ -81,5 +81,15 @@ export const careService = {
     } catch (error: any) {
       throw error.response?.data || { success: false, message: 'Failed to fetch requests' };
     }
+    }
+  },
+
+  getPurposes: async (): Promise<any> => {
+    try {
+      const response = await api.get('/care/purposes');
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, message: 'Failed to fetch care purposes' };
+    }
   }
 };

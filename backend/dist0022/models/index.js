@@ -1,4 +1,5 @@
 export * from './care_circle.model.js';
+export * from './care_purpose.model.js';
 export * from './care_request.model.js';
 export * from './support_content.model.js';
 export * from './user.model.js';

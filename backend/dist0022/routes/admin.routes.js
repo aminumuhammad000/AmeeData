@@ -129,6 +129,10 @@ router.put('/airtime-to-cash/settings/:id', authMiddleware, async (req, res) => 
 router.get('/care/stats', authMiddleware, AdminCareController.getStats);
 router.get('/care/requests', authMiddleware, AdminCareController.getRequests);
 router.get('/care/circle', authMiddleware, AdminCareController.getCircleMemberships);
+router.get('/care/purposes', authMiddleware, AdminCareController.getPurposes);
+router.post('/care/purposes', authMiddleware, AdminCareController.createPurpose);
+router.put('/care/purposes/:id', authMiddleware, AdminCareController.updatePurpose);
+router.delete('/care/purposes/:id', authMiddleware, AdminCareController.deletePurpose);
 // Analytics
 router.get('/analytics/leaderboard', authMiddleware, async (req, res) => {
     const { AnalyticsController } = await import('../controllers/analytics.controller.js');

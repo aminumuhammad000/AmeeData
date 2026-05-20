@@ -1,4 +1,4 @@
-import { CareCircleMember, CareRequest, Wallet, Transaction } from '../models/index.js';
+import { CareCircleMember, CareRequest, Wallet, Transaction, CarePurpose } from '../models/index.js';
 import { ApiResponse } from '../utils/response.js';
 export class AdminCareController {
     /**
@@ -83,6 +83,64 @@ export class AdminCareController {
                 total,
                 pages: Math.ceil(total / limit)
             }, 'Care circle memberships retrieved successfully');
+        }
+        catch (error) {
+            return ApiResponse.error(res, error.message, 500);
+        }
+    }
+    /**
+     * Get all care purposes
+     */
+    static async getPurposes(req, res) {
+        try {
+            const purposes = await CarePurpose.find().sort({ created_at: -1 });
+            return ApiResponse.success(res, purposes, 'Care purposes retrieved');
+        }
+        catch (error) {
+            return ApiResponse.error(res, error.message, 500);
+        }
+    }
+    /**
+     * Create a new care purpose
+     */
+    static async createPurpose(req, res) {
+        try {
+            const { label, icon, is_active } = req.body;
+            if (!label)
+                return ApiResponse.error(res, 'Label is required', 400);
+            const purpose = await CarePurpose.create({ label, icon, is_active });
+            return ApiResponse.success(res, purpose, 'Care purpose created');
+        }
+        catch (error) {
+            return ApiResponse.error(res, error.message, 500);
+        }
+    }
+    /**
+     * Update a care purpose
+     */
+    static async updatePurpose(req, res) {
+        try {
+            const { id } = req.params;
+            const updates = req.body;
+            const purpose = await CarePurpose.findByIdAndUpdate(id, { $set: updates }, { new: true });
+            if (!purpose)
+                return ApiResponse.error(res, 'Purpose not found', 404);
+            return ApiResponse.success(res, purpose, 'Care purpose updated');
+        }
+        catch (error) {
+            return ApiResponse.error(res, error.message, 500);
+        }
+    }
+    /**
+     * Delete a care purpose
+     */
+    static async deletePurpose(req, res) {
+        try {
+            const { id } = req.params;
+            const result = await CarePurpose.findByIdAndDelete(id);
+            if (!result)
+                return ApiResponse.error(res, 'Purpose not found', 404);
+            return ApiResponse.success(res, null, 'Care purpose deleted');
         }
         catch (error) {
             return ApiResponse.error(res, error.message, 500);

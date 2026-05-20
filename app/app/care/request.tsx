@@ -37,10 +37,31 @@ export default function RequestCareScreen() {
   const { phone, name, image, nickname, label, member_id } = searchParams;
   
   const [amount, setAmount] = useState('');
+  const [purposes, setPurposes] = useState<any[]>(PURPOSES);
   const [selectedPurpose, setSelectedPurpose] = useState('data');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    fetchPurposes();
+  }, []);
+
+  const fetchPurposes = async () => {
+    try {
+      const res = await careService.getPurposes();
+      if (res.success && res.data && res.data.length > 0) {
+        setPurposes(res.data);
+        setSelectedPurpose(res.data[0].label); // Select first dynamic purpose
+      } else {
+        setSelectedPurpose('Data Support'); // Fallback to label instead of ID
+      }
+    } catch (e) {
+      console.log('Failed to fetch purposes, using defaults', e);
+      setSelectedPurpose('Data Support');
+    }
+  };
+
 
   useEffect(() => {
     console.log('📱 RequestCareScreen params:', searchParams);
@@ -138,7 +159,7 @@ export default function RequestCareScreen() {
              style={styles.avatarSmall} 
            />
            <Text style={[styles.instruction, { color: textColor }]}>
-             Ask <Text style={{ fontWeight: '800', color: theme.primary }}>{nickname || name}</Text> for support
+             Ask <Text style={{ fontWeight: '800', color: theme.primary }}>{nickname || name}</Text> to care about you
            </Text>
         </View>
 
@@ -172,18 +193,18 @@ export default function RequestCareScreen() {
         <View style={styles.section}>
            <Text style={[styles.sectionTitle, { color: textColor }]}>What's this for?</Text>
            <View style={styles.purposeGrid}>
-              {PURPOSES.map(p => (
+              {purposes.map(p => (
                 <TouchableOpacity 
-                  key={p.id} 
+                  key={p._id || p.id} 
                   style={[
                     styles.purposeItem, 
                     { backgroundColor: cardBg },
-                    selectedPurpose === p.id && { backgroundColor: theme.primary, borderColor: theme.primary }
+                    selectedPurpose === (p.label || p.id) && { backgroundColor: theme.primary, borderColor: theme.primary }
                   ]}
-                  onPress={() => setSelectedPurpose(p.id)}
+                  onPress={() => setSelectedPurpose(p.label || p.id)}
                 >
-                   <Ionicons name={p.icon as any} size={20} color={selectedPurpose === p.id ? '#FFF' : theme.primary} />
-                   <Text style={[styles.purposeLabel, { color: selectedPurpose === p.id ? '#FFF' : textBodyColor }]}>{p.label}</Text>
+                   <Ionicons name={p.icon as any} size={20} color={selectedPurpose === (p.label || p.id) ? '#FFF' : theme.primary} />
+                   <Text style={[styles.purposeLabel, { color: selectedPurpose === (p.label || p.id) ? '#FFF' : textBodyColor }]}>{p.label}</Text>
                 </TouchableOpacity>
               ))}
            </View>
