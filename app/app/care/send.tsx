@@ -186,7 +186,7 @@ export default function SendCareScreen() {
                 <Text style={{ position: 'absolute', left: '10%', bottom: '20%', fontSize: 20 }}>❤️</Text>
 
                 {/* Big Thank You Text */}
-                <Text style={{ fontFamily: 'serif', fontSize: 38, fontStyle: 'italic', fontWeight: 'bold', color: '#F43F5E', marginTop: 16, marginBottom: 20, textShadowColor: 'rgba(0,0,0,0.05)', textShadowOffset: {width: 1, height: 1}, textShadowRadius: 2, textAlign: 'center' }}>
+                <Text style={{ fontFamily: 'serif', fontSize: 28, fontStyle: 'italic', fontWeight: 'bold', color: '#F43F5E', marginTop: 12, marginBottom: 16, textShadowColor: 'rgba(0,0,0,0.05)', textShadowOffset: {width: 1, height: 1}, textShadowRadius: 2, textAlign: 'center' }}>
                    Thank You!
                 </Text>
 
@@ -220,9 +220,9 @@ export default function SendCareScreen() {
                 </Text>
 
                 {/* Amount Highlight */}
-                <View style={{ backgroundColor: '#FFF', paddingHorizontal: 24, paddingVertical: 8, borderRadius: 20, transform: [{ rotate: '-2deg' }], shadowColor: '#10B981', shadowOpacity: 0.15, shadowRadius: 15, elevation: 4, marginBottom: 24 }}>
-                   <Text style={{ fontSize: 44, fontWeight: '900', color: '#10B981', transform: [{ rotate: '2deg' }], letterSpacing: -1 }}>
-                      <Text style={{ fontSize: 44 }}>₦</Text> {parseFloat(amount).toLocaleString()}
+                <View style={{ backgroundColor: '#FFF', paddingHorizontal: 20, paddingVertical: 6, borderRadius: 20, transform: [{ rotate: '-2deg' }], shadowColor: '#10B981', shadowOpacity: 0.15, shadowRadius: 15, elevation: 4, marginBottom: 20 }}>
+                   <Text style={{ fontSize: 32, fontWeight: '900', color: '#10B981', transform: [{ rotate: '2deg' }], letterSpacing: -1 }}>
+                      <Text style={{ fontSize: 32 }}>₦</Text> {parseFloat(amount).toLocaleString()}
                    </Text>
                 </View>
 
