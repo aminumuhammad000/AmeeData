@@ -186,71 +186,76 @@ export default function SendCareScreen() {
                 <Text style={{ position: 'absolute', left: '10%', bottom: '20%', fontSize: 20 }}>❤️</Text>
 
                 {/* Big Thank You Text */}
-                <Text style={{ fontFamily: 'serif', fontSize: 48, fontStyle: 'italic', fontWeight: 'bold', color: '#F43F5E', marginBottom: 8, textShadowColor: 'rgba(0,0,0,0.05)', textShadowOffset: {width: 1, height: 1}, textShadowRadius: 2 }}>
+                <Text style={{ fontFamily: 'serif', fontSize: 38, fontStyle: 'italic', fontWeight: 'bold', color: '#F43F5E', marginBottom: 4, textShadowColor: 'rgba(0,0,0,0.05)', textShadowOffset: {width: 1, height: 1}, textShadowRadius: 2, textAlign: 'center' }}>
                    Thank You!
                 </Text>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#334155', marginBottom: 30 }}>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: '#334155', marginBottom: 20 }}>
                    Your care makes a difference. ♡
                 </Text>
 
                 {/* Avatars */}
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 24, paddingHorizontal: 10 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 20, paddingHorizontal: 10 }}>
                    <View style={{ padding: 4, borderRadius: 50, backgroundColor: '#FFF', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }}>
                      <Image 
                        source={{ uri: currentUser?.profile_picture || `https://ui-avatars.com/api/?name=${currentUser?.first_name || 'Send'}+${currentUser?.last_name || 'er'}&background=FF9F43&color=fff` }} 
-                       style={{ width: 70, height: 70, borderRadius: 35, borderWidth: 3, borderColor: '#F97316' }} 
+                       style={{ width: 60, height: 60, borderRadius: 30, borderWidth: 3, borderColor: '#F97316' }} 
                      />
                    </View>
-                   <Text style={{ fontSize: 28, fontWeight: '900', color: '#6C2BD9' }}>→</Text>
+                   <Text style={{ fontSize: 24, fontWeight: '900', color: '#6C2BD9' }}>→</Text>
                    <View style={{ padding: 4, borderRadius: 50, backgroundColor: '#FFF', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }}>
                      <Image 
                        source={{ uri: (image as string) || `https://ui-avatars.com/api/?name=${(name as string)?.replace(' ', '+')}&background=6C2BD9&color=fff` }} 
-                       style={{ width: 80, height: 80, borderRadius: 40, borderWidth: 3, borderColor: '#6C2BD9' }} 
+                       style={{ width: 70, height: 70, borderRadius: 35, borderWidth: 3, borderColor: '#6C2BD9' }} 
                      />
-                     <View style={{ position: 'absolute', right: -20, bottom: 0, backgroundColor: '#FFF', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, elevation: 3, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 3 }}>
-                       <Text style={{ fontSize: 9, color: '#6C2BD9', fontWeight: '700' }}>Together, we grow</Text>
+                     <View style={{ position: 'absolute', right: -20, bottom: 0, backgroundColor: '#FFF', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10, elevation: 3, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 3 }}>
+                       <Text style={{ fontSize: 8, color: '#6C2BD9', fontWeight: '700' }}>Together, we grow</Text>
                      </View>
                    </View>
                 </View>
                 
-                <Text style={{ fontSize: 28, fontWeight: '900', color: '#1E293B', marginBottom: 4 }}>
+                <Text style={{ fontSize: 24, fontWeight: '900', color: '#1E293B', marginBottom: 2 }}>
                    {nickname || name}
                 </Text>
-                <Text style={{ fontSize: 14, fontWeight: '800', color: '#6C2BD9', marginBottom: 24 }}>
+                <Text style={{ fontSize: 13, fontWeight: '800', color: '#6C2BD9', marginBottom: 16 }}>
                    {label || 'AmeeData User'}
                 </Text>
 
-                <Text style={{ textAlign: 'center', fontSize: 13, lineHeight: 20, fontWeight: '600', color: '#475569', paddingHorizontal: 20, marginBottom: 30 }}>
+                <Text style={{ textAlign: 'center', fontSize: 12, lineHeight: 18, fontWeight: '600', color: '#475569', paddingHorizontal: 20, marginBottom: 20 }}>
                    We're grateful for your trust and for being part of a community that cares, shares, and uplifts. ♡
                 </Text>
 
                 {/* Amount Highlight */}
-                <View style={{ backgroundColor: '#FFF', paddingHorizontal: 36, paddingVertical: 8, borderRadius: 20, transform: [{ rotate: '-2deg' }], shadowColor: '#10B981', shadowOpacity: 0.15, shadowRadius: 15, elevation: 4, marginBottom: 30 }}>
-                   <Text style={{ fontSize: 56, fontWeight: '900', color: '#10B981', transform: [{ rotate: '2deg' }], letterSpacing: -2 }}>
-                      <Text style={{ fontSize: 36 }}>₦</Text> {parseFloat(amount).toLocaleString()}
+                <View style={{ backgroundColor: '#FFF', paddingHorizontal: 24, paddingVertical: 8, borderRadius: 20, transform: [{ rotate: '-2deg' }], shadowColor: '#10B981', shadowOpacity: 0.15, shadowRadius: 15, elevation: 4, marginBottom: 24 }}>
+                   <Text style={{ fontSize: 44, fontWeight: '900', color: '#10B981', transform: [{ rotate: '2deg' }], letterSpacing: -1 }}>
+                      <Text style={{ fontSize: 44 }}>₦</Text> {parseFloat(amount).toLocaleString()}
                    </Text>
                 </View>
 
                 {/* Spread Love pill */}
-                <View style={{ backgroundColor: '#FFF', paddingHorizontal: 24, paddingVertical: 10, borderRadius: 24, shadowColor: '#6C2BD9', shadowOpacity: 0.1, shadowRadius: 8, elevation: 2 }}>
-                   <Text style={{ fontFamily: 'serif', fontStyle: 'italic', fontSize: 16, fontWeight: '700', color: '#6C2BD9' }}>
+                <View style={{ backgroundColor: '#FFF', paddingHorizontal: 20, paddingVertical: 8, borderRadius: 20, shadowColor: '#6C2BD9', shadowOpacity: 0.1, shadowRadius: 8, elevation: 2 }}>
+                   <Text style={{ fontFamily: 'serif', fontStyle: 'italic', fontSize: 14, fontWeight: '700', color: '#6C2BD9' }}>
                       Spread Love. Stay Connected.
                    </Text>
                 </View>
              </View>
 
-             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 20, padding: 14, backgroundColor: 'rgba(255,255,255,0.7)', borderRadius: 20 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
-                   <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center' }}>
-                     <Ionicons name="heart" size={18} color="#FFF" />
+             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, paddingHorizontal: 8, paddingVertical: 10, backgroundColor: 'rgba(255,255,255,0.7)', borderRadius: 16 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 }}>
+                   <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center' }}>
+                     <Ionicons name="heart" size={14} color="#FFF" />
                    </View>
                    <View style={{ flex: 1 }}>
-                     <Text style={{ fontSize: 14, fontWeight: '800', color: '#10B981' }}>Care Confirmed</Text>
-                     <Text style={{ fontSize: 10, color: '#64748B', fontWeight: '500' }}>Your kindness is received and deeply appreciated.</Text>
+                     <Text style={{ fontSize: 12, fontWeight: '800', color: '#10B981' }}>Care Confirmed</Text>
+                     <Text style={{ fontSize: 9, color: '#64748B', fontWeight: '500' }}>Your kindness is received and fully appreciated.</Text>
                    </View>
                 </View>
-                <Text style={{ fontSize: 12, fontWeight: '800', color: '#334155' }}>REF: {Date.now().toString().slice(-8)}</Text>
+                <Text style={{ fontSize: 10, fontWeight: '800', color: '#334155' }}>REF: {Date.now().toString().slice(-8)}</Text>
              </View>
+             
+             {/* Website Text at the bottom */}
+             <Text style={{ textAlign: 'center', fontSize: 10, fontWeight: '700', color: '#94A3B8', marginTop: 10 }}>
+                 https://ameedata.com.ng
+             </Text>
           </View>
         </ViewShot>
 
