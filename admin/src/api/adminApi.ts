@@ -125,6 +125,7 @@ export const updateSystemSettings = (data: any) => api.put('/settings', data);
 export const updateProviderPreferences = (data: {
   preferred_data_provider?: string | null;
   preferred_airtime_provider?: string | null;
+  preferred_both_provider?: string | null;
 }) => api.put('/settings', data);
 
 
