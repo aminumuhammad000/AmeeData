@@ -6,6 +6,7 @@ import { config } from '../config/bootstrap.js';
 import { AdminRole, AdminUser, AuditLog, Plan, Transaction, User, Wallet } from '../models/index.js';
 import VirtualAccount from '../models/VirtualAccount.js';
 import { AdminService } from '../services/admin.service.js';
+import { EmailService } from '../services/email.service.js';
 import { ApiResponse } from '../utils/response.js';
 export class AdminController {
     static async login(req, res) {
@@ -343,6 +344,10 @@ export class AdminController {
             const oldBalance = walletBefore.balance;
             // Credit wallet
             await WalletService.credit(userId, parseFloat(amount), description || 'Admin manual credit');
+            // Send email notification
+            EmailService.sendBroadcastCreditEmail(user.email, parseFloat(amount), user.first_name).catch(err => {
+                console.error(`Failed to send credit email to ${user.email}:`, err);
+            });
             // Get updated wallet
             const walletAfter = await WalletService.getWalletByUserId(userId);
             // Log action
@@ -392,6 +397,10 @@ export class AdminController {
                     }
                     const oldBalance = walletBefore.balance;
                     await WalletService.credit(userId, parseFloat(amount), description || 'Admin bulk manual credit');
+                    // Send email notification
+                    EmailService.sendBroadcastCreditEmail(user.email, parseFloat(amount), user.first_name).catch(err => {
+                        console.error(`Failed to send bulk credit email to ${user.email}:`, err);
+                    });
                     const walletAfter = await WalletService.getWalletByUserId(userId);
                     // Log action
                     await AdminService.logAction({
@@ -464,6 +473,10 @@ export class AdminController {
                         // Credit wallet
                         await WalletService.creditWallet(user._id, parseFloat(amount));
                         successCount++;
+                        // Send email notification
+                        EmailService.sendBroadcastCreditEmail(user.email, parseFloat(amount), user.first_name).catch(err => {
+                            console.error(`Failed to send broadcast email to ${user.email}:`, err);
+                        });
                     }
                     catch (err) {
                         console.error(`Failed to credit user ${user._id}:`, err);

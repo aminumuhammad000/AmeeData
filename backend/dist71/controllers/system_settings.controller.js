@@ -21,7 +21,7 @@ export class SystemSettingsController {
     }
     static async updateSettings(req, res) {
         try {
-            const { payment_gateway, notification_email, email_config, preferred_data_provider, preferred_airtime_provider, preferred_both_provider, } = req.body;
+            const { payment_gateway, notification_email, email_config, preferred_data_provider, preferred_airtime_provider, preferred_both_provider, preferred_cable_provider, preferred_electricity_provider, preferred_exampin_provider, } = req.body;
             const $setFields = {};
             if (payment_gateway !== undefined)
                 $setFields['config.payment_gateway'] = payment_gateway;
@@ -35,6 +35,12 @@ export class SystemSettingsController {
                 $setFields['config.preferred_airtime_provider'] = preferred_airtime_provider || null;
             if (preferred_both_provider !== undefined)
                 $setFields['config.preferred_both_provider'] = preferred_both_provider || null;
+            if (preferred_cable_provider !== undefined)
+                $setFields['config.preferred_cable_provider'] = preferred_cable_provider || null;
+            if (preferred_electricity_provider !== undefined)
+                $setFields['config.preferred_electricity_provider'] = preferred_electricity_provider || null;
+            if (preferred_exampin_provider !== undefined)
+                $setFields['config.preferred_exampin_provider'] = preferred_exampin_provider || null;
             const settings = await SystemSetting.findOneAndUpdate({ type: 'global_config' }, { $set: $setFields }, { upsert: true, new: true, setDefaultsOnInsert: true });
             return ApiResponse.success(res, settings.config, 'Settings updated successfully');
         }
