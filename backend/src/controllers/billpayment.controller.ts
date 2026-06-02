@@ -1,7 +1,7 @@
 // controllers/billpayment.controller.ts
 import { NextFunction, Request, Response } from 'express';
 import AirtimePlan from '../models/airtime_plan.model.js';
-import { Transaction, User } from '../models/index.js';
+import { Transaction, User, Operator } from '../models/index.js';
 import { Plan } from '../models/plan.model.js';
 import providerRegistry from '../services/providerRegistry.service.js';
 import smeplugService from '../services/smeplug.service.js';
@@ -187,6 +187,13 @@ export class BillPaymentController {
       // Deduct from wallet
       await WalletService.debit(userId, finalAmount, 'Airtime purchase');
 
+      // Get operator by code
+      const operator = await Operator.findOne({ code: String(providerId) });
+
+      // Get preferred provider
+      const selected = await providerRegistry.getPreferredProviderFor('airtime');
+      const providerCode = selected?.code || 'smeplug'; // fallback to smeplug for name
+
       // Create transaction record
       const transaction = await Transaction.create({
         user_id: userId,
@@ -197,12 +204,13 @@ export class BillPaymentController {
         reference_number: ref,
         payment_method: 'wallet',
         status: 'pending',
+        provider: providerCode,
+        operator_id: operator?._id,
         destination_account: phone,
         description: `Airtime purchase - ${network.toUpperCase()} - ${phone}`,
       });
 
       try {
-        const selected = await providerRegistry.getPreferredProviderFor('airtime');
         const client = selected?.client || smeplugService;
         const result = await (client.purchaseAirtime
           ? client.purchaseAirtime({
@@ -341,6 +349,13 @@ export class BillPaymentController {
       // Deduct from wallet
       await WalletService.debit(userId, finalAmount, 'Data purchase');
 
+      // Get operator by code
+      const operator = await Operator.findOne({ code: String(providerId) });
+
+      // Get preferred provider
+      const selected = await providerRegistry.getPreferredProviderFor('data');
+      const providerCode = selected?.code || 'smeplug';
+
       // Create transaction record
       const transaction = await Transaction.create({
         user_id: userId,
@@ -351,13 +366,14 @@ export class BillPaymentController {
         reference_number: ref,
         payment_method: 'wallet',
         status: 'pending',
+        provider: providerCode,
+        operator_id: operator?._id,
         destination_account: phone,
         description: `Data purchase - ${network.toUpperCase()} - ${phone}`,
         plan_id: dbPlan._id
       });
 
       try {
-        const selected = await providerRegistry.getPreferredProviderFor('data');
         const client = selected?.client || smeplugService;
         const result = await (client.purchaseData
           ? client.purchaseData({
@@ -469,18 +485,22 @@ export class BillPaymentController {
       // Deduct from wallet
       await WalletService.debit(userId, amount, 'Cable TV purchase');
 
+      // Get preferred provider
+      const selected = await providerRegistry.getPreferredProviderFor('cable');
+      const providerCode = selected?.code || 'topupmate';
+
       // Create transaction record
       const transaction = await Transaction.create({
         user_id: userId,
         type: 'cable',
         amount,
-        reference: ref,
+        reference_number: ref,
         status: 'pending',
+        provider: providerCode,
         metadata: { provider, iucnumber, plan: selectedPlan, subtype },
       });
 
       try {
-        const selected = await providerRegistry.getPreferredProviderFor('cable');
         const client = selected?.client || topupmateService;
         const result = await (client.purchaseCableTV
           ? client.purchaseCableTV({ provider, iucnumber, plan, ref, subtype, phone })
@@ -581,20 +601,25 @@ export class BillPaymentController {
       // Deduct from wallet
       await WalletService.debit(userId, parseFloat(amount), 'Electricity purchase');
 
+      // Get preferred provider
+      const selected = await providerRegistry.getPreferredProviderFor('electricity');
+      const providerCode = selected?.code || 'topupmate';
+
       // Create transaction record
       const transaction = await Transaction.create({
         user_id: userId,
         type: 'electricity',
         amount: parseFloat(amount),
+        total_charged: parseFloat(amount), // Added to fix potential N/A
         reference_number: ref, // Consistent naming
         status: 'pending',
+        provider: providerCode,
         destination_account: meternumber,
         description: `Electricity: ${meternumber} (${metertype})`,
         metadata: { provider, meternumber, metertype },
       });
 
       try {
-        const selected = await providerRegistry.getPreferredProviderFor('electricity');
         const client = selected?.client || topupmateService;
         const result = await (client.purchaseElectricity
           ? client.purchaseElectricity({ provider, meternumber, amount, metertype, phone, ref })
@@ -692,20 +717,25 @@ export class BillPaymentController {
       // Deduct from wallet
       await WalletService.debit(userId, totalAmount, 'Exam pin purchase');
 
+      // Get preferred provider
+      const selected = await providerRegistry.getPreferredProviderFor('exampin');
+      const providerCode = selected?.code || 'topupmate';
+
       // Create transaction record
       const transaction = await Transaction.create({
         user_id: userId,
         type: 'exampin',
         amount: totalAmount,
+        total_charged: totalAmount, // Added to fix potential N/A
         reference_number: ref,
         status: 'pending',
+        provider: providerCode,
         destination_account: `Exam Pin (${quantity})`,
         description: `Exam Pin: ${provider === '1' ? 'WAEC' : provider === '2' ? 'NECO' : 'NABTEB'} x ${quantity}`,
         metadata: { provider, quantity },
       });
 
       try {
-        const selected = await providerRegistry.getPreferredProviderFor('exampin');
         const client = selected?.client || topupmateService;
         const result = await (client.purchaseExamPin
           ? client.purchaseExamPin({ provider, quantity, ref })

@@ -1,9 +1,12 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
-import { creditUserWallet, getUsers } from '../api/adminApi';
+import { creditUserWallet, getUsers, broadcastWalletCredit } from '../api/adminApi';
 import Layout from '../components/Layout';
+import { useAuthContext } from '../hooks/AuthContext';
 
 const WalletCredit: React.FC = () => {
+  const { user } = useAuthContext();
+  const [activeTab, setActiveTab] = useState<'single' | 'broadcast'>('single');
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
@@ -12,6 +15,12 @@ const WalletCredit: React.FC = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string>('');
   const [error, setError] = useState<string>('');
+
+  const isSuperAdmin = 
+    user?.role_id?.name === 'Super Admin' || 
+    user?.role?.name === 'Super Admin' || 
+    user?.adminType === 'super-admin' || 
+    user?.type === 'super-admin';
 
   // Debounce search manually if hook doesn't exist
   useEffect(() => {
@@ -24,7 +33,7 @@ const WalletCredit: React.FC = () => {
   const { data: usersData, isFetching } = useQuery({
     queryKey: ['users-search', debouncedSearch],
     queryFn: () => getUsers({ page: 1, limit: 10, search: debouncedSearch }).then((res: any) => res.data),
-    enabled: true, // Always enabled to show initial list
+    enabled: activeTab === 'single',
   });
 
   const users = usersData?.data || [];
@@ -34,12 +43,7 @@ const WalletCredit: React.FC = () => {
       creditUserWallet(data.userId, data.amount, data.description).then((res: any) => res.data),
     onSuccess: () => {
       setSuccessMessage(`Successfully credited ₦${parseFloat(amount).toLocaleString()} to ${selectedUser.first_name}`);
-      setIsConfirmOpen(false);
-      setAmount('');
-      setDescription('Admin wallet credit');
-      setSelectedUser(null);
-      setSearch('');
-      setTimeout(() => setSuccessMessage(''), 5000);
+      resetForm();
     },
     onError: (err: any) => {
       setError(err.response?.data?.message || 'Failed to credit wallet');
@@ -47,19 +51,48 @@ const WalletCredit: React.FC = () => {
     }
   });
 
+  const broadcastMutation = useMutation({
+    mutationFn: (data: { amount: number; description: string }) =>
+      broadcastWalletCredit(data.amount, data.description).then((res: any) => res.data),
+    onSuccess: (data: any) => {
+      setSuccessMessage(`Broadcast credit successful! Credited ${data.data.successCount} users.`);
+      resetForm();
+    },
+    onError: (err: any) => {
+      setError(err.response?.data?.message || 'Failed to send broadcast credit');
+      setIsConfirmOpen(false);
+    }
+  });
+
+  const resetForm = () => {
+    setIsConfirmOpen(false);
+    setAmount('');
+    setDescription('Admin wallet credit');
+    setSelectedUser(null);
+    setSearch('');
+    setTimeout(() => setSuccessMessage(''), 5000);
+  };
+
   const handleSelectUser = (user: any) => {
     setSelectedUser(user);
-    setSearch(''); // Clear search on select to cleaner look? Or keep it? Let's clear it or keep it but hide list if selected.
-    // Better UX: Show selected user clearly, hide list.
+    setSearch('');
   };
 
   const handleConfirm = () => {
-    if (!selectedUser || !amount) return;
-    creditMutation.mutate({
-      userId: selectedUser._id,
-      amount: parseFloat(amount),
-      description
-    });
+    if (!amount || parseFloat(amount) <= 0) return;
+    
+    if (activeTab === 'single' && selectedUser) {
+      creditMutation.mutate({
+        userId: selectedUser._id,
+        amount: parseFloat(amount),
+        description
+      });
+    } else if (activeTab === 'broadcast') {
+      broadcastMutation.mutate({
+        amount: parseFloat(amount),
+        description
+      });
+    }
   };
 
   return (
@@ -67,9 +100,35 @@ const WalletCredit: React.FC = () => {
       <div className="min-h-screen bg-slate-50/50 p-4 sm:p-6 lg:p-8">
         <div className="max-w-3xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Credit User Wallet</h1>
-            <p className="text-slate-500 mt-2">Search for a user and add funds to their wallet manually.</p>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Wallet Credit</h1>
+            <p className="text-slate-500 mt-2">Manage user wallet balances with manual credits or broadcasts.</p>
           </div>
+
+          {/* Tab Switcher */}
+          {isSuperAdmin && (
+            <div className="mb-8 flex p-1 bg-slate-200/50 rounded-2xl w-fit">
+              <button
+                onClick={() => { setActiveTab('single'); resetForm(); }}
+                className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                  activeTab === 'single'
+                    ? 'bg-white text-purple-600 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Single User
+              </button>
+              <button
+                onClick={() => { setActiveTab('broadcast'); resetForm(); }}
+                className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                  activeTab === 'broadcast'
+                    ? 'bg-white text-purple-600 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Broadcast (All Users)
+              </button>
+            </div>
+          )}
 
           {successMessage && (
             <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3 text-green-800 animate-in fade-in slide-in-from-top-4">
@@ -89,93 +148,111 @@ const WalletCredit: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="p-6 md:p-8 space-y-8">
 
-              {/* Step 1: Select User */}
-              <div className={`transition-all duration-300 ${selectedUser ? 'opacity-50 pointer-events-none filter blur-[1px]' : ''}`}>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">Find User</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                  </div>
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search by name, email, or phone number..."
-                    className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition shadow-sm"
-                  />
-                  {isFetching && (
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                      <div className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Search Results Dropdown */}
-                {search.length > 0 && !selectedUser && (
-                  <div className="mt-2 bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto divide-y divide-slate-100 absolute z-20 w-full max-w-2xl">
-                    {users.length === 0 && !isFetching ? (
-                      <div className="p-4 text-center text-slate-500 text-sm">No users found.</div>
-                    ) : (
-                      users.map((user: any) => (
-                        <div
-                          key={user._id}
-                          onClick={() => handleSelectUser(user)}
-                          className="p-3 hover:bg-slate-50 cursor-pointer flex items-center justify-between group transition"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-sm">
-                              {user.first_name?.[0]}{user.last_name?.[0]}
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-slate-900">{user.first_name} {user.last_name}</p>
-                              <p className="text-xs text-slate-500">{user.email}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <div className="text-right">
-                              <p className="text-xs text-slate-400">Balance</p>
-                              <p className="text-sm font-semibold text-slate-700">₦{(user.wallet_balance || 0).toLocaleString()}</p>
-                            </div>
-                            <svg className="w-5 h-5 text-slate-300 group-hover:text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                          </div>
+              {activeTab === 'single' ? (
+                <>
+                  {/* Step 1: Select User */}
+                  <div className={`transition-all duration-300 ${selectedUser ? 'opacity-50 pointer-events-none filter blur-[1px]' : ''}`}>
+                    <label className="block text-sm font-semibold text-slate-900 mb-2">Find User</label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg className="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                      </div>
+                      <input
+                        type="text"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Search by name, email, or phone number..."
+                        className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition shadow-sm"
+                      />
+                      {isFetching && (
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                          <div className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
                         </div>
-                      ))
+                      )}
+                    </div>
+
+                    {/* Search Results Dropdown */}
+                    {search.length > 0 && !selectedUser && (
+                      <div className="mt-2 bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto divide-y divide-slate-100 absolute z-20 w-full max-w-2xl">
+                        {users.length === 0 && !isFetching ? (
+                          <div className="p-4 text-center text-slate-500 text-sm">No users found.</div>
+                        ) : (
+                          users.map((user: any) => (
+                            <div
+                              key={user._id}
+                              onClick={() => handleSelectUser(user)}
+                              className="p-3 hover:bg-slate-50 cursor-pointer flex items-center justify-between group transition"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-sm">
+                                  {user.first_name?.[0]}{user.last_name?.[0]}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-slate-900">{user.first_name} {user.last_name}</p>
+                                  <p className="text-xs text-slate-500">{user.email}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-4">
+                                <div className="text-right">
+                                  <p className="text-xs text-slate-400">Balance</p>
+                                  <p className="text-sm font-semibold text-slate-700">₦{(user.balance || 0).toLocaleString()}</p>
+                                </div>
+                                <svg className="w-5 h-5 text-slate-300 group-hover:text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
-              </div>
 
-              {/* Selected User Preview */}
-              {selectedUser && (
-                <div className="bg-purple-50/50 border border-purple-100 rounded-2xl p-6 relative animate-in fade-in zoom-in-95 duration-200">
-                  <button
-                    onClick={() => setSelectedUser(null)}
-                    className="absolute top-4 right-4 text-slate-400 hover:text-red-500 p-1 hover:bg-red-50 rounded-full transition"
-                    title="Change User"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                  </button>
+                  {/* Selected User Preview */}
+                  {selectedUser && (
+                    <div className="bg-purple-50/50 border border-purple-100 rounded-2xl p-6 relative animate-in fade-in zoom-in-95 duration-200">
+                      <button
+                        onClick={() => setSelectedUser(null)}
+                        className="absolute top-4 right-4 text-slate-400 hover:text-red-500 p-1 hover:bg-red-50 rounded-full transition"
+                        title="Change User"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                      </button>
 
-                  <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-purple-200">
-                      {selectedUser.first_name?.[0]}{selectedUser.last_name?.[0]}
-                    </div>
-                    <div className="text-center sm:text-left flex-1">
-                      <h3 className="text-xl font-bold text-slate-900">{selectedUser.first_name} {selectedUser.last_name}</h3>
-                      <p className="text-slate-500">{selectedUser.email}</p>
-                      <p className="text-slate-500 text-sm mt-0.5">{selectedUser.phone_number}</p>
+                      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+                        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-purple-200">
+                          {selectedUser.first_name?.[0]}{selectedUser.last_name?.[0]}
+                        </div>
+                        <div className="text-center sm:text-left flex-1">
+                          <h3 className="text-xl font-bold text-slate-900">{selectedUser.first_name} {selectedUser.last_name}</h3>
+                          <p className="text-slate-500">{selectedUser.email}</p>
+                          <p className="text-slate-500 text-sm mt-0.5">{selectedUser.phone_number}</p>
 
-                      <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-white border border-purple-200 rounded-full shadow-sm">
-                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Current Balance:</span>
-                        <span className="text-sm font-bold text-purple-700">₦{(selectedUser.wallet_balance || 0).toLocaleString()}</span>
+                          <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-white border border-purple-200 rounded-full shadow-sm">
+                            <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Current Balance:</span>
+                            <span className="text-sm font-bold text-purple-700">₦{(selectedUser.balance || 0).toLocaleString()}</span>
+                          </div>
+                        </div>
                       </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="bg-orange-50 border border-orange-100 rounded-2xl p-6 animate-in fade-in zoom-in-95 duration-200">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600 flex-shrink-0">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-orange-900">Broadcast Alert</h3>
+                      <p className="text-orange-700 text-sm mt-1">
+                        You are about to credit ALL active users on the platform. This action is irreversible and should be used with extreme caution.
+                      </p>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Step 2: Amount & Details */}
-              {selectedUser && (
+              {/* Amount & Details Section (Shared) */}
+              {(selectedUser || activeTab === 'broadcast') && (
                 <div className="space-y-6 animate-in slide-in-from-bottom-4 fade-in duration-300">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -197,7 +274,7 @@ const WalletCredit: React.FC = () => {
                         type="text"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        placeholder="e.g. Refund for failed transaction"
+                        placeholder="e.g. Compensation for downtime"
                         className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                       />
                     </div>
@@ -207,7 +284,11 @@ const WalletCredit: React.FC = () => {
                     <button
                       onClick={() => setIsConfirmOpen(true)}
                       disabled={!amount || parseFloat(amount) <= 0}
-                      className="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl shadow-lg shadow-purple-200 disabled:opacity-50 disabled:shadow-none transition-all transform active:scale-95"
+                      className={`px-8 py-3 font-semibold rounded-xl shadow-lg transition-all transform active:scale-95 disabled:opacity-50 disabled:shadow-none ${
+                        activeTab === 'broadcast' 
+                          ? 'bg-orange-600 hover:bg-orange-700 text-white shadow-orange-200' 
+                          : 'bg-purple-600 hover:bg-purple-700 text-white shadow-purple-200'
+                      }`}
                     >
                       Continue to Confirm
                     </button>
@@ -221,29 +302,41 @@ const WalletCredit: React.FC = () => {
       </div>
 
       {/* Confirmation Modal */}
-      {isConfirmOpen && selectedUser && (
+      {isConfirmOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-6 text-center">
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-600">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${activeTab === 'broadcast' ? 'bg-orange-100 text-orange-600' : 'bg-purple-100 text-purple-600'}`}>
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={activeTab === 'broadcast' ? "M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" : "M12 6v6m0 0v6m0-6h6m-6 0H6"} /></svg>
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Confirm Credit</h3>
-              <p className="text-slate-500 mb-6">Are you sure you want to credit this user's wallet?</p>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                {activeTab === 'broadcast' ? 'Confirm Broadcast' : 'Confirm Credit'}
+              </h3>
+              <p className="text-slate-500 mb-6">
+                {activeTab === 'broadcast' 
+                  ? 'Are you absolutely sure you want to credit ALL active users?' 
+                  : "Are you sure you want to credit this user's wallet?"}
+              </p>
 
               <div className="bg-slate-50 rounded-xl p-4 mb-6 text-left space-y-3 border border-slate-100">
                 <div className="flex justify-between">
-                  <span className="text-slate-500 text-sm">User:</span>
-                  <span className="font-semibold text-slate-900">{selectedUser.first_name} {selectedUser.last_name}</span>
+                  <span className="text-slate-500 text-sm">Target:</span>
+                  <span className="font-semibold text-slate-900">
+                    {activeTab === 'broadcast' ? 'All Active Users' : `${selectedUser?.first_name} ${selectedUser?.last_name}`}
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500 text-sm">Amount:</span>
-                  <span className="font-bold text-green-600 text-lg">₦{parseFloat(amount).toLocaleString()}</span>
+                  <span className="text-slate-500 text-sm">Amount per user:</span>
+                  <span className={`font-bold text-lg ${activeTab === 'broadcast' ? 'text-orange-600' : 'text-green-600'}`}>
+                    ₦{parseFloat(amount).toLocaleString()}
+                  </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500 text-sm">New Balance:</span>
-                  <span className="font-semibold text-slate-700">≈ ₦{((selectedUser.wallet_balance || 0) + parseFloat(amount)).toLocaleString()}</span>
-                </div>
+                {activeTab === 'single' && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-500 text-sm">New Balance:</span>
+                    <span className="font-semibold text-slate-700">≈ ₦{((selectedUser?.balance || 0) + parseFloat(amount)).toLocaleString()}</span>
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-3">
@@ -255,10 +348,14 @@ const WalletCredit: React.FC = () => {
                 </button>
                 <button
                   onClick={handleConfirm}
-                  disabled={creditMutation.status === 'pending'}
-                  className="flex-1 px-4 py-3 bg-purple-600 text-white font-semibold rounded-xl hover:bg-purple-700 shadow-md shadow-purple-200 transition disabled:opacity-70"
+                  disabled={creditMutation.status === 'pending' || broadcastMutation.status === 'pending'}
+                  className={`flex-1 px-4 py-3 text-white font-semibold rounded-xl shadow-md transition disabled:opacity-70 ${
+                    activeTab === 'broadcast' ? 'bg-orange-600 hover:bg-orange-700 shadow-orange-200' : 'bg-purple-600 hover:bg-purple-700 shadow-purple-200'
+                  }`}
                 >
-                  {creditMutation.status === 'pending' ? 'Processing...' : 'Yes, Credit Wallet'}
+                  {creditMutation.status === 'pending' || broadcastMutation.status === 'pending' 
+                    ? 'Processing...' 
+                    : activeTab === 'broadcast' ? 'Yes, Broadcast Now' : 'Yes, Credit Wallet'}
                 </button>
               </div>
             </div>

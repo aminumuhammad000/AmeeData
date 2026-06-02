@@ -63,6 +63,7 @@ export class ReferralController {
                     referrer_bonus_amount: 500,
                     referee_bonus_amount: 0,
                     min_transaction_for_bonus: 2000,
+                    auto_credit_enabled: true,
                     is_active: true
                 });
             }
@@ -77,7 +78,7 @@ export class ReferralController {
      */
     static async updateReferralSettings(req: AuthRequest, res: Response) {
         try {
-            const { referrer_bonus_amount, referee_bonus_amount, min_transaction_for_bonus, is_active } = req.body;
+            const { referrer_bonus_amount, referee_bonus_amount, min_transaction_for_bonus, auto_credit_enabled, is_active } = req.body;
 
             let settings = await ReferralSetting.findOne();
             if (!settings) {
@@ -87,6 +88,7 @@ export class ReferralController {
             if (referrer_bonus_amount !== undefined) settings.referrer_bonus_amount = referrer_bonus_amount;
             if (referee_bonus_amount !== undefined) settings.referee_bonus_amount = referee_bonus_amount;
             if (min_transaction_for_bonus !== undefined) settings.min_transaction_for_bonus = min_transaction_for_bonus;
+            if (auto_credit_enabled !== undefined) settings.auto_credit_enabled = auto_credit_enabled;
             if (is_active !== undefined) settings.is_active = is_active;
 
             settings.updated_at = new Date();

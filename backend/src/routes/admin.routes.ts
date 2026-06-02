@@ -41,6 +41,7 @@ router.put('/plans/:id/developer-price', authMiddleware, AdminController.updateP
 // Wallet management
 router.post('/wallet/credit', authMiddleware, AdminController.creditUserWallet);
 router.post('/wallet/bulk-credit', authMiddleware, AdminController.bulkCreditWallets);
+router.post('/wallet/broadcast-credit', authMiddleware, AdminController.broadcastWalletCredit);
 
 
 // Audit logs

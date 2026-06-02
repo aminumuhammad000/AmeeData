@@ -487,11 +487,87 @@ export class AdminController {
     } catch (error: any) {
       return ApiResponse.error(res, error.message, 500);
     }
+  /**
+   * Broadcast wallet credit to all users
+   */
+  static async broadcastWalletCredit(req: AuthRequest, res: Response) {
+    try {
+      const { amount, description } = req.body;
+
+      // Check if current admin is super-admin
+      if (req.user?.adminType !== 'super-admin') {
+        return ApiResponse.error(res, 'Only super-admins can send broadcast credits', 403);
+      }
+
+      if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
+        return ApiResponse.error(res, 'A valid positive amount is required', 400);
+      }
+
+      const users = await User.find({ status: 'active' });
+      
+      if (users.length === 0) {
+        return ApiResponse.success(res, { successCount: 0 }, 'No active users to credit');
+      }
+
+      const { WalletService } = await import('../services/wallet.service.js');
+      
+      const referenceBase = `BROADCAST_${Date.now()}`;
+      let successCount = 0;
+
+      // Process in small batches to avoid overwhelming the database
+      const batchSize = 50;
+      for (let i = 0; i < users.length; i += batchSize) {
+        const batch = users.slice(i, i + batchSize);
+        await Promise.all(batch.map(async (user) => {
+          try {
+            const wallet = await Wallet.findOne({ user_id: user._id });
+            if (!wallet) return;
+
+            const reference = `${referenceBase}_${user._id}`;
+            
+            // Create transaction record
+            await Transaction.create({
+              user_id: user._id,
+              wallet_id: wallet._id,
+              amount: parseFloat(amount),
+              type: 'wallet_topup',
+              total_charged: 0,
+              payment_method: 'admin_broadcast',
+              status: 'successful',
+              reference_number: reference,
+              description: description || 'System-wide broadcast credit',
+              metadata: { 
+                 admin_id: req.user?.id,
+                 reason: 'broadcast_credit'
+              }
+            });
+
+            // Credit wallet
+            await WalletService.creditWallet(user._id, parseFloat(amount));
+            successCount++;
+          } catch (err) {
+            console.error(`Failed to credit user ${user._id}:`, err);
+          }
+        }));
+      }
+
+      // Log action
+      await AdminService.logAction({
+        admin_id: req.user?.id as any,
+        action: 'wallet_credited_broadcast',
+        entity_type: 'Wallet',
+        new_value: { amount, description, successCount, totalUsers: users.length },
+        ip_address: req.ip
+      });
+
+      return ApiResponse.success(res, { successCount }, `Broadcast credit successful for ${successCount} users`);
+    } catch (error: any) {
+      console.error('Broadcast credit error:', error);
+      return ApiResponse.error(res, error.message, 500);
+    }
   }
 
 
-  /**
-   * Create a new admin user
    * @route POST /api/admin/admins
    * @access Private - Super Admin only
    */

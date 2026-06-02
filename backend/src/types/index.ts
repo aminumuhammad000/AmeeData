@@ -82,6 +82,7 @@ export interface ITransaction extends Document {
   error_message?: string;
   created_at: Date;
   updated_at: Date;
+  provider?: string;
   metadata?: any;
   gateway?: string;
 }
@@ -221,6 +222,7 @@ export interface IReferralSetting extends Document {
   referrer_bonus_amount: number;
   referee_bonus_amount: number;
   min_transaction_for_bonus: number;
+  auto_credit_enabled: boolean;
   terms_and_conditions_url?: string;
   is_active: boolean;
   created_at: Date;

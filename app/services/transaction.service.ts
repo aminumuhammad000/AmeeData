@@ -17,6 +17,7 @@ export interface Transaction {
   plan_id?: string;
   receipt_url?: string;
   error_message?: string;
+  provider?: string;
   created_at: string;
   updated_at: string;
 }

@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { CreditCard, Globe, Mail, Save, Server, Smartphone } from 'lucide-react';
+import { CreditCard, Globe, Mail, Save, Server, Smartphone, Zap, Database, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import * as adminApi from '../api/adminApi';
 import Layout from '../components/Layout';
@@ -26,12 +26,94 @@ interface SystemSettings {
         smtp_secure: boolean;
         sender_name: string;
     };
+    preferred_data_provider: string | null;
+    preferred_airtime_provider: string | null;
+    preferred_both_provider: string | null;
 }
+
+interface Provider {
+    _id: string;
+    name: string;
+    code: string;
+    active: boolean;
+    priority: number;
+    supported_services: string[];
+}
+
+// Provider card component
+const ProviderCard = ({
+    provider,
+    isSelected,
+    isAuto,
+    onClick,
+}: {
+    provider: Provider;
+    isSelected: boolean;
+    isAuto?: boolean;
+    onClick: () => void;
+}) => {
+    const colorMap: Record<string, { bg: string; border: string; text: string; badge: string }> = {
+        smeplug:   { bg: 'bg-blue-50',   border: 'border-blue-400',   text: 'text-blue-700',   badge: 'bg-blue-100 text-blue-700' },
+        topupmate: { bg: 'bg-emerald-50', border: 'border-emerald-400', text: 'text-emerald-700', badge: 'bg-emerald-100 text-emerald-700' },
+        vtpass:    { bg: 'bg-orange-50',  border: 'border-orange-400',  text: 'text-orange-700',  badge: 'bg-orange-100 text-orange-700' },
+        vtstack:   { bg: 'bg-purple-50',  border: 'border-purple-400',  text: 'text-purple-700',  badge: 'bg-purple-100 text-purple-700' },
+    };
+    const colors = colorMap[provider.code] || { bg: 'bg-slate-50', border: 'border-slate-400', text: 'text-slate-700', badge: 'bg-slate-100 text-slate-700' };
+
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            className={`relative w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${
+                isSelected
+                    ? `${colors.bg} ${colors.border} ring-2 ring-offset-1 ${colors.border.replace('border', 'ring')}`
+                    : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+            } ${!provider.active ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+            disabled={!provider.active}
+        >
+            {isSelected && (
+                <span className={`absolute top-2 right-2 flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${colors.badge}`}>
+                    <CheckCircle2 className="w-3 h-3" /> Active
+                </span>
+            )}
+            {isAuto && (
+                <span className="absolute top-2 right-2 flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
+                    Auto Picked
+                </span>
+            )}
+            <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center font-black text-sm ${colors.badge}`}>
+                    {provider.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-slate-900 text-sm">{provider.name}</p>
+                    <p className="text-xs font-mono text-slate-400 uppercase">{provider.code}</p>
+                </div>
+            </div>
+            <div className="mt-3 flex items-center gap-2 flex-wrap">
+                {provider.supported_services.map(s => (
+                    <span key={s} className="text-[10px] font-medium uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200">
+                        {s}
+                    </span>
+                ))}
+                {!provider.active && (
+                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-red-100 text-red-500">Inactive</span>
+                )}
+            </div>
+            <div className="mt-2 flex items-center justify-between text-xs text-slate-400">
+                <span>Priority: <span className="font-semibold text-slate-600">{provider.priority}</span></span>
+            </div>
+        </button>
+    );
+};
 
 const Settings = () => {
     const { showToast } = useToast();
     const queryClient = useQueryClient();
     const [loading, setLoading] = useState(false);
+    const [providerLoading, setProviderLoading] = useState(false);
+    const [providers, setProviders] = useState<Provider[]>([]);
+    const [providerSaveLoading, setProviderSaveLoading] = useState(false);
 
     // Support Content State
     const [supportData, setSupportData] = useState<SupportContent>({
@@ -55,12 +137,21 @@ const Settings = () => {
             smtp_pass: '',
             smtp_secure: false,
             sender_name: 'VTU App'
-        }
+        },
+        preferred_data_provider: null,
+        preferred_airtime_provider: null,
+        preferred_both_provider: null,
     });
+
+    // Provider preference state (separate so we can save independently)
+    const [dataProvider, setDataProvider] = useState<string | null>(null);
+    const [airtimeProvider, setAirtimeProvider] = useState<string | null>(null);
+    const [bothProvider, setBothProvider] = useState<string | null>(null);
 
     useEffect(() => {
         fetchContent();
         fetchSystemSettings();
+        fetchProviders();
     }, []);
 
     const fetchContent = async () => {
@@ -78,18 +169,34 @@ const Settings = () => {
         try {
             const response = await adminApi.getSystemSettings();
             if (response.data.success) {
-                // Merge with default structure to ensure all fields exist
+                const data = response.data.data;
                 setSystemSettings(prev => ({
                     ...prev,
-                    ...response.data.data,
+                    ...data,
                     email_config: {
                         ...prev.email_config,
-                        ...(response.data.data.email_config || {})
+                        ...(data.email_config || {})
                     }
                 }));
+                setDataProvider(data.preferred_data_provider || null);
+                setAirtimeProvider(data.preferred_airtime_provider || null);
+                setBothProvider(data.preferred_both_provider || null);
             }
         } catch (error) {
             console.error('Failed to fetch system settings', error);
+        }
+    };
+
+    const fetchProviders = async () => {
+        setProviderLoading(true);
+        try {
+            const response = await adminApi.getProviders();
+            const providerList: Provider[] = response.data?.data?.providers || [];
+            setProviders(providerList);
+        } catch (error) {
+            console.error('Failed to fetch providers', error);
+        } finally {
+            setProviderLoading(false);
         }
     };
 
@@ -101,7 +208,6 @@ const Settings = () => {
         const { name, value, type } = e.target;
 
         if (name.startsWith('smtp_') || name === 'sender_name') {
-            // Handle nested email config
             setSystemSettings(prev => ({
                 ...prev,
                 email_config: {
@@ -133,7 +239,6 @@ const Settings = () => {
         e.preventDefault();
         try {
             setLoading(true);
-            // Ensure port is number
             const payload = {
                 ...systemSettings,
                 email_config: {
@@ -154,6 +259,40 @@ const Settings = () => {
         }
     };
 
+    const handleProviderPreferenceSave = async () => {
+        try {
+            setProviderSaveLoading(true);
+            const response = await adminApi.updateProviderPreferences({
+                preferred_data_provider: dataProvider,
+                preferred_airtime_provider: airtimeProvider,
+                preferred_both_provider: bothProvider,
+            });
+            if (response.data.success) {
+                showToast('Provider preferences saved successfully', 'success');
+                queryClient.invalidateQueries({ queryKey: ['system-settings'] });
+            }
+        } catch (error) {
+            showToast('Failed to save provider preferences', 'error');
+        } finally {
+            setProviderSaveLoading(false);
+        }
+    };
+
+    // Filter providers by service
+    const dataProviders = providers.filter(p => p.supported_services.includes('data'));
+    const airtimeProviders = providers.filter(p => p.supported_services.includes('airtime'));
+    // Providers that support both
+    const bothProviders = providers.filter(p =>
+        p.supported_services.includes('data') && p.supported_services.includes('airtime')
+    );
+
+    const getAutoProviderLabel = (type: 'data' | 'airtime') => {
+        const list = type === 'data' ? dataProviders : airtimeProviders;
+        const active = list.filter(p => p.active).sort((a, b) => a.priority - b.priority);
+        if (active.length === 0) return 'None active';
+        return `${active[0].name} (priority ${active[0].priority})`;
+    };
+
     return (
         <Layout>
             <div className="min-h-screen bg-slate-50/50 p-4 sm:p-6 lg:p-8">
@@ -163,7 +302,215 @@ const Settings = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Settings</h1>
-                            <p className="text-slate-500 mt-1">Manage general application configuration and contacts.</p>
+                            <p className="text-slate-500 mt-1">Manage application configuration, providers, and contacts.</p>
+                        </div>
+                    </div>
+
+                    {/* ─── PROVIDER SELECTION CARD ─── */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div className="border-b border-slate-100 p-6 bg-gradient-to-r from-violet-50 via-purple-50 to-indigo-50 flex items-center gap-3">
+                            <div className="p-2 bg-violet-100 rounded-lg text-violet-600">
+                                <Zap className="w-5 h-5" />
+                            </div>
+                            <div className="flex-1">
+                                <h2 className="text-lg font-bold text-slate-900">Bill Provider Selection</h2>
+                                <p className="text-xs text-slate-500">Choose which provider processes Data and Airtime purchases. Leave on Auto to use priority order.</p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={fetchProviders}
+                                className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-1.5 transition"
+                            >
+                                <RefreshCw className={`w-3.5 h-3.5 ${providerLoading ? 'animate-spin' : ''}`} />
+                                Refresh
+                            </button>
+                        </div>
+
+                        <div className="p-6 md:p-8 space-y-8">
+                            {providerLoading ? (
+                                <div className="flex items-center justify-center py-12 flex-col gap-3">
+                                    <div className="w-10 h-10 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
+                                    <p className="text-sm text-slate-400">Loading providers...</p>
+                                </div>
+                            ) : providers.length === 0 ? (
+                                <div className="flex flex-col items-center py-12 gap-3 text-center">
+                                    <AlertCircle className="w-10 h-10 text-slate-300" />
+                                    <p className="font-semibold text-slate-500">No providers found</p>
+                                    <p className="text-xs text-slate-400">Add providers in the Bill Providers section first.</p>
+                                </div>
+                            ) : (
+                                <>
+                                    {/* DATA PROVIDER */}
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <Database className="w-4 h-4 text-violet-500" />
+                                            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Data Provider</h3>
+                                        </div>
+                                        <p className="text-xs text-slate-500 mb-4">
+                                            Currently auto-selected: <span className="font-semibold text-slate-700">{getAutoProviderLabel('data')}</span>
+                                        </p>
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                            {/* Auto option */}
+                                            <button
+                                                type="button"
+                                                onClick={() => setDataProvider(null)}
+                                                className={`relative w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${
+                                                    dataProvider === null
+                                                        ? 'bg-violet-50 border-violet-400 ring-2 ring-offset-1 ring-violet-400'
+                                                        : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                                                }`}
+                                            >
+                                                {dataProvider === null && (
+                                                    <span className="absolute top-2 right-2 flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">
+                                                        <CheckCircle2 className="w-3 h-3" /> Selected
+                                                    </span>
+                                                )}
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-slate-100 text-slate-600">
+                                                        <Zap className="w-4 h-4" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-semibold text-slate-900 text-sm">Auto (Recommended)</p>
+                                                        <p className="text-xs text-slate-400">Uses provider priority order</p>
+                                                    </div>
+                                                </div>
+                                            </button>
+
+                                            {dataProviders.map(p => (
+                                                <ProviderCard
+                                                    key={p._id}
+                                                    provider={p}
+                                                    isSelected={dataProvider === p.code}
+                                                    onClick={() => p.active && setDataProvider(p.code)}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* AIRTIME PROVIDER */}
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <Smartphone className="w-4 h-4 text-indigo-500" />
+                                            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Airtime Provider</h3>
+                                        </div>
+                                        <p className="text-xs text-slate-500 mb-4">
+                                            Currently auto-selected: <span className="font-semibold text-slate-700">{getAutoProviderLabel('airtime')}</span>
+                                        </p>
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                            {/* Auto option */}
+                                            <button
+                                                type="button"
+                                                onClick={() => setAirtimeProvider(null)}
+                                                className={`relative w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${
+                                                    airtimeProvider === null
+                                                        ? 'bg-indigo-50 border-indigo-400 ring-2 ring-offset-1 ring-indigo-400'
+                                                        : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                                                }`}
+                                            >
+                                                {airtimeProvider === null && (
+                                                    <span className="absolute top-2 right-2 flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+                                                        <CheckCircle2 className="w-3 h-3" /> Selected
+                                                    </span>
+                                                )}
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-slate-100 text-slate-600">
+                                                        <Zap className="w-4 h-4" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-semibold text-slate-900 text-sm">Auto (Recommended)</p>
+                                                        <p className="text-xs text-slate-400">Uses provider priority order</p>
+                                                    </div>
+                                                </div>
+                                            </button>
+
+                                            {airtimeProviders.map(p => (
+                                                <ProviderCard
+                                                    key={p._id}
+                                                    provider={p}
+                                                    isSelected={airtimeProvider === p.code}
+                                                    onClick={() => p.active && setAirtimeProvider(p.code)}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Quick-set: same for both */}
+                                    {bothProviders.length > 0 && (
+                                        <div className="bg-slate-50 rounded-xl border border-slate-200 p-4">
+                                            <p className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">⚡ Quick Set — Same Provider for Both</p>
+                                            <div className="flex flex-wrap gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => { setDataProvider(null); setAirtimeProvider(null); setBothProvider(null); }}
+                                                    className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+                                                        dataProvider === null && airtimeProvider === null && bothProvider === null
+                                                            ? 'bg-slate-800 text-white border-slate-800'
+                                                            : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'
+                                                    }`}
+                                                >
+                                                    Auto for All
+                                                </button>
+                                                {bothProviders.map(p => (
+                                                    <button
+                                                        key={p._id}
+                                                        type="button"
+                                                        onClick={() => { setDataProvider(p.code); setAirtimeProvider(p.code); setBothProvider(p.code); }}
+                                                        disabled={!p.active}
+                                                        className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all disabled:opacity-40 ${
+                                                            dataProvider === p.code && airtimeProvider === p.code && bothProvider === p.code
+                                                                ? 'bg-violet-600 text-white border-violet-600'
+                                                                : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'
+                                                        }`}
+                                                    >
+                                                        {p.name} for All
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Current selection summary */}
+                                    <div className="bg-gradient-to-r from-violet-50 to-indigo-50 rounded-xl border border-violet-100 p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                        <div className="flex-1 space-y-1 text-sm">
+                                            <div className="flex items-center gap-2">
+                                                <Database className="w-4 h-4 text-violet-500 flex-shrink-0" />
+                                                <span className="text-slate-500">Data:</span>
+                                                <span className="font-semibold text-slate-800">
+                                                    {dataProvider ? providers.find(p => p.code === dataProvider)?.name || dataProvider : 'Auto (priority order)'}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Smartphone className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                                                <span className="text-slate-500">Airtime:</span>
+                                                <span className="font-semibold text-slate-800">
+                                                    {airtimeProvider ? providers.find(p => p.code === airtimeProvider)?.name || airtimeProvider : 'Auto (priority order)'}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Zap className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                                                <span className="text-slate-500">Both Services:</span>
+                                                <span className="font-semibold text-slate-800">
+                                                    {bothProvider ? providers.find(p => p.code === bothProvider)?.name || bothProvider : 'Not Pinned (using individual)'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={handleProviderPreferenceSave}
+                                            disabled={providerSaveLoading}
+                                            className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all shadow-sm hover:shadow-md disabled:opacity-50 whitespace-nowrap"
+                                        >
+                                            {providerSaveLoading ? (
+                                                <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Saving...</>
+                                            ) : (
+                                                <><Save className="w-4 h-4" /> Save Preferences</>
+                                            )}
+                                        </button>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
 

@@ -205,9 +205,20 @@ export default function TransactionDetailsModal({
                                 <Row label="Fee" value={`₦${(tx.fee ?? 0).toLocaleString()}`} />
                                 <Row label="Reference" value={tx.reference_number} />
                                 {tx.destination_account && <Row label="Destination" value={tx.destination_account} />}
-                                <Row label="Payment Method" value={tx.payment_method} />
-                                {tx.plan_id && <Row label="Plan ID" value={tx.plan_id} />}
-                                {tx.operator_id && <Row label="Operator" value={tx.operator_id} />}
+                                <Row label="Payment Method" value={tx.payment_method?.split('_').join(' ')} />
+                                <Row label="Provider" value={tx.provider?.toUpperCase()} />
+                                {tx.plan_id && (
+                                    <Row 
+                                        label="Plan" 
+                                        value={typeof tx.plan_id === 'object' ? (tx.plan_id as any).name : tx.plan_id} 
+                                    />
+                                )}
+                                {tx.operator_id && (
+                                    <Row 
+                                        label="Operator" 
+                                        value={typeof tx.operator_id === 'object' ? (tx.operator_id as any).name : tx.operator_id} 
+                                    />
+                                )}
                                 <Row label="Date" value={new Date(tx.created_at).toLocaleString()} />
                                 {tx.description && <Row label="Description" value={tx.description} />}
                                 {tx.error_message && (

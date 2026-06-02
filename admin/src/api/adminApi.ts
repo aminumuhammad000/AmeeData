@@ -37,6 +37,8 @@ export const creditUserWallet = (userId: string, amount: number, description: st
   api.post('/wallet/credit', { userId, amount, description });
 export const bulkCreditWallets = (userIds: string[], amount: number, description: string) =>
   api.post('/wallet/bulk-credit', { userIds, amount, description });
+export const broadcastWalletCredit = (amount: number, description: string) =>
+  api.post('/wallet/broadcast-credit', { amount, description });
 
 export const deleteAdmin = (id: string) => api.delete(`/admins/${id}`);
 
@@ -120,6 +122,11 @@ export const sendEmail = (data: { subject: string; message: string; recipients?:
 // System Settings
 export const getSystemSettings = () => api.get('/settings');
 export const updateSystemSettings = (data: any) => api.put('/settings', data);
+export const updateProviderPreferences = (data: {
+  preferred_data_provider?: string | null;
+  preferred_airtime_provider?: string | null;
+}) => api.put('/settings', data);
+
 
 // Referral Management
 export const getReferralStats = () => generalApi.get('/referrals/admin/stats');
