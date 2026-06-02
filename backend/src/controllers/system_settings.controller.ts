@@ -35,6 +35,9 @@ export class SystemSettingsController {
                 preferred_data_provider,
                 preferred_airtime_provider,
                 preferred_both_provider,
+                preferred_cable_provider,
+                preferred_electricity_provider,
+                preferred_exampin_provider,
             } = req.body;
 
             const $setFields: Record<string, any> = {};
@@ -44,6 +47,9 @@ export class SystemSettingsController {
             if (preferred_data_provider !== undefined) $setFields['config.preferred_data_provider'] = preferred_data_provider || null;
             if (preferred_airtime_provider !== undefined) $setFields['config.preferred_airtime_provider'] = preferred_airtime_provider || null;
             if (preferred_both_provider !== undefined) $setFields['config.preferred_both_provider'] = preferred_both_provider || null;
+            if (preferred_cable_provider !== undefined) $setFields['config.preferred_cable_provider'] = preferred_cable_provider || null;
+            if (preferred_electricity_provider !== undefined) $setFields['config.preferred_electricity_provider'] = preferred_electricity_provider || null;
+            if (preferred_exampin_provider !== undefined) $setFields['config.preferred_exampin_provider'] = preferred_exampin_provider || null;
 
             const settings = await SystemSetting.findOneAndUpdate(
                 { type: 'global_config' },

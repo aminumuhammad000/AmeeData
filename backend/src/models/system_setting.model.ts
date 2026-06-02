@@ -31,6 +31,12 @@ const SystemSettingSchema: Schema = new Schema({
             smtp_secure: { type: Boolean, default: false },
             sender_name: { type: String, default: 'VTU App' },
         },
+        preferred_data_provider: { type: String, default: null },
+        preferred_airtime_provider: { type: String, default: null },
+        preferred_both_provider: { type: String, default: null },
+        preferred_cable_provider: { type: String, default: null },
+        preferred_electricity_provider: { type: String, default: null },
+        preferred_exampin_provider: { type: String, default: null },
     },
     updated_at: { type: Date, default: Date.now },
 });
