@@ -487,6 +487,8 @@ export class AdminController {
     } catch (error: any) {
       return ApiResponse.error(res, error.message, 500);
     }
+  }
+
   /**
    * Broadcast wallet credit to all users
    */
@@ -566,8 +568,8 @@ export class AdminController {
       return ApiResponse.error(res, error.message, 500);
     }
   }
-
-
+  /**
+   * Create a new sub-admin or super-admin
    * @route POST /api/admin/admins
    * @access Private - Super Admin only
    */

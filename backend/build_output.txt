@@ -1,0 +1,73 @@
+
+> ameedata@1.0.0 build
+> tsc
+
+src/controllers/admin.controller.ts(493,3): error TS1128: Declaration or statement expected.
+src/controllers/admin.controller.ts(571,6): error TS1003: Identifier expected.
+src/controllers/admin.controller.ts(571,13): error TS1434: Unexpected keyword or identifier.
+src/controllers/admin.controller.ts(571,18): error TS1068: Unexpected token. A constructor, method, accessor, or property was expected.
+src/controllers/admin.controller.ts(572,13): error TS1109: Expression expected.
+src/controllers/admin.controller.ts(572,14): error TS1005: ';' expected.
+src/controllers/admin.controller.ts(572,30): error TS1005: ';' expected.
+src/controllers/admin.controller.ts(573,5): error TS1161: Unterminated regular expression literal.
+src/controllers/admin.controller.ts(574,3): error TS1128: Declaration or statement expected.
+src/controllers/admin.controller.ts(574,10): error TS1434: Unexpected keyword or identifier.
+src/controllers/admin.controller.ts(574,35): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(574,53): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(574,65): error TS1005: ';' expected.
+src/controllers/admin.controller.ts(653,3): error TS1128: Declaration or statement expected.
+src/controllers/admin.controller.ts(653,10): error TS1434: Unexpected keyword or identifier.
+src/controllers/admin.controller.ts(653,32): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(653,50): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(653,62): error TS1005: ';' expected.
+src/controllers/admin.controller.ts(684,3): error TS1128: Declaration or statement expected.
+src/controllers/admin.controller.ts(684,10): error TS1434: Unexpected keyword or identifier.
+src/controllers/admin.controller.ts(684,28): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(684,46): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(684,58): error TS1005: ';' expected.
+src/controllers/admin.controller.ts(697,3): error TS1128: Declaration or statement expected.
+src/controllers/admin.controller.ts(697,10): error TS1434: Unexpected keyword or identifier.
+src/controllers/admin.controller.ts(697,38): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(697,56): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(697,68): error TS1005: ';' expected.
+src/controllers/admin.controller.ts(724,3): error TS1128: Declaration or statement expected.
+src/controllers/admin.controller.ts(724,10): error TS1434: Unexpected keyword or identifier.
+src/controllers/admin.controller.ts(724,39): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(724,57): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(724,69): error TS1005: ';' expected.
+src/controllers/admin.controller.ts(751,3): error TS1128: Declaration or statement expected.
+src/controllers/admin.controller.ts(751,10): error TS1434: Unexpected keyword or identifier.
+src/controllers/admin.controller.ts(751,34): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(751,52): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(751,64): error TS1005: ';' expected.
+src/controllers/admin.controller.ts(784,3): error TS1128: Declaration or statement expected.
+src/controllers/admin.controller.ts(784,10): error TS1434: Unexpected keyword or identifier.
+src/controllers/admin.controller.ts(784,32): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(784,50): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(784,62): error TS1005: ';' expected.
+src/controllers/admin.controller.ts(816,3): error TS1128: Declaration or statement expected.
+src/controllers/admin.controller.ts(816,10): error TS1434: Unexpected keyword or identifier.
+src/controllers/admin.controller.ts(816,28): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(816,46): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(816,58): error TS1005: ';' expected.
+src/controllers/admin.controller.ts(829,3): error TS1128: Declaration or statement expected.
+src/controllers/admin.controller.ts(829,10): error TS1434: Unexpected keyword or identifier.
+src/controllers/admin.controller.ts(829,44): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(829,62): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(829,74): error TS1005: ';' expected.
+src/controllers/admin.controller.ts(865,3): error TS1128: Declaration or statement expected.
+src/controllers/admin.controller.ts(865,10): error TS1434: Unexpected keyword or identifier.
+src/controllers/admin.controller.ts(865,35): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(865,53): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(865,65): error TS1005: ';' expected.
+src/controllers/admin.controller.ts(898,3): error TS1128: Declaration or statement expected.
+src/controllers/admin.controller.ts(898,10): error TS1434: Unexpected keyword or identifier.
+src/controllers/admin.controller.ts(898,38): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(898,56): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(898,68): error TS1005: ';' expected.
+src/controllers/admin.controller.ts(939,3): error TS1128: Declaration or statement expected.
+src/controllers/admin.controller.ts(939,10): error TS1434: Unexpected keyword or identifier.
+src/controllers/admin.controller.ts(939,34): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(939,52): error TS1005: ',' expected.
+src/controllers/admin.controller.ts(939,64): error TS1005: ';' expected.
+src/controllers/admin.controller.ts(966,1): error TS1128: Declaration or statement expected.

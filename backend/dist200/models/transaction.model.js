@@ -23,6 +23,7 @@ const transactionSchema = new Schema({
     operator_id: { type: Schema.Types.ObjectId, ref: 'Operator' },
     plan_id: { type: Schema.Types.ObjectId, ref: 'Plan' },
     related_user_id: { type: Schema.Types.ObjectId, ref: 'User' },
+    provider: { type: String }, // SMEPlug, TopUpMate, etc.
     receipt_url: { type: String },
     error_message: { type: String },
     created_at: { type: Date, default: Date.now },
