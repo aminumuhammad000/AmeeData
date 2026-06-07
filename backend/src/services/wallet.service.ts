@@ -17,7 +17,7 @@ export class WalletService {
   }
 
   static async creditWallet(user_id: Types.ObjectId | string, amount: number, applyBonus: boolean = false, session?: any): Promise<boolean> {
-    const bonus = applyBonus ? amount * 0.01 : 0;
+    const bonus = 0; // Disabled 1% bonus to ensure exact deposit amounts
     const finalAmount = amount + bonus;
     
     // Log bonus for debugging if applied

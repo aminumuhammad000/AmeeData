@@ -9,36 +9,43 @@ export class ContactSyncService {
    * Sync contacts and update Care Circle
    */
   static async sync(userId: string, phoneNumbers: string[]) {
-    // 1. Normalize numbers
-    const cleanNumbers = phoneNumbers.map(p => p.replace(/\D/g, ''));
+    // 1. Normalize numbers and extract last 10 digits for robust matching
+    const normalizedMap = new Map<string, string>();
+    const last10s: string[] = [];
+
+    phoneNumbers.forEach(p => {
+      const clean = p.replace(/\D/g, '');
+      if (clean.length >= 10) {
+        const last10 = clean.slice(-10);
+        last10s.push(last10);
+        normalizedMap.set(last10, p);
+      }
+    });
+
+    if (last10s.length === 0) return [];
     
     // 2. Try to get matches from cache first for performance
-    const cachedMatches = await this.getCachedMatches(cleanNumbers);
+    // (Skipping cache for now to ensure DB consistency during fix, or we can use last10s as keys)
     
-    // 3. Find missing numbers from DB
-    const missingNumbers = cleanNumbers.filter(n => !cachedMatches.has(n));
-    let dbMatches: any[] = [];
+    // 3. Find matches from DB using last 10 digits regex
+    // This matches numbers ending with the same 10 digits regardless of prefix (0 or 234)
+    const dbMatches = await User.find({
+      phone_number: { $regex: last10s.map(n => n + '$').join('|') }
+    }).select('_id phone_number first_name last_name profile_picture');
     
-    if (missingNumbers.length > 0) {
-      dbMatches = await User.find({
-        $or: [
-          { phone_number: { $in: missingNumbers } },
-          { phone_number: { $regex: missingNumbers.map(n => n + '$').join('|') } }
-        ]
-      }).select('_id phone_number first_name last_name profile_picture');
-      
-      // Update cache with new matches
+    // Update cache with new matches
+    if (dbMatches.length > 0) {
       await this.cacheMatches(dbMatches);
     }
 
-    // Combine results
-    const allMatches = [...Array.from(cachedMatches.values()), ...dbMatches.map(u => ({
+    // Combination logic
+    const allMatches = dbMatches.map(u => ({
       _id: u._id,
       phone_number: u.phone_number,
       first_name: u.first_name,
       last_name: u.last_name,
       profile_picture: u.profile_picture
-    }))];
+    }));
 
     // 4. Automatically add to Care Circle
     if (userId && allMatches.length > 0) {

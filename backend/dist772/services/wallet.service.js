@@ -13,7 +13,7 @@ export class WalletService {
         return wallet?.balance || 0;
     }
     static async creditWallet(user_id, amount, applyBonus = false, session) {
-        const bonus = applyBonus ? amount * 0.01 : 0;
+        const bonus = 0; // Disabled 1% bonus to ensure exact deposit amounts
         const finalAmount = amount + bonus;
         // Log bonus for debugging if applied
         if (bonus > 0) {

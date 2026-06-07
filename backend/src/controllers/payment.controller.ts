@@ -575,7 +575,8 @@ export class PaymentController {
       }
 
       const accountReference = transaction.metadata?.account_reference;
-      const amount = transaction.net_amount || transaction.amount;
+      // Use gross amount (amount) instead of net_amount so user gets what they sent
+      const amount = transaction.amount || transaction.net_amount;
       const reference = transaction.reference;
       const payerDetails = transaction.payer_details;
       const accountDetails = transaction.account_details;

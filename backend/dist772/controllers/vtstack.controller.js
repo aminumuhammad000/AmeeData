@@ -149,8 +149,10 @@ export class VTStackController {
                     console.error(`❌ Wallet not found for user: ${virtualAccount.user}`);
                     return res.status(200).json({ status: 'error', message: 'Wallet not found' });
                 }
-                // Use the amount provided by VTStack in kobo directly
-                const amountInNaira = parseFloat(amount) / 100;
+                // VTStack sends 'amount' and potentially 'fee' in kobo
+                // We want the user to get the full amount (gross) they sent
+                const grossAmount = parseFloat(data.amount) + (parseFloat(data.fee) || 0);
+                const amountInNaira = grossAmount / 100;
                 try {
                     // Record Transaction FIRST to ensure idempotency via unique reference_number index
                     const transaction = await Transaction.create({
@@ -164,7 +166,12 @@ export class VTStackController {
                         reference_number: reference,
                         payment_method: 'vtstack_transfer',
                         description: `Bank transfer from ${senderName}`,
-                        metadata: { currency, raw_payload: data }
+                        metadata: {
+                            currency,
+                            fee_deducted: parseFloat(data.fee) / 100 || 0,
+                            net_amount: parseFloat(data.amount) / 100,
+                            raw_payload: data
+                        }
                     });
                     // Credit wallet ONLY AFTER transaction record is successfully created
                     await WalletService.creditWallet(virtualAccount.user, amountInNaira, true);
