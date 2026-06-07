@@ -167,7 +167,21 @@ const TransactionViewModal: React.FC<TransactionViewModalProps> = ({ transaction
               <div>
                 <p className="text-xs text-slate-600 uppercase font-semibold mb-1">Plan/Package</p>
                 <p className="text-sm text-slate-900 font-medium bg-white px-3 py-2 rounded border border-purple-200">
-                  {transaction.plan_name || transaction.package || 'N/A'}
+                  {
+                    // Try populated plan object
+                    (transaction.plan_id && typeof transaction.plan_id === 'object' && transaction.plan_id.name)
+                    || transaction.plan_name
+                    || transaction.plan_id?.name
+                    || transaction.package
+                    || transaction.metadata?.plan_name
+                    || transaction.metadata?.planName
+                    || transaction.metadata?.package
+                    // Last resort: try to extract from description
+                    || (transaction.description && !['wallet', 'credit', 'broadcast', 'topup', 'admin'].some((kw: string) => transaction.description?.toLowerCase().includes(kw))
+                        ? transaction.description
+                        : null)
+                    || 'N/A'
+                  }
                 </p>
               </div>
             </div>

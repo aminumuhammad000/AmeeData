@@ -4,15 +4,36 @@ import { getDashboardStats, getTransactions } from '../api/adminApi';
 import Layout from '../components/Layout';
 
 const Dashboard: React.FC = () => {
+  const [selectedMonth, setSelectedMonth] = React.useState<number | undefined>(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = React.useState<number>(new Date().getFullYear());
+
   const { data: statsData, isLoading: statsLoading, isError: statsError } = useQuery({
-    queryKey: ['dashboard-stats'],
-    queryFn: getDashboardStats,
+    queryKey: ['dashboard-stats', selectedMonth, selectedYear],
+    queryFn: () => getDashboardStats({ month: selectedMonth, year: selectedYear }),
   });
 
   const { data: transactionsData, isLoading: transactionsLoading } = useQuery({
     queryKey: ['recent-transactions'],
     queryFn: () => getTransactions({ page: 1, limit: 5 }).then((res) => res.data),
   });
+
+  const months = [
+    { value: 1, label: 'January' },
+    { value: 2, label: 'February' },
+    { value: 3, label: 'March' },
+    { value: 4, label: 'April' },
+    { value: 5, label: 'May' },
+    { value: 6, label: 'June' },
+    { value: 7, label: 'July' },
+    { value: 8, label: 'August' },
+    { value: 9, label: 'September' },
+    { value: 10, label: 'October' },
+    { value: 11, label: 'November' },
+    { value: 12, label: 'December' },
+  ];
+
+  const currentYear = new Date().getFullYear();
+  const years = [currentYear, currentYear - 1, currentYear - 2];
 
   const stats = [
     {
@@ -141,7 +162,32 @@ const Dashboard: React.FC = () => {
                 Overview of your platform's performance
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <div className="flex items-center gap-2">
+                <select
+                  value={selectedMonth || ''}
+                  onChange={(e) => setSelectedMonth(e.target.value ? parseInt(e.target.value) : undefined)}
+                  className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all cursor-pointer"
+                >
+                  <option value="">Full Year</option>
+                  {months.map((m) => (
+                    <option key={m.value} value={m.value}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                  className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all cursor-pointer"
+                >
+                  {years.map((y) => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <span className="text-xs font-medium px-3 py-1 bg-white border border-slate-200 rounded-full text-slate-600 shadow-sm">
                 Last updated: {new Date().toLocaleTimeString()}
               </span>

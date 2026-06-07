@@ -43,22 +43,39 @@ export class AdminController {
     }
     static async getDashboardStats(req, res) {
         try {
+            const month = req.query.month ? parseInt(req.query.month) : undefined;
+            const year = req.query.year ? parseInt(req.query.year) : undefined;
             const totalUsers = await User.countDocuments();
             const activeUsers = await User.countDocuments({ status: 'active' });
-            const totalTransactions = await Transaction.countDocuments();
-            const successfulTransactions = await Transaction.countDocuments({ status: 'successful' });
-            const startOfMonth = new Date();
-            startOfMonth.setDate(1);
-            startOfMonth.setHours(0, 0, 0, 0);
+            let startDate;
+            let endDate;
+            if (month !== undefined && year !== undefined) {
+                startDate = new Date(year, month - 1, 1);
+                endDate = new Date(year, month, 0, 23, 59, 59, 999);
+            }
+            else if (year !== undefined) {
+                startDate = new Date(year, 0, 1);
+                endDate = new Date(year, 11, 31, 23, 59, 59, 999);
+            }
+            else {
+                // Default to current month
+                const now = new Date();
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+            }
+            const dateQuery = { $gte: startDate, $lte: endDate };
+            // Base stats for the period
+            const totalTransactions = await Transaction.countDocuments({ created_at: dateQuery });
+            const successfulTransactions = await Transaction.countDocuments({ status: 'successful', created_at: dateQuery });
             const startOfDay = new Date();
             startOfDay.setHours(0, 0, 0, 0);
-            // Calculate total data sales (sum of successful data transactions this month)
+            // Calculate total data sales (sum of successful data transactions in the period)
             const dataSalesResult = await Transaction.aggregate([
                 {
                     $match: {
-                        type: 'data_purchase',
+                        type: { $in: ['data_purchase', 'data'] },
                         status: 'successful',
-                        created_at: { $gte: startOfMonth }
+                        created_at: dateQuery
                     }
                 },
                 {
@@ -69,13 +86,13 @@ export class AdminController {
                 }
             ]);
             const totalDataSales = dataSalesResult.length > 0 ? dataSalesResult[0].totalAmount : 0;
-            // Calculate total airtime sales (sum of successful airtime transactions this month)
+            // Calculate total airtime sales (sum of successful airtime transactions in the period)
             const airtimeSalesResult = await Transaction.aggregate([
                 {
                     $match: {
-                        type: 'airtime_topup',
+                        type: { $in: ['airtime_topup', 'airtime'] },
                         status: 'successful',
-                        created_at: { $gte: startOfMonth }
+                        created_at: dateQuery
                     }
                 },
                 {
@@ -86,7 +103,7 @@ export class AdminController {
                 }
             ]);
             const totalAirtimeSales = airtimeSalesResult.length > 0 ? airtimeSalesResult[0].totalAmount : 0;
-            // Daily transaction count (successful transactions today)
+            // Daily transaction count (successful transactions today, regardless of filter)
             const dailyTransactions = await Transaction.countDocuments({
                 status: 'successful',
                 created_at: { $gte: startOfDay }
@@ -95,9 +112,9 @@ export class AdminController {
             const profitPipeline = (dateFilter) => [
                 {
                     $match: {
-                        type: { $in: ['data_purchase', 'airtime_topup'] },
+                        type: { $in: ['data_purchase', 'airtime_topup', 'data', 'airtime'] },
                         status: 'successful',
-                        created_at: { $gte: dateFilter }
+                        created_at: dateFilter
                     }
                 },
                 {
@@ -116,12 +133,12 @@ export class AdminController {
                     }
                 }
             ];
-            const [dailyProfitResult, monthlyProfitResult] = await Promise.all([
-                Transaction.aggregate(profitPipeline(startOfDay)),
-                Transaction.aggregate(profitPipeline(startOfMonth)),
+            const [dailyProfitResult, periodProfitResult] = await Promise.all([
+                Transaction.aggregate(profitPipeline({ $gte: startOfDay })),
+                Transaction.aggregate(profitPipeline(dateQuery)),
             ]);
             const dailyProfit = dailyProfitResult.length > 0 ? dailyProfitResult[0].totalProfit : 0;
-            const monthlyProfit = monthlyProfitResult.length > 0 ? monthlyProfitResult[0].totalProfit : 0;
+            const periodProfit = periodProfitResult.length > 0 ? periodProfitResult[0].totalProfit : 0;
             const stats = {
                 totalUsers,
                 activeUsers,
@@ -131,7 +148,7 @@ export class AdminController {
                 totalAirtimeSales,
                 dailyTransactions,
                 dailyProfit,
-                monthlyProfit,
+                monthlyProfit: periodProfit, // Mapping period profit to monthlyProfit for frontend
             };
             return ApiResponse.success(res, stats, 'Dashboard stats retrieved successfully');
         }

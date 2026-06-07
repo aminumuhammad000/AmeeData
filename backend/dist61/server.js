@@ -40,6 +40,9 @@ async function startServer() {
             console.log(`✅ Server running on port ${PORT}`);
             console.log(`🔧 Environment: ${config.nodeEnv}`);
         });
+        // Initialize scheduled tasks (cron)
+        const { CronService } = await import('./services/cron.service.js');
+        CronService.init();
         // Handle server errors
         server.on('error', (error) => {
             if (error.syscall !== 'listen')

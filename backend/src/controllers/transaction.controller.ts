@@ -115,18 +115,52 @@ export class TransactionController {
       const filter: any = {};
       if (req.query.status) filter.status = req.query.status;
       if (req.query.type) filter.type = req.query.type;
+      if (req.query.search) {
+        const { Types } = await import('mongoose');
+        const searchRegex = new RegExp(req.query.search as string, 'i');
+        filter.$or = [
+          { reference_number: searchRegex },
+          { description: searchRegex },
+        ];
+      }
+
+      const { AirtimePlan } = await import('../models/airtime_plan.model.js');
 
       const transactions = await Transaction.find(filter)
-        .populate('user_id', 'first_name last_name email')
+        .populate('user_id', 'first_name last_name email phone_number')
         .populate('operator_id')
         .populate('plan_id')
         .skip(skip)
         .limit(limit)
-        .sort({ created_at: -1 });
+        .sort({ created_at: -1 })
+        .lean();
+
+      // Attach plan_name: try plan_id.name (Plan model), then look up AirtimePlan
+      const enriched = await Promise.all(transactions.map(async (txn: any) => {
+        let plan_name: string | null = null;
+
+        // 1. Already populated via Plan model
+        if (txn.plan_id && typeof txn.plan_id === 'object' && txn.plan_id.name) {
+          plan_name = txn.plan_id.name;
+        }
+
+        // 2. If not found, try AirtimePlan lookup
+        if (!plan_name && txn.plan_id) {
+          const planId = typeof txn.plan_id === 'object' ? txn.plan_id._id : txn.plan_id;
+          const airtimePlan = await AirtimePlan.findById(planId).lean() as any;
+          if (airtimePlan) plan_name = airtimePlan.name;
+        }
+
+        // 3. Fall back to metadata or description
+        if (!plan_name && txn.metadata?.plan_name) plan_name = txn.metadata.plan_name;
+        if (!plan_name && txn.metadata?.planName) plan_name = txn.metadata.planName;
+
+        return { ...txn, plan_name };
+      }));
 
       const total = await Transaction.countDocuments(filter);
 
-      return ApiResponse.paginated(res, transactions, {
+      return ApiResponse.paginated(res, enriched, {
         page,
         limit,
         total,

@@ -50,6 +50,9 @@ async function startServer() {
   console.log(`🔧 Environment: ${config.nodeEnv}`);
 });
 
+    // Initialize scheduled tasks (cron)
+    const { CronService } = await import('./services/cron.service.js');
+    CronService.init();
 
     // Handle server errors
     server.on('error', (error: NodeJS.ErrnoException) => {

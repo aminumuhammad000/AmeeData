@@ -40,73 +40,6 @@ interface Provider {
     supported_services: string[];
 }
 
-// Provider card component
-const ProviderCard = ({
-    provider,
-    isSelected,
-    isAuto,
-    onClick,
-}: {
-    provider: Provider;
-    isSelected: boolean;
-    isAuto?: boolean;
-    onClick: () => void;
-}) => {
-    const colorMap: Record<string, { bg: string; border: string; text: string; badge: string }> = {
-        smeplug:   { bg: 'bg-blue-50',   border: 'border-blue-400',   text: 'text-blue-700',   badge: 'bg-blue-100 text-blue-700' },
-        topupmate: { bg: 'bg-emerald-50', border: 'border-emerald-400', text: 'text-emerald-700', badge: 'bg-emerald-100 text-emerald-700' },
-        vtpass:    { bg: 'bg-orange-50',  border: 'border-orange-400',  text: 'text-orange-700',  badge: 'bg-orange-100 text-orange-700' },
-        vtstack:   { bg: 'bg-purple-50',  border: 'border-purple-400',  text: 'text-purple-700',  badge: 'bg-purple-100 text-purple-700' },
-    };
-    const colors = colorMap[provider.code] || { bg: 'bg-slate-50', border: 'border-slate-400', text: 'text-slate-700', badge: 'bg-slate-100 text-slate-700' };
-
-    return (
-        <button
-            type="button"
-            onClick={onClick}
-            className={`relative w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${
-                isSelected
-                    ? `${colors.bg} ${colors.border} ring-2 ring-offset-1 ${colors.border.replace('border', 'ring')}`
-                    : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-            } ${!provider.active ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-            disabled={!provider.active}
-        >
-            {isSelected && (
-                <span className={`absolute top-2 right-2 flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${colors.badge}`}>
-                    <CheckCircle2 className="w-3 h-3" /> Active
-                </span>
-            )}
-            {isAuto && (
-                <span className="absolute top-2 right-2 flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
-                    Auto Picked
-                </span>
-            )}
-            <div className="flex items-center gap-3">
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center font-black text-sm ${colors.badge}`}>
-                    {provider.name.charAt(0).toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-slate-900 text-sm">{provider.name}</p>
-                    <p className="text-xs font-mono text-slate-400 uppercase">{provider.code}</p>
-                </div>
-            </div>
-            <div className="mt-3 flex items-center gap-2 flex-wrap">
-                {provider.supported_services.map(s => (
-                    <span key={s} className="text-[10px] font-medium uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200">
-                        {s}
-                    </span>
-                ))}
-                {!provider.active && (
-                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-red-100 text-red-500">Inactive</span>
-                )}
-            </div>
-            <div className="mt-2 flex items-center justify-between text-xs text-slate-400">
-                <span>Priority: <span className="font-semibold text-slate-600">{provider.priority}</span></span>
-            </div>
-        </button>
-    );
-};
-
 const Settings = () => {
     const { showToast } = useToast();
     const queryClient = useQueryClient();
@@ -186,6 +119,16 @@ const Settings = () => {
             console.error('Failed to fetch system settings', error);
         }
     };
+
+    // Auto-select first active provider if none is saved
+    useEffect(() => {
+        if (providers.length === 0) return;
+        const dataProviders = providers.filter(p => p.supported_services.includes('data') && p.active);
+        const airtimeProviders = providers.filter(p => p.supported_services.includes('airtime') && p.active);
+        if (!dataProvider && dataProviders.length > 0) setDataProvider(dataProviders[0].code);
+        if (!airtimeProvider && airtimeProviders.length > 0) setAirtimeProvider(airtimeProviders[0].code);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [providers]);
 
     const fetchProviders = async () => {
         setProviderLoading(true);
@@ -281,18 +224,6 @@ const Settings = () => {
     // Filter providers by service
     const dataProviders = providers.filter(p => p.supported_services.includes('data'));
     const airtimeProviders = providers.filter(p => p.supported_services.includes('airtime'));
-    // Providers that support both
-    const bothProviders = providers.filter(p =>
-        p.supported_services.includes('data') && p.supported_services.includes('airtime')
-    );
-
-    const getAutoProviderLabel = (type: 'data' | 'airtime') => {
-        const list = type === 'data' ? dataProviders : airtimeProviders;
-        const active = list.filter(p => p.active).sort((a, b) => a.priority - b.priority);
-        if (active.length === 0) return 'None active';
-        return `${active[0].name} (priority ${active[0].priority})`;
-    };
-
     return (
         <Layout>
             <div className="min-h-screen bg-slate-50/50 p-4 sm:p-6 lg:p-8">
@@ -340,159 +271,149 @@ const Settings = () => {
                                 </div>
                             ) : (
                                 <>
-                                    {/* DATA PROVIDER */}
+                    {/* ── DATA PROVIDER ── */}
                                     <div>
-                                        <div className="flex items-center gap-2 mb-1">
+                                        <div className="flex items-center gap-2 mb-3">
                                             <Database className="w-4 h-4 text-violet-500" />
                                             <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Data Provider</h3>
+                                            <span className="text-[10px] font-medium uppercase px-2 py-0.5 rounded-full bg-violet-100 text-violet-600 ml-auto">
+                                                {dataProvider ? providers.find(p => p.code === dataProvider)?.name || dataProvider : '—'}
+                                            </span>
                                         </div>
-                                        <p className="text-xs text-slate-500 mb-4">
-                                            Currently auto-selected: <span className="font-semibold text-slate-700">{getAutoProviderLabel('data')}</span>
-                                        </p>
+                                        <p className="text-xs text-slate-500 mb-4">Choose which provider handles <strong>data purchases</strong>. Only the selected provider will be used.</p>
 
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                            {/* Auto option */}
-                                            <button
-                                                type="button"
-                                                onClick={() => setDataProvider(null)}
-                                                className={`relative w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${
-                                                    dataProvider === null
-                                                        ? 'bg-violet-50 border-violet-400 ring-2 ring-offset-1 ring-violet-400'
-                                                        : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                                                }`}
-                                            >
-                                                {dataProvider === null && (
-                                                    <span className="absolute top-2 right-2 flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">
-                                                        <CheckCircle2 className="w-3 h-3" /> Selected
-                                                    </span>
-                                                )}
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-slate-100 text-slate-600">
-                                                        <Zap className="w-4 h-4" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-semibold text-slate-900 text-sm">Auto (Recommended)</p>
-                                                        <p className="text-xs text-slate-400">Uses provider priority order</p>
-                                                    </div>
-                                                </div>
-                                            </button>
-
-                                            {dataProviders.map(p => (
-                                                <ProviderCard
-                                                    key={p._id}
-                                                    provider={p}
-                                                    isSelected={dataProvider === p.code}
-                                                    onClick={() => p.active && setDataProvider(p.code)}
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* AIRTIME PROVIDER */}
-                                    <div>
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <Smartphone className="w-4 h-4 text-indigo-500" />
-                                            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Airtime Provider</h3>
-                                        </div>
-                                        <p className="text-xs text-slate-500 mb-4">
-                                            Currently auto-selected: <span className="font-semibold text-slate-700">{getAutoProviderLabel('airtime')}</span>
-                                        </p>
-
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                            {/* Auto option */}
-                                            <button
-                                                type="button"
-                                                onClick={() => setAirtimeProvider(null)}
-                                                className={`relative w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${
-                                                    airtimeProvider === null
-                                                        ? 'bg-indigo-50 border-indigo-400 ring-2 ring-offset-1 ring-indigo-400'
-                                                        : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                                                }`}
-                                            >
-                                                {airtimeProvider === null && (
-                                                    <span className="absolute top-2 right-2 flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
-                                                        <CheckCircle2 className="w-3 h-3" /> Selected
-                                                    </span>
-                                                )}
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-slate-100 text-slate-600">
-                                                        <Zap className="w-4 h-4" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-semibold text-slate-900 text-sm">Auto (Recommended)</p>
-                                                        <p className="text-xs text-slate-400">Uses provider priority order</p>
-                                                    </div>
-                                                </div>
-                                            </button>
-
-                                            {airtimeProviders.map(p => (
-                                                <ProviderCard
-                                                    key={p._id}
-                                                    provider={p}
-                                                    isSelected={airtimeProvider === p.code}
-                                                    onClick={() => p.active && setAirtimeProvider(p.code)}
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Quick-set: same for both */}
-                                    {bothProviders.length > 0 && (
-                                        <div className="bg-slate-50 rounded-xl border border-slate-200 p-4">
-                                            <p className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">⚡ Quick Set — Same Provider for Both</p>
-                                            <div className="flex flex-wrap gap-2">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => { setDataProvider(null); setAirtimeProvider(null); setBothProvider(null); }}
-                                                    className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
-                                                        dataProvider === null && airtimeProvider === null && bothProvider === null
-                                                            ? 'bg-slate-800 text-white border-slate-800'
-                                                            : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'
-                                                    }`}
-                                                >
-                                                    Auto for All
-                                                </button>
-                                                {bothProviders.map(p => (
-                                                    <button
+                                        <div className="space-y-3">
+                                            {dataProviders.map(p => {
+                                                const isSelected = dataProvider === p.code;
+                                                const isDisabledBySelection = dataProvider !== null && dataProvider !== p.code;
+                                                const colorMap: Record<string, { bg: string; border: string; text: string; badgeBg: string }> = {
+                                                    smeplug:   { bg: 'bg-blue-50',    border: 'border-blue-400',    text: 'text-blue-700',    badgeBg: 'bg-blue-100 text-blue-700' },
+                                                    topupmate: { bg: 'bg-emerald-50', border: 'border-emerald-400', text: 'text-emerald-700', badgeBg: 'bg-emerald-100 text-emerald-700' },
+                                                    vtpass:    { bg: 'bg-orange-50',  border: 'border-orange-400',  text: 'text-orange-700',  badgeBg: 'bg-orange-100 text-orange-700' },
+                                                };
+                                                const colors = colorMap[p.code] || { bg: 'bg-slate-50', border: 'border-slate-400', text: 'text-slate-700', badgeBg: 'bg-slate-100 text-slate-700' };
+                                                return (
+                                                    <label
                                                         key={p._id}
-                                                        type="button"
-                                                        onClick={() => { setDataProvider(p.code); setAirtimeProvider(p.code); setBothProvider(p.code); }}
-                                                        disabled={!p.active}
-                                                        className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all disabled:opacity-40 ${
-                                                            dataProvider === p.code && airtimeProvider === p.code && bothProvider === p.code
-                                                                ? 'bg-violet-600 text-white border-violet-600'
-                                                                : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'
+                                                        className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all duration-200 ${
+                                                            !p.active
+                                                                ? 'opacity-40 cursor-not-allowed bg-slate-50 border-slate-200'
+                                                                : isSelected
+                                                                    ? `cursor-pointer ${colors.bg} ${colors.border} ring-2 ring-offset-1 ${colors.border.replace('border', 'ring')}`
+                                                                    : isDisabledBySelection
+                                                                        ? 'cursor-pointer bg-slate-50 border-slate-200 opacity-60'
+                                                                        : 'cursor-pointer bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                                                         }`}
                                                     >
-                                                        {p.name} for All
-                                                    </button>
-                                                ))}
-                                            </div>
+                                                        <input
+                                                            type="radio"
+                                                            name="data_provider"
+                                                            disabled={!p.active}
+                                                            checked={isSelected}
+                                                            onChange={() => p.active && setDataProvider(p.code)}
+                                                            className="w-4 h-4 text-violet-600 focus:ring-violet-500"
+                                                        />
+                                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0 ${colors.badgeBg}`}>
+                                                                {p.name.charAt(0).toUpperCase()}
+                                                            </div>
+                                                            <div className="min-w-0">
+                                                                <p className="font-semibold text-slate-900 text-sm">{p.name}</p>
+                                                                <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                                                                    <span className="text-[10px] font-mono text-slate-400 uppercase">{p.code}</span>
+                                                                    {!p.active && <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-red-100 text-red-500">Inactive</span>}
+                                                                    {isDisabledBySelection && p.active && <span className="text-[10px] font-medium uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-600">Temp. Disabled</span>}
+                                                                    {isSelected && <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-green-100 text-green-700">✓ Priority</span>}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        {isSelected && <CheckCircle2 className={`w-5 h-5 flex-shrink-0 ${colors.text}`} />}
+                                                    </label>
+                                                );
+                                            })}
                                         </div>
-                                    )}
+                                    </div>
 
-                                    {/* Current selection summary */}
+                                    <div className="border-t border-slate-100" />
+
+                                    {/* ── AIRTIME PROVIDER ── */}
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <Smartphone className="w-4 h-4 text-indigo-500" />
+                                            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Airtime Provider</h3>
+                                            <span className="text-[10px] font-medium uppercase px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-600 ml-auto">
+                                                {airtimeProvider ? providers.find(p => p.code === airtimeProvider)?.name || airtimeProvider : '—'}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-slate-500 mb-4">Choose which provider handles <strong>airtime top-ups</strong>. Only the selected provider will be used.</p>
+
+                                        <div className="space-y-3">
+                                            {airtimeProviders.map(p => {
+                                                const isSelected = airtimeProvider === p.code;
+                                                const isDisabledBySelection = airtimeProvider !== null && airtimeProvider !== p.code;
+                                                const colorMap: Record<string, { bg: string; border: string; text: string; badgeBg: string }> = {
+                                                    smeplug:   { bg: 'bg-blue-50',    border: 'border-blue-400',    text: 'text-blue-700',    badgeBg: 'bg-blue-100 text-blue-700' },
+                                                    topupmate: { bg: 'bg-emerald-50', border: 'border-emerald-400', text: 'text-emerald-700', badgeBg: 'bg-emerald-100 text-emerald-700' },
+                                                    vtpass:    { bg: 'bg-orange-50',  border: 'border-orange-400',  text: 'text-orange-700',  badgeBg: 'bg-orange-100 text-orange-700' },
+                                                };
+                                                const colors = colorMap[p.code] || { bg: 'bg-slate-50', border: 'border-slate-400', text: 'text-slate-700', badgeBg: 'bg-slate-100 text-slate-700' };
+                                                return (
+                                                    <label
+                                                        key={p._id}
+                                                        className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all duration-200 ${
+                                                            !p.active
+                                                                ? 'opacity-40 cursor-not-allowed bg-slate-50 border-slate-200'
+                                                                : isSelected
+                                                                    ? `cursor-pointer ${colors.bg} ${colors.border} ring-2 ring-offset-1 ${colors.border.replace('border', 'ring')}`
+                                                                    : isDisabledBySelection
+                                                                        ? 'cursor-pointer bg-slate-50 border-slate-200 opacity-60'
+                                                                        : 'cursor-pointer bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                                                        }`}
+                                                    >
+                                                        <input
+                                                            type="radio"
+                                                            name="airtime_provider"
+                                                            disabled={!p.active}
+                                                            checked={isSelected}
+                                                            onChange={() => p.active && setAirtimeProvider(p.code)}
+                                                            className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
+                                                        />
+                                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0 ${colors.badgeBg}`}>
+                                                                {p.name.charAt(0).toUpperCase()}
+                                                            </div>
+                                                            <div className="min-w-0">
+                                                                <p className="font-semibold text-slate-900 text-sm">{p.name}</p>
+                                                                <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                                                                    <span className="text-[10px] font-mono text-slate-400 uppercase">{p.code}</span>
+                                                                    {!p.active && <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-red-100 text-red-500">Inactive</span>}
+                                                                    {isDisabledBySelection && p.active && <span className="text-[10px] font-medium uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-600">Temp. Disabled</span>}
+                                                                    {isSelected && <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-green-100 text-green-700">✓ Priority</span>}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        {isSelected && <CheckCircle2 className={`w-5 h-5 flex-shrink-0 ${colors.text}`} />}
+                                                    </label>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    {/* Current selection summary + Save */}
                                     <div className="bg-gradient-to-r from-violet-50 to-indigo-50 rounded-xl border border-violet-100 p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
                                         <div className="flex-1 space-y-1 text-sm">
                                             <div className="flex items-center gap-2">
                                                 <Database className="w-4 h-4 text-violet-500 flex-shrink-0" />
                                                 <span className="text-slate-500">Data:</span>
                                                 <span className="font-semibold text-slate-800">
-                                                    {dataProvider ? providers.find(p => p.code === dataProvider)?.name || dataProvider : 'Auto (priority order)'}
+                                                    {dataProvider ? providers.find(p => p.code === dataProvider)?.name || dataProvider : <span className="text-amber-600 font-medium">Not selected</span>}
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <Smartphone className="w-4 h-4 text-indigo-500 flex-shrink-0" />
                                                 <span className="text-slate-500">Airtime:</span>
                                                 <span className="font-semibold text-slate-800">
-                                                    {airtimeProvider ? providers.find(p => p.code === airtimeProvider)?.name || airtimeProvider : 'Auto (priority order)'}
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <Zap className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                                                <span className="text-slate-500">Both Services:</span>
-                                                <span className="font-semibold text-slate-800">
-                                                    {bothProvider ? providers.find(p => p.code === bothProvider)?.name || bothProvider : 'Not Pinned (using individual)'}
+                                                    {airtimeProvider ? providers.find(p => p.code === airtimeProvider)?.name || airtimeProvider : <span className="text-amber-600 font-medium">Not selected</span>}
                                                 </span>
                                             </div>
                                         </div>

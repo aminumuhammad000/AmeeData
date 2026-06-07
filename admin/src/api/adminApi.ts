@@ -5,7 +5,7 @@ export const login = (data: { email: string; password: string }) =>
   api.post('/login', data);
 
 // Dashboard
-export const getDashboardStats = () => api.get('/dashboard');
+export const getDashboardStats = (params?: { month?: number; year?: number }) => api.get('/dashboard', { params });
 
 // Admin Management
 export const createAdminUser = (data: { email: string; first_name: string; last_name: string; password: string }) =>

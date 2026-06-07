@@ -45,23 +45,29 @@ class ProviderRegistryService {
                 // Verify that the pinned provider is active AND supports this specific service
                 const pinnedProvider = await ProviderConfig.findOne({
                     code: pinnedCode,
-                    active: true,
                     supported_services: { $in: [service] }
                 });
                 if (pinnedProvider) {
+                    // If the pinned provider is inactive, we respect the user's choice and DON'T fallback.
+                    // This allows the admin to know their selected provider is down.
+                    if (!pinnedProvider.active) {
+                        console.warn(`⚠️ Pinned provider '${pinnedCode}' for service '${service}' is currently INACTIVE.`);
+                        return null;
+                    }
                     const client = this.getClient(pinnedCode);
                     if (client)
                         return { code: pinnedCode, client };
                 }
                 else {
-                    console.warn(`⚠️ Pinned provider '${pinnedCode}' for service '${service}' is either inactive or does not support this service.`);
+                    console.warn(`⚠️ Pinned provider '${pinnedCode}' for service '${service}' was not found in database.`);
+                    return null; // Don't fallback if an explicit choice was made but is invalid
                 }
             }
         }
         catch (e) {
             console.error('Error in getPreferredProviderFor:', e);
         }
-        // 2. Fall back to priority-sorted active provider query
+        // 2. Fall back to priority-sorted active provider query ONLY if no pin is set
         const providers = await ProviderConfig.find({ active: true, supported_services: { $in: [service] } })
             .sort({ priority: 1, name: 1 });
         for (const p of providers) {
