@@ -123,10 +123,21 @@ const Settings = () => {
     // Auto-select first active provider if none is saved
     useEffect(() => {
         if (providers.length === 0) return;
-        const dataProviders = providers.filter(p => p.supported_services.includes('data') && p.active);
-        const airtimeProviders = providers.filter(p => p.supported_services.includes('airtime') && p.active);
-        if (!dataProvider && dataProviders.length > 0) setDataProvider(dataProviders[0].code);
-        if (!airtimeProvider && airtimeProviders.length > 0) setAirtimeProvider(airtimeProviders[0].code);
+        
+        const checkService = (p: Provider, service: string) => {
+            if (!p.supported_services) return false;
+            // Handle if it's a string instead of array by accident
+            const services = Array.isArray(p.supported_services) 
+                ? p.supported_services 
+                : [String(p.supported_services)];
+            return services.some(s => s && s.toString().toLowerCase().trim() === service.toLowerCase());
+        };
+
+        const activeData = providers.filter(p => p.active && checkService(p, 'data'));
+        const activeAirtime = providers.filter(p => p.active && checkService(p, 'airtime'));
+        
+        if (!dataProvider && activeData.length > 0) setDataProvider(activeData[0].code);
+        if (!airtimeProvider && activeAirtime.length > 0) setAirtimeProvider(activeAirtime[0].code);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [providers]);
 
@@ -134,7 +145,9 @@ const Settings = () => {
         setProviderLoading(true);
         try {
             const response = await adminApi.getProviders();
+            console.log('API Providers Raw Response:', response.data);
             const providerList: Provider[] = response.data?.data?.providers || [];
+            console.log('Provider List extracted:', providerList);
             setProviders(providerList);
         } catch (error) {
             console.error('Failed to fetch providers', error);
@@ -221,9 +234,20 @@ const Settings = () => {
         }
     };
 
-    // Filter providers by service
-    const dataProviders = providers.filter(p => p.supported_services.includes('data'));
-    const airtimeProviders = providers.filter(p => p.supported_services.includes('airtime'));
+    // Filter providers by service (robust check)
+    const checkService = (p: Provider, service: string) => {
+        if (!p.supported_services) return false;
+        const services = Array.isArray(p.supported_services) 
+            ? p.supported_services 
+            : [String(p.supported_services)];
+        return services.some(s => s && s.toString().toLowerCase().trim() === service.toLowerCase());
+    };
+
+    const dataProviders = providers.filter(p => checkService(p, 'data'));
+    const airtimeProviders = providers.filter(p => checkService(p, 'airtime'));
+
+    console.log('Filtered Data Providers:', dataProviders);
+    console.log('Filtered Airtime Providers:', airtimeProviders);
     return (
         <Layout>
             <div className="min-h-screen bg-slate-50/50 p-4 sm:p-6 lg:p-8">
@@ -283,13 +307,14 @@ const Settings = () => {
                                         <p className="text-xs text-slate-500 mb-4">Choose which provider handles <strong>data purchases</strong>. Only the selected provider will be used.</p>
 
                                         <div className="space-y-3">
-                                            {dataProviders.map(p => {
+                                            {dataProviders.length > 0 ? dataProviders.map(p => {
                                                 const isSelected = dataProvider === p.code;
                                                 const isDisabledBySelection = dataProvider !== null && dataProvider !== p.code;
                                                 const colorMap: Record<string, { bg: string; border: string; text: string; badgeBg: string }> = {
                                                     smeplug:   { bg: 'bg-blue-50',    border: 'border-blue-400',    text: 'text-blue-700',    badgeBg: 'bg-blue-100 text-blue-700' },
                                                     topupmate: { bg: 'bg-emerald-50', border: 'border-emerald-400', text: 'text-emerald-700', badgeBg: 'bg-emerald-100 text-emerald-700' },
                                                     vtpass:    { bg: 'bg-orange-50',  border: 'border-orange-400',  text: 'text-orange-700',  badgeBg: 'bg-orange-100 text-orange-700' },
+                                                    vtstack:   { bg: 'bg-purple-50',  border: 'border-purple-400',  text: 'text-purple-700',  badgeBg: 'bg-purple-100 text-purple-700' },
                                                 };
                                                 const colors = colorMap[p.code] || { bg: 'bg-slate-50', border: 'border-slate-400', text: 'text-slate-700', badgeBg: 'bg-slate-100 text-slate-700' };
                                                 return (
@@ -330,7 +355,11 @@ const Settings = () => {
                                                         {isSelected && <CheckCircle2 className={`w-5 h-5 flex-shrink-0 ${colors.text}`} />}
                                                     </label>
                                                 );
-                                            })}
+                                            }) : (
+                                                <div className="p-4 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 text-center">
+                                                    <p className="text-xs text-slate-400 italic">No providers support 'data' services.</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 
@@ -348,7 +377,7 @@ const Settings = () => {
                                         <p className="text-xs text-slate-500 mb-4">Choose which provider handles <strong>airtime top-ups</strong>. Only the selected provider will be used.</p>
 
                                         <div className="space-y-3">
-                                            {airtimeProviders.map(p => {
+                                            {airtimeProviders.length > 0 ? airtimeProviders.map(p => {
                                                 const isSelected = airtimeProvider === p.code;
                                                 const isDisabledBySelection = airtimeProvider !== null && airtimeProvider !== p.code;
                                                 const colorMap: Record<string, { bg: string; border: string; text: string; badgeBg: string }> = {
@@ -395,7 +424,11 @@ const Settings = () => {
                                                         {isSelected && <CheckCircle2 className={`w-5 h-5 flex-shrink-0 ${colors.text}`} />}
                                                     </label>
                                                 );
-                                            })}
+                                            }) : (
+                                                <div className="p-4 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 text-center">
+                                                    <p className="text-xs text-slate-400 italic">No providers support 'airtime' services.</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 
